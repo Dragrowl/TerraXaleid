@@ -117,13 +117,21 @@ object TerraMirror {
             return PushResult(false, expected, null, -1, "staged path is not inside the mirror")
         }
         val remote = "$remoteBase/Players/$relative"
+        // Ownership matters more than it looks: with Shizuku running as root a fresh `cp` produces a
+        // root-owned file with root's umask, and the game (uid u0_a72) then cannot read the map it just
+        // got. The original still sets the pattern when it exists; a brand new map inherits the owner of
+        // its own directory, which is the character's save folder.
         val copy = buildString {
-            append("own=\$(stat -c %u:%g '$remote' 2>/dev/null); ")
-            append("mode=\$(stat -c %a '$remote' 2>/dev/null); ")
-            append("if [ -f '$remote' ]; then cp -f '$remote' '$remote.bak'; fi; ")
-            append("cp -f '${target.absolutePath}' '$remote' || exit 1; ")
-            append("if [ -n \"\$own\" ]; then chown \"\$own\" '$remote' 2>/dev/null || true; fi; ")
-            append("if [ -n \"\$mode\" ]; then chmod \"\$mode\" '$remote' 2>/dev/null || true; fi; ")
+            append("p='$remote'; ")
+            append("own=\$(stat -c %u:%g \"\$p\" 2>/dev/null); ")
+            append("mode=\$(stat -c %a \"\$p\" 2>/dev/null); ")
+            append("if [ -f \"\$p\" ]; then cp -f \"\$p\" \"\$p.bak\"; ")
+            append("if [ -n \"\$own\" ]; then chown \"\$own\" \"\$p.bak\" 2>/dev/null || true; ")
+            append("chmod \"\${mode:-660}\" \"\$p.bak\" 2>/dev/null || true; fi; fi; ")
+            append("cp -f '${target.absolutePath}' \"\$p\" || exit 1; ")
+            append("[ -z \"\$own\" ] && own=\$(stat -c %u:%g \"\$(dirname \"\$p\")\" 2>/dev/null); ")
+            append("if [ -n \"\$own\" ]; then chown \"\$own\" \"\$p\" 2>/dev/null || true; fi; ")
+            append("chmod \"\${mode:-660}\" \"\$p\" 2>/dev/null || true; ")
             append("echo copied")
         }
         val copyResult = ShizukuShell.exec(copy)
@@ -175,6 +183,66 @@ object TerraMirror {
         return done
     }
 
+    /**
+     * Copies one file to another on device, re-applying the destination's original owner and mode.
+     *
+     * Returns the shell exit code (0 = done), or -1 when Shizuku is unavailable.
+     */
+    fun copyFile(source: String, destination: String, preserveOwnerOf: String? = null): Int {
+        val ownerOf = preserveOwnerOf ?: destination
+        val command = buildString {
+            append("own=\$(stat -c %u:%g '$ownerOf' 2>/dev/null); ")
+            append("mode=\$(stat -c %a '$ownerOf' 2>/dev/null); ")
+            append("cp -f '$source' '$destination' || exit 1; ")
+            append("if [ -n \"\$own\" ]; then chown \"\$own\" '$destination' 2>/dev/null || true; fi; ")
+            append("if [ -n \"\$mode\" ]; then chmod \"\$mode\" '$destination' 2>/dev/null || true; fi; ")
+            append("echo done")
+        }
+        val result = ShizukuShell.exec(command)
+        if (result?.ok != true || !result.out.contains("done")) {
+            Log.e(TAG, "copyFile failed: '$source' -> '$destination' code=${result?.code} err=${result?.err}")
+            return result?.code ?: -1
+        }
+        return 0
+    }
+
+    /** Deletes one file or directory; 0 on success. */
+    fun remove(path: String): Int {
+        val result = ShizukuShell.exec("rm -rf '$path' && echo removed") ?: return -1
+        if (!result.ok || !result.out.contains("removed")) {
+            Log.e(TAG, "remove failed: '$path' code=${result.code} err=${result.err}")
+            return result.code.takeIf { it != 0 } ?: -1
+        }
+        return 0
+    }
+
+    /**
+     * Renames the existing backup chain of [target] one step up before a new backup is written.
+     *
+     * `.bak` becomes `.bak.1`, `.bak.1` becomes `.bak.2` and so on, so choosing "keep the previous
+     * backup" never silently discards it.
+     */
+    fun rotateBackup(remoteBase: String, stagedPlayersDir: File, target: File): Int {
+        val relative = target.absolutePath.removePrefix(stagedPlayersDir.absolutePath)
+            .trimStart(File.separatorChar)
+        if (relative.isEmpty()) return -1
+        val remote = "$remoteBase/Players/$relative"
+        val command = buildString {
+            append("p='$remote'; ")
+            append("if [ -f \"\$p.bak\" ]; then ")
+            append("n=0; for f in \"\$p\".bak.*; do [ -e \"\$f\" ] || continue; ")
+            append("k=\${f##*.}; case \"\$k\" in ''|*[!0-9]*) continue;; esac; [ \"\$k\" -gt \"\$n\" ] && n=\"\$k\"; done; ")
+            append("i=\$n; while [ \"\$i\" -ge 1 ]; do mv -f \"\$p.bak.\$i\" \"\$p.bak.\$((i+1))\" 2>/dev/null; i=\$((i-1)); done; ")
+            append("mv -f \"\$p.bak\" \"\$p.bak.1\"; fi; ")
+            append("echo rotated")
+        }
+        val result = ShizukuShell.exec(command)
+        if (result?.ok != true || !result.out.contains("rotated")) {
+            Log.w(TAG, "rotateBackup failed for $remote: code=${result?.code} err=${result?.err}")
+            return result?.code ?: -1
+        }
+        return 0
+    }
     fun cleanup() {
         ShizukuShell.exec("rm -rf '$WORK_DIR'")
     }

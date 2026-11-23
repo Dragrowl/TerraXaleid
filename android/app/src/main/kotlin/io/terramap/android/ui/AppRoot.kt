@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
@@ -70,9 +71,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import io.terramap.android.R
+import io.terramap.android.data.Backups
 import io.terramap.android.data.CharacterEntry
 import io.terramap.android.data.ItemResult
 import io.terramap.android.data.ItemStatus
+import io.terramap.android.data.MapBackupRow
 import io.terramap.android.data.RevealJob
 import io.terramap.android.data.RevealOutcome
 import io.terramap.android.data.SaveRoot
@@ -90,11 +93,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 private sealed interface Stage {
     data object Worlds : Stage
     data class Characters(val entry: WorldEntry) : Stage
+    data object Restore : Stage
 }
+
+/** A reveal that has to ask about an existing backup before it touches anything. */
+private data class PendingReveal(
+    val entry: WorldEntry,
+    val characters: List<CharacterEntry>,
+    val template: TemplateResult.Ready,
+    val existing: List<String>,
+)
 
 @Composable
 fun AppRoot() {
@@ -246,6 +259,13 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
     var stage by remember { mutableStateOf<Stage>(Stage.Worlds) }
     var running by remember { mutableStateOf<String?>(null) }
     var outcome by remember { mutableStateOf<RevealOutcome?>(null) }
+    var pendingReveal by remember { mutableStateOf<PendingReveal?>(null) }
+    var restoreRows by remember { mutableStateOf<List<MapBackupRow>>(emptyList()) }
+    var restoreSelected by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var restoreLoading by remember { mutableStateOf(false) }
+    var restoreBusy by remember { mutableStateOf<String?>(null) }
+    var restoreResults by remember { mutableStateOf<List<ItemResult>?>(null) }
+    var restoreResultsTitle by remember { mutableStateOf("") }
 
     val root: SaveRoot? = roots.getOrNull(rootIndex)
 
@@ -273,6 +293,32 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
         loading = false
     }
 
+    fun launchReveal(pending: PendingReveal, keepPrevious: Boolean) {
+        running = pending.entry.name
+        scope.launch {
+            val result = RevealJob.reveal(
+                entry = pending.entry,
+                characters = pending.characters,
+                header = pending.template.header,
+                root = root,
+                keepPreviousBackup = keepPrevious,
+            )
+            running = null
+            outcome = result
+        }
+    }
+
+    LaunchedEffect(stage, roots.getOrNull(rootIndex)?.playersDir?.absolutePath, reloadKey) {
+        if (stage !is Stage.Restore) return@LaunchedEffect
+        val currentRoot = roots.getOrNull(rootIndex)
+        restoreLoading = true
+        restoreSelected = emptySet()
+        restoreRows = if (currentRoot == null) emptyList() else withContext(Dispatchers.IO) {
+            Backups.scan(currentRoot, scan?.worlds ?: emptyList())
+        }
+        restoreLoading = false
+    }
+
     when (val current = stage) {
         is Stage.Worlds -> WorldsScreen(
             roots = roots,
@@ -288,6 +334,7 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
             onSelectNone = { selectedWorlds = emptySet() },
             onReload = { reloadKey++ },
             onOpen = { entry -> stage = Stage.Characters(entry) },
+            onOpenRestore = { stage = Stage.Restore },
             shizukuAlive = shizukuAlive,
             shizukuGranted = shizukuGranted,
             onShizuku = { ShizukuShell.requestPermission(context) },
@@ -299,18 +346,67 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
             roots = roots,
             onBack = { stage = Stage.Worlds },
             onReveal = { characters, template ->
-                running = current.entry.name
+                // Ask the device, not the mirror: a restore or a delete made the staged copy stale, and the
+                // prompt has to describe the files the game will actually see.
                 scope.launch {
-                    val result = RevealJob.reveal(
-                        entry = current.entry,
-                        characters = characters,
-                        header = template.header,
-                        root = root,
-                    )
-                    running = null
-                    outcome = result
+                    val existing = root?.let { Backups.existingBackups(it, characters) } ?: emptySet()
+                    val pending = PendingReveal(current.entry, characters, template, existing.toList())
+                    if (existing.isEmpty()) launchReveal(pending, keepPrevious = false) else pendingReveal = pending
                 }
             },
+        )
+
+        is Stage.Restore -> RestoreScreen(
+            rows = restoreRows,
+            selected = restoreSelected,
+            loading = restoreLoading,
+            busy = restoreBusy,
+            onToggle = { path ->
+                restoreSelected = if (path in restoreSelected) restoreSelected - path else restoreSelected + path
+            },
+            onSelectAll = { restoreSelected = restoreRows.map { it.mapPath }.toSet() },
+            onSelectNone = { restoreSelected = emptySet() },
+            onRestore = {
+                val chosen = restoreRows.filter { it.mapPath in restoreSelected && it.hasBackup }
+                if (chosen.isNotEmpty()) {
+                    scope.launch {
+                        restoreBusy = context.getString(R.string.restore_running)
+                        val items = Backups.restore(chosen)
+                        restoreBusy = null
+                        restoreResultsTitle = context.getString(R.string.restore_result)
+                        restoreResults = items
+                        reloadKey++
+                    }
+                }
+            },
+            onDeleteBackups = {
+                val chosen = restoreRows.filter { it.mapPath in restoreSelected && it.hasBackup }
+                if (chosen.isNotEmpty()) {
+                    scope.launch {
+                        restoreBusy = context.getString(R.string.restore_deleting)
+                        val items = Backups.deleteBackups(chosen)
+                        restoreBusy = null
+                        restoreResultsTitle = context.getString(R.string.restore_result_delete)
+                        restoreResults = items
+                        reloadKey++
+                    }
+                }
+            },
+            onDeleteMapsConfirmed = {
+                val chosen = restoreRows.filter { it.mapPath in restoreSelected }
+                if (chosen.isNotEmpty()) {
+                    scope.launch {
+                        restoreBusy = context.getString(R.string.restore_deleting)
+                        val items = Backups.deleteMaps(chosen)
+                        restoreBusy = null
+                        restoreResultsTitle = context.getString(R.string.restore_result_delete)
+                        restoreResults = items
+                        reloadKey++
+                    }
+                }
+            },
+            onRefresh = { reloadKey++ },
+            onBack = { stage = Stage.Worlds },
         )
     }
 
@@ -335,6 +431,23 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
             },
         )
     }
+
+    pendingReveal?.let { pending ->
+        OverwriteConfirmDialog(
+            existing = pending.existing,
+            onConfirm = { keepPrevious ->
+                pendingReveal = null
+                launchReveal(pending, keepPrevious)
+            },
+            onDismiss = { pendingReveal = null },
+        )
+    }
+
+    restoreBusy?.let { text -> ProgressDialog(title = text, subtitle = "") }
+
+    restoreResults?.let { items ->
+        ItemsDialog(title = restoreResultsTitle, items = items, onClose = { restoreResults = null })
+    }
 }
 
 @Composable
@@ -350,6 +463,7 @@ private fun WorldsScreen(
     onSelectNone: () -> Unit,
     onReload: () -> Unit,
     onOpen: (WorldEntry) -> Unit,
+    onOpenRestore: () -> Unit,
     shizukuAlive: Boolean,
     shizukuGranted: Boolean,
     onShizuku: () -> Unit,
@@ -359,6 +473,9 @@ private fun WorldsScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.worlds_title)) },
                 actions = {
+                    IconButton(onClick = onOpenRestore) {
+                        Icon(Icons.Filled.Restore, contentDescription = stringResource(R.string.restore_title))
+                    }
                     IconButton(onClick = onReload) {
                         Icon(Icons.Filled.Refresh, contentDescription = stringResource(R.string.worlds_reload))
                     }
@@ -714,7 +831,7 @@ private fun characterEnabled(template: TemplateResult, selected: Set<String>): B
     template is TemplateResult.Ready && selected.isNotEmpty()
 
 @Composable
-private fun EmptyState(text: String) {
+internal fun EmptyState(text: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()

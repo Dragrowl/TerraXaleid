@@ -46,6 +46,7 @@ object RevealJob {
         characters: List<CharacterEntry>,
         header: MapHeader,
         root: SaveRoot? = null,
+        keepPreviousBackup: Boolean = false,
         onProgress: (String, Float) -> Unit = { _, _ -> },
     ): RevealOutcome = withContext(Dispatchers.IO) {
         val items = ArrayList<ItemResult>()
@@ -87,6 +88,11 @@ object RevealJob {
                 }
                 val target = character.mapFile
                 if (target.isFile) {
+                    if (keepPreviousBackup) rotateLocalBackup(target)
+                    val remoteForRotate = root?.remoteBase
+                    if (keepPreviousBackup && remoteForRotate != null) {
+                        TerraMirror.rotateBackup(remoteForRotate, root.playersDir, target)
+                    }
                     target.copyTo(File(target.parentFile, target.name + ".bak"), overwrite = true)
                 }
                 val tmp = File(target.parentFile, target.name + ".tmp")
@@ -154,6 +160,26 @@ object RevealJob {
         }
     }
 
+    /**
+     * Shifts `<name>.map.bak` to `.bak.1`, `.bak.1` to `.bak.2`, ... for the portable roots.
+     *
+     * Mirrors [TerraMirror.rotateBackup] so both roots keep the same history layout.
+     */
+    private fun rotateLocalBackup(target: File) {
+        val newest = File(target.parentFile, target.name + ".bak")
+        if (!newest.isFile) return
+        var highest = 0
+        target.parentFile?.listFiles()?.forEach { file ->
+            val suffix = file.name.substringAfter(target.name + ".bak.", missingDelimiterValue = "")
+            val index = suffix.toIntOrNull() ?: 0
+            if (index > highest) highest = index
+        }
+        for (index in highest downTo 1) {
+            val from = File(target.parentFile, "${target.name}.bak.$index")
+            if (from.isFile) from.renameTo(File(target.parentFile, "${target.name}.bak.${index + 1}"))
+        }
+        newest.renameTo(File(target.parentFile, "${target.name}.bak.1"))
+    }
     private fun buildPayload(world: World, header: MapHeader): ByteArray {
         require(header.width == world.width && header.height == world.height) {
             "地图头 ${header.width}×${header.height} 与世界 ${world.width}×${world.height} 不匹配"
