@@ -38,27 +38,27 @@ object TerraPaths {
             // Shizuku staging area: whichever code path filled it, the app can read it directly.
             // `remoteBase` stays null here, so reveal writes only into the staging copy.
             SaveRoot(
-                label = "Shizuku 暂存 (Download/.terramap)",
+                label = "Shizuku 暂存",
                 worldsDir = File(e, "Download/.terramap/Worlds"),
                 playersDir = File(e, "Download/.terramap/Players"),
             ),
             SaveRoot(
-                label = "便携目录 (Download)",
+                label = "Download",
                 worldsDir = File(e, "Download/TerrariaSaves/Worlds"),
                 playersDir = File(e, "Download/TerrariaSaves/Players"),
             ),
             SaveRoot(
-                label = "便携目录 (Documents)",
+                label = "Documents",
                 worldsDir = File(e, "Documents/TerrariaSaves/Worlds"),
                 playersDir = File(e, "Documents/TerrariaSaves/Players"),
             ),
             SaveRoot(
-                label = "游戏存档 (Android/data)",
+                label = "游戏目录",
                 worldsDir = File(appDir, "Worlds"),
                 playersDir = File(appDir, "Players"),
             ),
             SaveRoot(
-                label = "游戏存档 (files)",
+                label = "游戏目录 (files)",
                 worldsDir = File(appDir, "files/Worlds"),
                 playersDir = File(appDir, "files/Players"),
             ),

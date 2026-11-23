@@ -57,7 +57,7 @@ object TerraMirror {
             return null
         }
         return SaveRoot(
-            label = "游戏存档 (Android/data · Shizuku)",
+            label = "游戏目录 (Shizuku)",
             worldsDir = File(worlds),
             playersDir = File(players),
             remoteBase = TERRARIA_BASE,
@@ -77,7 +77,7 @@ object TerraMirror {
         val wlds = worlds.listFiles { file -> file.isFile && file.name.endsWith(".wld", true) }
         if (wlds.isNullOrEmpty()) return null
         return SaveRoot(
-            label = "游戏存档 (Android/data · Shizuku)",
+            label = "游戏目录 (Shizuku)",
             worldsDir = worlds,
             playersDir = players,
             remoteBase = TERRARIA_BASE,

@@ -7,6 +7,7 @@ package io.terramap.android.ui
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,6 +65,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -373,31 +375,49 @@ private fun WorldsScreen(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                     ),
                 ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = "${selected.size} / ${scan?.worlds?.size ?: 0}",
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                        Spacer(Modifier.width(12.dp))
-                        TextButton(onClick = onSelectAll) { Text(stringResource(R.string.worlds_select_all)) }
-                        TextButton(onClick = onSelectNone) { Text(stringResource(R.string.worlds_select_none)) }
-                        Spacer(Modifier.weight(1f))
-                        Button(onClick = {
-                            scan?.worlds?.firstOrNull { it.file.path in selected }?.let(onOpen)
-                        }) { Text(stringResource(R.string.action_reveal)) }
+                    // Stacked in two rows: in portrait the single row squeezed "点亮所选" into a
+                    // two-line pill.
+                    Column(Modifier.padding(12.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "${selected.size} / ${scan?.worlds?.size ?: 0}",
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1,
+                            )
+                            Spacer(Modifier.weight(1f))
+                            TextButton(onClick = onSelectAll) {
+                                Text(stringResource(R.string.worlds_select_all), maxLines = 1)
+                            }
+                            TextButton(onClick = onSelectNone) {
+                                Text(stringResource(R.string.worlds_select_none), maxLines = 1)
+                            }
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Button(
+                            onClick = {
+                                scan?.worlds?.firstOrNull { it.file.path in selected }?.let(onOpen)
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(stringResource(R.string.action_reveal), maxLines = 1)
+                        }
                     }
                 }
             }
         },
     ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize(),
+        ) {
+            // One scrolling row: three long labels do not fit across a phone in portrait, and a fixed
+            // Row would clip them instead of letting the user scroll.
             if (roots.size > 1) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
@@ -405,75 +425,92 @@ private fun WorldsScreen(
                         FilterChip(
                             selected = index == rootIndex,
                             onClick = { onPickRoot(index) },
-                            label = { Text(r.label) },
+                            label = {
+                                Text(
+                                    text = r.label,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            },
                         )
                     }
                 }
             }
 
-            if (!roots.isEmpty()) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    ),
-                ) {
-                    Column(Modifier.padding(12.dp)) {
-                        Text(
-                            text = stringResource(R.string.close_game_warning),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            text = roots[rootIndex].worldsDir.absolutePath,
-                            style = MaterialTheme.typography.labelSmall,
-                        )
+            // Everything else lives in the list so the header cards can never starve it of height:
+            // in portrait the old fixed Column left the worlds area with zero pixels.
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                val currentRoot = roots.getOrNull(rootIndex)
+                if (currentRoot != null) {
+                    item(key = "root-info") {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            ),
+                        ) {
+                            Column(Modifier.padding(12.dp)) {
+                                Text(
+                                    text = stringResource(R.string.close_game_warning),
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                                Spacer(Modifier.height(4.dp))
+                                Text(
+                                    text = currentRoot.worldsDir.absolutePath,
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
+                            }
+                        }
                     }
                 }
-            }
 
-            if (!shizukuGranted) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    ),
-                ) {
-                    Column(Modifier.padding(12.dp)) {
-                        Text(
-                            text = stringResource(R.string.shizuku_banner_title),
-                            style = MaterialTheme.typography.titleSmall,
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            text = stringResource(R.string.shizuku_body),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Button(onClick = onShizuku) { Text(stringResource(R.string.shizuku_button)) }
+                if (!shizukuGranted) {
+                    item(key = "shizuku-banner") {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            ),
+                        ) {
+                            Column(Modifier.padding(12.dp)) {
+                                Text(
+                                    text = stringResource(R.string.shizuku_banner_title),
+                                    style = MaterialTheme.typography.titleSmall,
+                                )
+                                Spacer(Modifier.height(4.dp))
+                                Text(
+                                    text = stringResource(R.string.shizuku_body),
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                Button(onClick = onShizuku) {
+                                    Text(stringResource(R.string.shizuku_button))
+                                }
+                            }
+                        }
                     }
                 }
-            }
 
-            when {
-                loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-
-                roots.isEmpty() -> EmptyState(stringResource(R.string.worlds_empty_no_root))
-
-                scan == null -> EmptyState(stringResource(R.string.worlds_empty))
-
-                scan.worlds.isEmpty() -> EmptyState(stringResource(R.string.worlds_empty))
-
-                else -> LazyColumn(
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
+                if (loading) {
+                    item(key = "loading") {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 48.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                } else if (roots.isEmpty()) {
+                    item(key = "no-root") { EmptyState(stringResource(R.string.worlds_empty_no_root)) }
+                } else if (scan == null || scan.worlds.isEmpty()) {
+                    item(key = "empty") { EmptyState(stringResource(R.string.worlds_empty)) }
+                } else {
                     items(scan.worlds, key = { it.file.path }) { entry ->
                         WorldCard(
                             entry = entry,
@@ -483,18 +520,20 @@ private fun WorldsScreen(
                         )
                     }
                     if (scan.issues.isNotEmpty()) {
-                        item {
-                            Text(
-                                text = stringResource(R.string.worlds_issues, scan.issues.size),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.padding(vertical = 8.dp),
-                            )
-                            scan.issues.forEach { issue ->
+                        item(key = "issues") {
+                            Column {
                                 Text(
-                                    text = "${issue.fileName}: ${issue.reason}",
-                                    style = MaterialTheme.typography.labelSmall,
+                                    text = stringResource(R.string.worlds_issues, scan.issues.size),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.padding(vertical = 8.dp),
                                 )
+                                scan.issues.forEach { issue ->
+                                    Text(
+                                        text = "${issue.fileName}: ${issue.reason}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                    )
+                                }
                             }
                         }
                     }
@@ -514,7 +553,7 @@ private fun WorldCard(
     Card(onClick = onOpen, modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Top,
         ) {
             Icon(
                 imageVector = Icons.Filled.Map,
@@ -526,10 +565,20 @@ private fun WorldCard(
             Column(Modifier.weight(1f)) {
                 Text(text = entry.name, style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(6.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    AssistChip(onClick = onOpen, label = { Text(entry.meta.difficulty) })
-                    AssistChip(onClick = onOpen, label = { Text(entry.meta.size) })
-                    AssistChip(onClick = onOpen, label = { Text(entry.meta.evil) })
+                // Scrollable so the third chip keeps its pill shape on a narrow screen instead of
+                // collapsing into a two-line block.
+                Row(
+                    modifier = Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    val labels = listOf(entry.meta.difficulty, entry.meta.size, entry.meta.evil)
+                        .filter { it.isNotBlank() }
+                    labels.forEach { label ->
+                        AssistChip(
+                            onClick = onOpen,
+                            label = { Text(label, maxLines = 1) },
+                        )
+                    }
                 }
                 Spacer(Modifier.height(6.dp))
                 Text(
@@ -658,7 +707,12 @@ private fun characterEnabled(template: TemplateResult, selected: Set<String>): B
 
 @Composable
 private fun EmptyState(text: String) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 48.dp),
+        contentAlignment = Alignment.Center,
+    ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
                 imageVector = Icons.Filled.Info,
