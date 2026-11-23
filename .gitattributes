@@ -1,0 +1,18 @@
+* text=auto eol=lf
+
+# Windows-only scripts keep CRLF so they run under powershell.exe unchanged
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary payloads
+*.wld binary
+*.plr binary
+*.map binary
+*.jar binary
+*.png binary
+
+# Keep generated/doc files stable in diffs
+*.md text eol=lf
+LICENSE text eol=lf
+VERSION text eol=lf

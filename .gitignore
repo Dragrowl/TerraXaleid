@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# .NET
+csharp/**/bin/
+csharp/**/obj/
+*.user
+
+# Kotlin / JVM
+kotlin/.tools/
+kotlin/.verify/
+kotlin/build/
+kotlin/.gradle/
+*.class
+*.jar
+
+# Android / Gradle
+android/.gradle/
+android/build/
+android/app/build/
+android/core/build/
+android/local.properties
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# Local game data — never commit saves or generated maps
+*.wld
+*.plr
+*.bak
+*.map
+out_*.map
+
+# Editors / OS
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
