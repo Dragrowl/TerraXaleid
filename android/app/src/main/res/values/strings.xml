@@ -16,6 +16,17 @@
 
     <string name="settings_title">设置</string>
     <string name="action_back">返回</string>
+    <string name="theme_title">外观</string>
+    <string name="theme_subtitle">选择配色，切换立即生效并带渐变。</string>
+    <string name="theme_auto">跟随系统</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+    <string name="dark_variant_title">深色变体</string>
+    <string name="dark_variant_subtitle">仅在选择「深色」时可切换。</string>
+    <string name="dark_variant_standard">标准深色</string>
+    <string name="dark_variant_standard_body">深灰底，对比柔和。</string>
+    <string name="dark_variant_oled">OLED 全黑</string>
+    <string name="dark_variant_oled_body">底色纯黑，OLED 屏更省电。</string>
     <string name="behavior_title">行为</string>
     <string name="behavior_exit_title">退回桌面时结束进程</string>
     <string name="behavior_exit_body">关闭时应用留在后台，再次打开立即回来；开启时按返回就结束进程，不占内存。</string>

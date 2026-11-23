@@ -10,6 +10,18 @@
 - `dist/` 文件名只带 `versionName`（`terramap-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
 
+## [0.1.0-dev.20] - 2026-11-24
+
+### Added
+- 设置页「外观」卡：三张 **实机截图缩略图**（跟随系统 / 浅色 / 深色），选中项描边高亮并带勾；点击即切换，配色按槽位做 300 ms 渐变。
+- 设置页「深色变体」卡：只在选中「深色」时出现，标准深色与 OLED 全黑二选一。
+- `res/drawable-nodpi/theme_preview_{auto,light,dark}.png`：由 `docs/assets/shots/*-3x2.png` 缩到 720×480，是运行中界面的真实像素，不是画出来的示意图。
+
+### Changed
+- 主题卡不再使用矢量占位图：`theme_thumb_*.xml` 保留到 dev.22 随字体一起清理。
+
+### Notes
+- `versionCode 22`。
 ## [0.1.0-dev.19] - 2026-11-24
 
 ### Added
