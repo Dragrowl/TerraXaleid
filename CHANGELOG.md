@@ -1,13 +1,14 @@
-# 版本号约定
-
-- `0.1.0-dev.N`：当前这条线，N 每轮递增，`versionCode` 同步 +1。所有 dev 构建都在这一条线上，
-  不再另开 `0.1.1-dev.*` 之类的平行序列。
-- `0.1.0-beta.1`：等 `docs/ROADMAP-NEXT.md` 那一轮（设置页 / 主题卡 / 返回分层 / 关于页）全部落地后再切。
-- 文件名只带 `versionName`（`dist/terramap-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类的定语。
 # Changelog
 
-本项目遵循 [SemVer](https://semver.org/lang/zh-CN/)；`0.x` 阶段不承诺接口稳定。
+本项目遵循 [SemVer](https://semver.org/lang/zh-CN/)；0.x 阶段不承诺接口稳定。
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
+
+## 版本号约定
+
+- `0.1.0-dev.N` 是唯一开发线：N 每轮递增，`versionCode` 同步 +1，不开 `0.1.1-dev.*` 之类的平行序列。
+- `0.1.0-beta.1`：`docs/ROADMAP-NEXT.md` 那一轮（顶栏下拉 / 设置页 / 主题卡 / 关于页 / 返回分层）全部落地后切。
+- `dist/` 文件名只带 `versionName`（`terramap-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
+  构建类型与改动内容进提交信息、git tag 和本文件。
 
 ## [0.1.0-dev.17] - 2026-11-24
 
@@ -15,6 +16,7 @@
 - 版本号归位：之前几轮误开成 `0.1.1-dev.1/2/3`，现在统一回到 `0.1.0-dev` 序列，续在 `0.1.0-dev.16`
   之后成为 `0.1.0-dev.17`（`versionCode 19`）。对应 git tag 也已改名为 `v0.1.0-dev.14/15/16`。
 - `versionName` 保持 `0.1.0-dev.N` 直到路线那一轮完成，届时切 `0.1.0-beta.1`。
+
 ## [0.1.0-dev.16] - 2026-11-24
 
 ### Changed
@@ -32,6 +34,7 @@
 ### Notes
 - 3:2 画幅下的 65° 切线落点与正方形不同：`w=1440,h=960` 时线从顶边 `x≈944` 进、底边 `x≈496` 出，
   因为陡线在宽画幅里是穿上下边而不是左右边。
+
 ## [0.1.0-dev.15] - 2026-11-24
 
 ### Added
@@ -45,6 +48,7 @@
 ### Fixed
 - 跟随系统缩略图的斜切方向反了：改为从 **+x 方向逆时针 65°** 过画布中点，即切线从顶边
   `x = 79.18` 进、底边 `x = 28.82` 出；两半各自 `clip-path` 裁剪后各画内容。
+
 ## [0.1.0-dev.14] - 2026-11-24
 
 这一版先把素材落地，界面改造按 `docs/ROADMAP-NEXT.md` 的清单逐项推进。
@@ -53,7 +57,8 @@
 - `res/font/endfield_by_butan.ttf`：萨卡兹语字体，取自 <https://github.com/lhclbt/Endfield_Font>。
 - `res/drawable/ic_github.xml`、`res/drawable/ic_bilibili.xml`：GitHub / Bilibili 轮廓图标，24×24 视口，路径数据来自 simple-icons。
 - 三张主题缩略图 `theme_thumb_light/dark/auto.xml`（108×108）：浅色、深色，以及「跟随系统」——按 65° 过画布中点的斜切把两半各自裁剪、各画各的内容。
-- `docs/ROADMAP-NEXT.md`：0.1.1 的完整改造清单（返回分层、顶栏下拉、设置卡片、主题与 OLED、关于卡片、图标里的随机萨卡兹文本）。
+- `docs/ROADMAP-NEXT.md`：0.1.0-beta.1 的完整改造清单（返回分层、顶栏下拉、设置卡片、主题与 OLED、关于卡片、图标里的随机萨卡兹文本）。
+
 ## [0.1.0-dev.13] - 2026-11-24
 
 ### Added
@@ -62,6 +67,7 @@
 
 ### Fixed
 - **系统返回键**：原来在任意子页面按返回都会直接 finish activity 退回桌面。现在子页面（选角色、恢复与备份）按返回回到世界列表，只有在世界列表按返回才退出应用。
+
 ## [0.1.0-dev.12] - 2026-11-24
 
 ### Fixed
@@ -85,6 +91,7 @@
 
 ### Changed
 - 恢复页的删除类动作改为整行按钮，避免长文案被截断。
+
 ## [0.1.0-dev.8] - 2026-11-24
 
 ### Added
@@ -95,6 +102,7 @@
 ### Notes
 - `versionCode 10`。
 - 恢复走同一套 Shizuku 通道，写回时保留原文件的 `uid:gid` 与 mode。
+
 ## [0.1.0-dev.7] - 2026-11-24
 
 ### Changed
@@ -105,6 +113,7 @@
 
 ### Notes
 - `versionCode 9`。
+
 ## [0.1.0-dev.6] - 2026-11-24
 
 ### Fixed
@@ -116,10 +125,11 @@
 
 ### Notes
 - `versionCode 8`。
+
 ## [0.1.0-dev.5] - 2026-11-24
 
 ### Added
-- **发布签名**：`release` 变体用本地 keystore 签名（v2 方案，`CN=TerraMap`），产物 `terramap-0.1.0-dev.5-release.apk`，10.2 MB。keystore 与 `keystore.properties` 都在 `android/` 下且已加入 `.gitignore`，首次构建前缺失时 release 退化为未签名、不影响 debug 构建。
+- **发布签名**：`release` 变体用本地 keystore 签名（v2 方案，`CN=TerraMap`），产物 `terramap-0.1.0-dev.5-release.apk`，10.2 MB（当时的命名，现已统一为只带 versionName）。keystore 与 `keystore.properties` 都在 `android/` 下且已加入 `.gitignore`，首次构建前缺失时 release 退化为未签名、不影响 debug 构建。
 - README 增加「安装与首次授权」小节（未知来源安装 → 所有文件访问权限 → Shizuku 授权）。
 
 ### Changed
@@ -129,6 +139,7 @@
 
 ### Notes
 - `versionCode 7`。R8 保持关闭：`ShizukuShell` 通过反射调用 `Shizuku.newProcess`，压缩会破坏它。
+
 ## [0.1.0-dev.4] - 2026-11-24
 
 ### Changed
@@ -138,6 +149,7 @@
 
 ### Notes
 - `versionCode 6`。本轮起每次改动都递增 dev 版本号，不再停在同一个 dev 号上。
+
 ## [0.1.0-dev.3] - 2026-11-24
 
 ### Added
@@ -153,6 +165,7 @@
 - Shizuku 命令执行：并发读 stdout/stderr 并主动关闭 stdin，命令不再卡住；每次调用后释放远端进程。
 - 镜像暂存不再 `rm -rf` 目录（该设备上会 `Text file busy` 长时间阻塞），改为就地覆盖。
 - 写回校验改看远端文件大小，`chmod` 在 `/sdcard` 上返回 EOPNOTSUPP 曾把成功误报为失败。
+
 ## [0.1.0-dev.2] - 2026-11-23
 
 Android 第一版可用形态：申请「所有文件访问权限」→ 列出存档里的世界 → 选世界选角色 → 一键点亮。

@@ -5,166 +5,161 @@
 <h1 align="center">terramap</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.0--dev.1-3178C6?style=for-the-badge" alt="version">
+  <img src="https://img.shields.io/badge/version-0.1.0--dev.17-3178C6?style=for-the-badge" alt="version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge" alt="GPL-3.0-or-later"></a>
-  <a href="#build--verify"><img src="https://img.shields.io/badge/selftest-PASS-2E7D32?style=for-the-badge" alt="selftest"></a>
-  <a href="#build--verify"><img src="https://img.shields.io/badge/L1-python%20%7C%20csharp%20%7C%20kotlin-8957E5?style=for-the-badge" alt="L1 implementations"></a>
+  <a href="#build-and-verify"><img src="https://img.shields.io/badge/selftest-PASS-2E7D32?style=for-the-badge" alt="selftest"></a>
+  <a href="#build-and-verify"><img src="https://img.shields.io/badge/L1-python%20%7C%20csharp%20%7C%20kotlin-8957E5?style=for-the-badge" alt="L1 three languages"></a>
 </p>
 
 <p align="center">
   <a href="README.md">中文</a> | English
 </p>
 
-terramap reads a Terraria world file (`.wld`), computes what every tile should look like on the map, and writes a valid map cache (`.map`). The result: **the in-game map shows the whole world revealed — no unexplored black areas — while the world itself is untouched** (terrain, items, NPCs, progress: not a single byte).
+terramap reads a Terraria world file (`.wld`), decides what every tile should look like on the map, and writes a valid map cache (`.map`). The result: **open the in-game map and the whole world is revealed — no black areas left — while the world itself (tiles, items, NPCs, progress) is not touched by a single byte.**
 
-It is pure data processing: bytes in, bytes out. No GUI, no process injection. Three implementations (Python / C# / Kotlin) produce identical output for the same save.
+It is pure data processing: bytes in, bytes out. No game process is involved, and three implementations (Python / C# / Kotlin) produce the same result for the same save. The Android app is just a UI that runs the same thing on the phone.
 
-## Quick start
-
-### Requirements
-
-- Python 3.10+ with `numpy`: `python -m pip install -r requirements.txt`
-- A world `.wld`, plus **any** `.map` of the same world (used as a template: it carries the palette base offsets)
-- The game **closed** (it writes its in-memory map back on exit and would overwrite the result)
-
-### Three steps
-
-```powershell
-# 1. list characters on this machine (read-only, writes nothing)
-python reveal.py "D:\...\Terraria\Worlds\MyWorld.wld" --players-dir "D:\...\Terraria\Players" --list
-
-# 2. dry run: verify the world and the template match (nothing is written)
-python reveal.py "D:\...\MyWorld.wld" --players-dir "D:\...\Terraria\Players" --dry-run
-
-# 3. write, for every character in that directory by default
-python reveal.py "D:\...\MyWorld.wld" --players-dir "D:\...\Terraria\Players"
-```
-
-`written : … unexplored=0 [ok]` means success. A non-zero `unexplored` exits with code 3 instead of leaving a half-written file.
-
-### Where the saves live
-
-| Platform | world `.wld` | characters and `.map` |
-|---|---|---|
-| Windows / Steam | `%USERPROFILE%\Documents\My Games\Terraria\Worlds` | `%USERPROFILE%\Documents\My Games\Terraria\Players` |
-| Android (international) | `/sdcard/Android/data/com.and.games505.TerrariaPaid/files/` | `/sdcard/Android/data/com.and.games505.TerrariaPaid/Players` |
-| MuMu emulator | as above, via `adb` | as above; then `chown u0_a72:ext_data_rw` + `chmod 660` (`deploy.py` does this) |
+> **Versioning**: during development the version is always `0.1.0-dev.N`, with `versionCode` incremented each round; no parallel series. After the round described in `docs/ROADMAP-NEXT.md` is finished it becomes `0.1.0-beta.1`. Files in `dist/` carry only the `versionName`.
 
 ## What it does
 
-| Task | Command |
+| Goal | How |
 |---|---|
-| reveal for every character | `python reveal.py WORLD.wld --players-dir PLAYERS` |
-| reveal for specific characters | add `--player NAME` (repeatable) |
-| list characters only | add `--list` |
-| single file mode | `python reveal.py WORLD.wld TEMPLATE.map -o OUT.map` |
-| keep the game's Type for explored cells | add `--keep-explored-type` |
-| push to emulator / phone | `python deploy.py OUT.map --serial 127.0.0.1:7555` |
+| Reveal the map on a phone | Install the APK, grant Shizuku, pick world → pick characters → reveal. No PC, no adb |
+| Reveal for one character only | Same, uncheck the others in the character list |
+| Undo a reveal | "撤销本次" on the result page, or restore `.map.bak` from "恢复与备份" |
+| Reset a map to fully unexplored | "恢复与备份" → select → delete map (all black) |
+| Batch processing on a PC | `python reveal.py` with `--players-dir` to write every character |
+| Just list characters | `python reveal.py ... --list` (read-only) |
 
-Exploration is stored **per (world, character)** as `Players/<character>/<world GUID>.map`, which is why the default is "every character".
+Map caches are stored **per world × per character** (`Players/<character>/<worldGUID>.map`), so a reveal has to be written for each character; by default every local character gets a copy, because a character without one still sees a black map.
 
-## Notices
+Per-tile colour follows the real priority in `Terraria.Map.MapHelper.CreateMapTile`: **tile > liquid (amount > 32) > wall > depth background**. The four liquid slots are water / lava / honey / shimmer, so oceans, lakes and the lava sea are coloured instead of showing as black.
 
-1. **This is an independent third-party open-source tool, unaffiliated with Re-Logic or Terraria.**
-2. **This project is largely written and iterated with AI assistance (DeepSeek-V4.1-Flash generated a substantial part of the code); core functionality is verified against local save files. It may fall short of conventional engineering standards — issues are welcome.**
-3. Licensed **GPL-3.0-or-later**; see [`LICENSE`](LICENSE). Every source file carries an `SPDX-License-Identifier` header.
+## On Android
 
-<details>
-<summary><h2 id="scope">Scope</h2></summary>
-
-Deliberate constraints, not missing features:
-
-- **No tModLoader involvement**: no `.tmod` / `.efmod`, no in-game mod required.
-- **No mounting, no injection**: no DLL injection, no hooks, no memory patches, no APK modification. Files are processed offline while the game is closed.
-- **Only the map cache is written**: `.wld` is read-only.
-- **Chinese mainland release (`con.xd.terraria`) is not supported**: different save layout.
-
-</details>
-
-<details>
-<summary><h2 id="how">How a tile becomes a map cell</h2></summary>
-
-A `.map` is not an image: it is dense 64×64 chunks of 4096 cells, each cell 4 bytes (`uint16 Type`, `uint8 Light`, `uint8 Color`), **column-major inside a chunk**, zlib-compressed, prefixed by an `int32` length (length 0 means the chunk is unexplored). Revealing means writing `Light = 255` everywhere and computing `Type` from world data.
-
-`Type` is a **palette index**, not a tile id: `tile = 1 + prefixTile[tileID]`, `wall = 1 + ΣtileOptionCounts + prefixWall[wallID]`, then liquid, sky gradient, dirt, rock, hell. It is **1-based** — getting that wrong shifts the entire palette by one (dirt turns black).
-
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/L1-STATUS.md`](docs/L1-STATUS.md) for field tables and the pitfalls behind them.
-
-</details>
-
-<details>
-<summary><h2 id="build--verify">Build and verify</h2></summary>
-
-```powershell
-.\scripts\verify-all.ps1                                  # python + csharp + kotlin
-python selftest.py
-dotnet run --project csharp\TerraMap.SelfTest             # needs .NET 10 SDK
-.\scripts\verify-kotlin.ps1                               # needs kotlinc or kotlin/.tools
+```
+1) Copy dist\terramap-0.1.0-dev.17.apk to the phone and install it (allow unknown sources)
+2) First launch: grant "All files access" when prompted (Android 11+ needs the system settings page)
+3) Install and start Shizuku (root or wireless debugging), return to the app, tap
+   "授权 Shizuku" → "Always allow"
+4) The world list shows "游戏目录 (Shizuku)" → select worlds → select characters → reveal
 ```
 
-Real-save check (optional, compares against the golden hash):
+- Leave the world and close the game before writing: on exit the game writes its in-memory map back over yours.
+- The original `.map` is kept as `.map.bak` (further overwrites rotate old backups to `.bak.1`, `.bak.2`); the result page can undo the operation.
+- The clock icon in the top bar opens "恢复与备份": restore a backup, delete backups only, or reset maps to fully unexplored.
+
+Why Shizuku is required: since Android 11 a normal app cannot list **another app's** `Android/data`, not even with "All files access". Without Shizuku, use the portable folders `Download/TerrariaSaves/` or `Documents/TerrariaSaves/`: put `Worlds/` and `Players/` there, let the app work on them, then move them back with a file manager.
+
+## On a PC (CLI)
+
+Requirements: Python 3.10+ with `numpy` (`python -m pip install -r requirements.txt`), a `.wld`, and any `.map` of a character that has visited that world (used as the palette template). The game must be closed.
 
 ```powershell
-dotnet run --project csharp\TerraMap.SelfTest -- --with-samples WORLD.wld TEMPLATE.map
+# 1. list characters (read-only)
+python reveal.py "D:\...\Terraria\Worlds\MyWorld.wld" --players-dir "D:\...\Terraria\Players" --list
+
+# 2. dry run, no files written
+python reveal.py "D:\...\MyWorld.wld" --players-dir "D:\...\Terraria\Players" --dry-run
+
+# 3. write one map per character
+python reveal.py "D:\...\MyWorld.wld" --players-dir "D:\...\Terraria\Players"
 ```
 
-Expected: `reveal size 2158030 bytes, sha256 272C8A80…5FCF8`, byte-identical to the Python output.
+`written : … unexplored=0 [ok]` means success; anything other than `unexplored=0` exits with code 3 and leaves nothing half-written.
 
-A missing toolchain exits with code 2 and prints `toolchain: unavailable` — that is not a pass.
+| Platform | World `.wld` | Characters and `.map` |
+|---|---|---|
+| Windows / Steam | `%USERPROFILE%\Documents\My Games\Terraria\Worlds` | `%USERPROFILE%\Documents\My Games\Terraria\Players` |
+| Android (international) | `/sdcard/Android/data/com.and.games505.TerrariaPaid/files/` | `/sdcard/Android/data/com.and.games505.TerrariaPaid/Players` |
+| MuMu emulator | same, via `adb` or the emulator's file manager | same; `deploy.py` fixes owner (`u0_a72:ext_data_rw`) and mode `660` |
+
+<details>
+<summary>More CLI flags</summary>
+
+| Case | Command |
+|---|---|
+| Only specific characters | append `--player NAME` (repeatable) |
+| Single-file mode | `python reveal.py WORLD.wld TEMPLATE.map -o OUT.map` |
+| Keep the type of already explored cells | append `--keep-explored-type` |
+| Push to emulator / phone | `python deploy.py OUT.map --serial 127.0.0.1:7555` |
+
+</details>
+
+## Build and verify
+
+All three L1 implementations must agree on the same bytes:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\verify-all.ps1
+```
+
+Android (`JAVA_HOME` must point at JDK 21; Gradle 8.9 and SDK 34 are configured in `local.properties`):
+
+```powershell
+$env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
+powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
+# output: dist\terramap-0.1.0-dev.17.apk
+```
+
+The release build is signed with `android/keystore/terramap-release.jks` (alias `terramap`, password in `android/keystore.properties`). Both files are git-ignored; upgrades require the same key.
+
+## How it works
+
+<details>
+<summary>What every map cell comes from</summary>
+
+1. Read `.wld`: section offsets → world info (name / size / difficulty / spawn / surface / rock layer) → tile stream (column-major, RLE does not cross columns) → per-cell `tileID` and `wallID`.
+2. Read the template `.map`: the header gives palette bases (tile section starts at 1, wall section, four liquid slots, sky/dirt/rock gradients, hell) and the variation count per tile id.
+3. Per cell: tile → tile palette; else liquid > 32 → liquid palette; else wall → wall palette; else a depth-based gradient background.
+4. Light is always 255 (explored and fully lit), color 0.
+5. Repack into 64×64 chunks: column-major inside a chunk, 4 bytes per cell × 4096 cells, zlib-compressed with an `int32` length prefix; `length <= 0` means an all-empty chunk.
+6. Read back: `unexplored == 0` and chunk count == `ceil(W/64)*ceil(H/64)`.
+
+Details and pitfalls: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/L1-STATUS.md`](docs/L1-STATUS.md).
 
 </details>
 
 <details>
-<summary><h2 id="layout">Repository layout</h2></summary>
+<summary>Repository layout</summary>
 
 | Path | Contents |
 |---|---|
-| `*.py` (root) | reference L1: `worldfmt.py`, `mapfmt.py`, `players.py`, `reveal.py`, `deploy.py` |
-| `csharp/` | L1 in C# (`net10.0`, no NuGet) + self test |
-| `kotlin/` | L1 in Kotlin/JVM (also referenced by the Android module) |
-| `android/` | Compose shell (Material 3) |
-| `scripts/` | verification scripts |
-| `docs/` | developer docs: [architecture](docs/ARCHITECTURE.md), [contributing](docs/CONTRIBUTING.md), [L1 status](docs/L1-STATUS.md), [index](docs/INDEX.md) |
-| `samples/` | sample notes (no real saves in the repo) |
+| `*.py` | L1 reference implementation (`worldfmt` / `mapfmt` / `players` / `reveal` / `deploy`) and its self-test |
+| `csharp/` | L1 in C# (`net10.0`, no NuGet) + self-test |
+| `kotlin/` | L1 in Kotlin/JVM + self-test (referenced directly by the Android module) |
+| `android/` | Compose shell (Material 3), `app` + `core` modules |
+| `scripts/` | Verification and packaging scripts |
+| `docs/` | Developer docs; `docs/assets/` holds the mark and screenshots |
+| `samples/` | Sample notes (no real saves) |
+| `dist/` | Build output (git-ignored) |
 
 </details>
 
 <details>
-<summary><h2 id="limits">Known limits</h2></summary>
+<summary>Known limitations</summary>
 
-- Quit the game before writing `.map`, or the game overwrites it on exit.
-- On `/sdcard/...`, `chown u0_a72:ext_data_rw` + `chmod 660` is required (`restorecon` fails on FUSE, harmless).
-- Chests and other map sprites live in world data, not in `.map`.
-- **PC (Steam) `.map` files are the old `fileVersion 318` (with RLE); only the mobile 1.4.5.8 `33094` format is supported.** A 318 template is rejected with `unsupported map file version 318` rather than written incorrectly.
-- A character that never entered a world gets a newly created `.map` — expected for "reveal for every character"; narrow it with `--player`.
-
-</details>
-
-<details>
-<summary><h2 id="roadmap">Roadmap</h2></summary>
-
-- [x] L1 in three languages, byte-identical C# vs Python output
-- [x] per-character reveal, `--list` / `--player` / `--dry-run`
-- [x] Android Compose skeleton (`arm64-v8a` first)
-- [ ] Android APK: `arm64-v8a`, `armeabi-v7a`, `x86_64`
-- [ ] Windows: single-file exe or portable (including win-arm64)
-- [ ] Optional `127.0.0.1` console form
+- PC/Steam `.map` files are `fileVersion 318` (with RLE); only the mobile `33094` format is supported. A 318 file reports `unsupported map file version 318` and nothing is written.
+- The Chinese mainland release by X.D. Inc. is not supported (different package and save layout).
+- Only the map cache is touched; the world file is read-only.
+- Everything on Android goes through the Shizuku shell; without it only the portable folders work.
 
 </details>
 
-<details>
-<summary><h2 id="license">License</h2></summary>
+## Three statements
 
-[GPL-3.0-or-later](LICENSE). The project rewrites files players own; they should be able to audit exactly which bytes change and to redistribute their own modifications, and GPL-3.0 keeps derived versions open as well.
+1. This is an independent third-party open-source tool, unrelated to Re-Logic and the official Terraria project.
+2. It is mostly written and iterated with AI assistance (DeepSeek-V4.1-Flash was used during development); the core functionality is verified against local saves. The structure may not follow every conventional practice — issues are welcome.
+3. Only save files are modified: nothing is injected, hooked or mounted.
 
-</details>
+## License
 
-## Feedback
-
-Include in an issue: world name, size, `GameMode` (printed by `reveal.py`), the template `.map` `fileVersion`, the full `--dry-run` output, `scripts/verify-all.ps1` result, and your platform plus the full game version string.
+GPL-3.0-or-later, see [LICENSE](LICENSE). Every source file carries an `SPDX-License-Identifier`.
 
 ## Credits
 
-- [Re-Logic](https://terraria.org/) for Terraria, and the wiki community's [world file format docs](https://terraria.wiki.gg/wiki/User:Minimiscience/World_File_Format).
-- [lihzahrd](https://github.com/Stealthmate/lihzahrd) — its tile decoding order served as cross-validation.
-- [ilspycmd](https://github.com/icsharpcode/ILSpy) — decompiling the local PC `Terraria.exe` (`Terraria.Map.MapHelper`) produced the authoritative `.map` algorithm.
+- [Shizuku](https://github.com/RikkaApps/Shizuku) — safe cross-app file access without root
+- [Endfield Font](https://github.com/lhclbt/Endfield_Font) — the Sarkaz typeface used in the UI
+- [simple-icons](https://github.com/simple-icons/simple-icons) — GitHub / Bilibili marks
+- The public documentation of the Terraria save formats (wiki.gg World File Format and map notes)
