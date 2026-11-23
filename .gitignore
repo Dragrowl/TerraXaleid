@@ -28,7 +28,7 @@ android/local.properties
 *.keystore
 *.jks
 
-# Local game data — never commit saves or generated maps
+# Local game data 鈥?never commit saves or generated maps
 *.wld
 *.plr
 *.bak
@@ -45,3 +45,8 @@ desktop.ini
 
 # Logs
 *.log
+# Build output and local debug artifacts
+dist/
+*.apk
+android/build-log.txt
+android/*.png

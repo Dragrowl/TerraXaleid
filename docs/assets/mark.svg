@@ -1,19 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="terramap">
+  <!-- 上下轴对称：镜像轴 y=48（与草线重合），水平方向不动 -->
   <rect width="96" height="96" rx="20" fill="#12161d"/>
   <!-- 未探索：暗格 -->
   <g fill="#242c38">
-    <rect x="16" y="16" width="10" height="10"/><rect x="30" y="16" width="10" height="10"/>
-    <rect x="44" y="16" width="10" height="10"/><rect x="58" y="16" width="10" height="10"/>
-    <rect x="16" y="30" width="10" height="10"/><rect x="58" y="30" width="10" height="10"/>
-    <rect x="16" y="44" width="10" height="10"/><rect x="58" y="44" width="10" height="10"/>
-    <rect x="16" y="58" width="10" height="10"/><rect x="30" y="58" width="10" height="10"/>
-    <rect x="44" y="58" width="10" height="10"/><rect x="58" y="58" width="10" height="10"/>
+    <rect x="16" y="22" width="10" height="10"/><rect x="30" y="22" width="10" height="10"/>
+    <rect x="44" y="22" width="10" height="10"/><rect x="58" y="22" width="10" height="10"/>
+    <rect x="16" y="36" width="10" height="10"/><rect x="58" y="36" width="10" height="10"/>
+    <rect x="16" y="50" width="10" height="10"/><rect x="58" y="50" width="10" height="10"/>
+    <rect x="16" y="64" width="10" height="10"/><rect x="30" y="64" width="10" height="10"/>
+    <rect x="44" y="64" width="10" height="10"/><rect x="58" y="64" width="10" height="10"/>
   </g>
-  <!-- 已点亮：探索区域 -->
+  <!-- 已点亮：探索区域（关于 y=48 镜像） -->
   <g fill="#4c9be8">
-    <rect x="30" y="30" width="10" height="10"/><rect x="44" y="30" width="10" height="10"/>
-    <rect x="30" y="44" width="10" height="10"/><rect x="44" y="44" width="10" height="10"/>
+    <rect x="30" y="36" width="10" height="10"/><rect x="44" y="36" width="10" height="10"/>
+    <rect x="30" y="50" width="10" height="10"/><rect x="44" y="50" width="10" height="10"/>
   </g>
-  <!-- 地表：草线 -->
-  <path d="M12 40h72" stroke="#57c96a" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+  <!-- 地表：草线（即镜像轴） -->
+  <path d="M12 48h72" stroke="#57c96a" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
 </svg>

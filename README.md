@@ -63,6 +63,37 @@ python reveal.py "D:\...\我的世界.wld" --players-dir "D:\...\Terraria\Player
 
 地图是**按「世界 × 角色」各存一份**的：`Players/<角色>/<世界 GUID>.map`。所以"点亮"必须逐角色写，这也是默认行为——只给你写过的角色，游戏里才看得见。
 
+每格颜色按 `Terraria.Map.MapHelper.CreateMapTile` 的真实优先级决定：**方块 > 液体（存量 > 32）> 墙 > 深度背景**。液体四槽是水 / 岩浆 / 蜂蜜 / 微光，所以海、湖、岩浆海在点亮的图上都是有颜色的，不会留成黑区。
+
+### 手机上直接用（Android，推荐 Shizuku）
+
+装 Shizuku 并启动服务（MuMu/真机都行），在 App 里点「授权 Shizuku」，之后列世界、选角色、点亮、写回全在手机上完成——不需要 adb，也不需要把存档拷到别处：
+
+```
+授权 Shizuku → 世界列表（直接读 Android/data） → 勾选世界 → 勾选角色 → 点亮所选
+```
+
+点亮的 `.map` 会写回游戏目录，原文件保留为 `.map.bak`；结果弹窗里可以「撤销本次」。
+### 手机上直接用（Android）
+
+`android/` 是一个独立 App（Material 3）：授予「所有文件访问权限」后，它会列出存档里的世界，选中世界 → 选角色（默认全部）→ 点亮。写入前自动备份为 `.map.bak`，结果页有「撤销本次」。
+
+```powershell
+$env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
+cd android
+F:\Android\gradle\gradle-8.9\bin\gradle.bat :app:assembleDebug --no-daemon
+adb install -r app\build\outputs\apk\debug\app-debug.apk
+```
+
+**关于 Android 11+ 的系统限制**：`MANAGE_EXTERNAL_STORAGE` 并不能让应用读取别的 App 的 `Android/data`，这是平台的硬限制（授权到位也一样，`ls` 直接 `Permission denied`）。App 因此优先读两个便携目录：
+
+| 位置 | 用途 |
+|---|---|
+| `/sdcard/Download/TerrariaSaves/{Worlds,Players}` | 把存档复制进来，App 直接列出并点亮 |
+| `/sdcard/Documents/TerrariaSaves/{Worlds,Players}` | 同上，备份盘 |
+
+想直接写回游戏目录，用 PC 上的 `reveal.py` + `deploy.py`（走 adb，shell 用户有 `ext_data_rw` 权限）；root 设备后续会加 `su` 桥接。
+
 ## 声明
 
 1. **本项目为独立第三方开源工具，与 Re-Logic 及 Terraria 官方无关。**
