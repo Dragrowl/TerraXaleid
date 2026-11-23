@@ -25,6 +25,10 @@
   `scripts/verify-all.ps1`；工具链缺失时退出码 2 并打印 `toolchain: unavailable`。
 - 文档：`README.md`（使用者入口）、`docs/ARCHITECTURE.md`（三层架构与 L1 契约）、
   `docs/CONTRIBUTING.md`（改动与验证流程）、`docs/L1-STATUS.md`（三语言状态与已知坑）。
+- **README 重排**（参照 MiaCode 的写法）：首屏只留 logo / badge / 一句话定位 / 快速开始，
+  构建、原理、仓库结构、限制、路线、许可证全部折叠进 `<details>`；新增 `README_EN.md`
+  双语入口、`AGENTS.md`（代理代码边界与六条不变量）、`docs/INDEX.md`（原 `docs/README.md`
+  改名）、`docs/assets/mark.svg`（项目标记）。
 
 ### Notes
 
