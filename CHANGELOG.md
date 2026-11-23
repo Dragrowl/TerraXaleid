@@ -3,6 +3,14 @@
 本项目遵循 [SemVer](https://semver.org/lang/zh-CN/)；`0.x` 阶段不承诺接口稳定。
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [0.1.0-dev.13] - 2026-11-24
+
+### Added
+- **页面切换动效**：三个画面之间走 Material「shared axis X」——新页面按 1/8 宽度滑入并淡入，旧页面向反方向滑出并淡出，进向用 emphasized decelerate `CubicBezierEasing(0.05, 0.7, 0.1, 1)`、出向用 emphasized accelerate `(0.3, 0, 0.8, 0.15)`，时长 300 ms；返回时方向自动反转（由 `stageDepth` 判断层级）。
+- 清单开启 `android:enableOnBackInvokedCallback="true"`，Android 13+ 的预测性返回手势可以正常接管。
+
+### Fixed
+- **系统返回键**：原来在任意子页面按返回都会直接 finish activity 退回桌面。现在子页面（选角色、恢复与备份）按返回回到世界列表，只有在世界列表按返回才退出应用。
 ## [0.1.0-dev.12] - 2026-11-24
 
 ### Fixed

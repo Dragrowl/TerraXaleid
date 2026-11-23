@@ -5,6 +5,17 @@
 package io.terramap.android.ui
 
 import android.content.pm.PackageManager
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.horizontalScroll
@@ -101,6 +112,32 @@ private sealed interface Stage {
     data object Restore : Stage
 }
 
+/**
+ * Material "shared axis X" between stages: the incoming screen slides in by an eighth of the width
+ * while fading in, the outgoing one slides the other way. The curves are Google's emphasized easings -
+ * decelerate on the way in, accelerate on the way out - with the 300 ms duration the spec uses.
+ */
+private const val StageTransitionMs = 300
+
+private val EmphasizedDecelerate = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1f)
+private val EmphasizedAccelerate = CubicBezierEasing(0.3f, 0f, 0.8f, 0.15f)
+
+/** Worlds is the root; everything else is one level down and therefore slides in from the right. */
+private fun stageDepth(stage: Stage): Int = if (stage is Stage.Worlds) 0 else 1
+
+private fun stageTransition(from: Stage, to: Stage): ContentTransform {
+    val forward = stageDepth(to) >= stageDepth(from)
+    val direction = if (forward) 1 else -1
+    val enter = slideInHorizontally(
+        animationSpec = tween(StageTransitionMs, easing = EmphasizedDecelerate),
+        initialOffsetX = { width -> direction * (width / 8) },
+    ) + fadeIn(tween(StageTransitionMs, easing = EmphasizedDecelerate))
+    val exit = slideOutHorizontally(
+        animationSpec = tween(StageTransitionMs, easing = EmphasizedAccelerate),
+        targetOffsetX = { width -> -direction * (width / 8) },
+    ) + fadeOut(tween(StageTransitionMs, easing = EmphasizedAccelerate))
+    return enter togetherWith exit
+}
 /** A reveal that has to ask about an existing backup before it touches anything. */
 private data class PendingReveal(
     val entry: WorldEntry,
@@ -269,6 +306,11 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
 
     val root: SaveRoot? = roots.getOrNull(rootIndex)
 
+    // Without this the system back gesture finishes the activity from any screen and drops the user on
+    // the launcher mid-task. Inside a sub-screen back returns to the world list; on the world list the
+    // platform default stays in place (leave the app).
+    BackHandler(enabled = stage !is Stage.Worlds) { stage = Stage.Worlds }
+
     // Stage the game's own save tree through Shizuku; the mirror is the first root when available.
     LaunchedEffect(shizukuGranted) {
         // NonCancellable: the grant flag can flip while the copy is running, and cancelling halfway
@@ -319,7 +361,12 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
         restoreLoading = false
     }
 
-    when (val current = stage) {
+    AnimatedContent(
+        targetState = stage,
+        transitionSpec = { stageTransition(initialState, targetState) },
+        label = "stage",
+    ) { animated ->
+    when (val current = animated) {
         is Stage.Worlds -> WorldsScreen(
             roots = roots,
             rootIndex = rootIndex,
@@ -408,6 +455,7 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
             onRefresh = { reloadKey++ },
             onBack = { stage = Stage.Worlds },
         )
+    }
     }
 
     running?.let { name ->
