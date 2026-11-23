@@ -161,6 +161,8 @@ object WorldFile {
         val total = Math.multiplyExact(width, height)
         val tiles = ShortArray(total) { -1 }
         val walls = ShortArray(total) { -1 }
+        val liquidAmounts = ByteArray(total)
+        val liquidKinds = ByteArray(total)
 
         val start = offsets[1]
         val end = offsets[2]
@@ -201,7 +203,13 @@ object WorldFile {
                     if (((f3 shr 4) and 1) != 0) r.skip(1)                          // wall paint
                 }
 
-                if (liquid != 0) r.skip(1)                                          // liquid amount
+                // 1..3 = water / lava / honey, and bit 23 upgrades honey to shimmer. The `.map`
+                // palette stores the same four slots in that order, so `liquidKind` is the
+                // palette offset and the raw amount decides whether the cell is worth painting.
+                val shimmer = ((f3 shr 7) and 1) != 0
+                var liquidKind = 0
+                if (shimmer) liquidKind = 3 else if (liquid != 0) liquidKind = liquid - 1
+                val liquidAmount = if (liquid != 0 || shimmer) r.u8() else 0
                 if (((f3 shr 6) and 1) != 0) wallId = wallId or (r.u8() shl 8)      // wall id high byte
 
                 var repeat = 1
@@ -215,6 +223,10 @@ object WorldFile {
                 for (i in 0 until repeat) {
                     tiles[base + i] = tileId.toShort()
                     walls[base + i] = wallId.toShort()
+                    if (liquidAmount != 0) {
+                        liquidAmounts[base + i] = liquidAmount.toByte()
+                        liquidKinds[base + i] = liquidKind.toByte()
+                    }
                 }
 
                 column += repeat
@@ -225,7 +237,7 @@ object WorldFile {
             throw TerrariaFormatException("tile stream ended at ${r.position}, expected section 2 at $end")
         }
 
-        return World(name, worldId, width, height, surface, rockLayer, tiles, walls)
+        return World(name, worldId, width, height, surface, rockLayer, tiles, walls, liquidAmounts, liquidKinds)
     }
 
     fun decodeCreationTime(raw: Long): Instant {

@@ -85,6 +85,11 @@ public static class Reveal
                 {
                     type = tile < tileLut.Length ? tileLut[tile] : (ushort)header.TileBase;
                 }
+                else if (world.LiquidAmounts[index] > World.LiquidPaintThreshold)
+                {
+                    // Same slot order as the game's liquid palette: water, lava, honey, shimmer.
+                    type = (ushort)(header.LiquidBase + world.LiquidKinds[index]);
+                }
                 else
                 {
                     short wall = world.Walls[index];

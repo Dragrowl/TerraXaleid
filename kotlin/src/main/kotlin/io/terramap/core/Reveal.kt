@@ -17,9 +17,11 @@ data class RevealOptions(
 /**
  * Rebuilds a complete .map payload from a world.
  *
- * Every cell gets a type and a full-brightness light value: tiles win over walls, walls win over the
- * depth background, and nothing keeps its previous state. Partial reveal would need the previous
- * payload, so it is rejected instead of silently degrading into a full overwrite.
+ * Every cell gets a type and a full-brightness light value. Priority follows
+ * `MapHelper.CreateMapTile`: a block wins, then a block-less cell that carries enough liquid shows
+ * the liquid colour, then the wall, then the depth background. Nothing keeps its previous state;
+ * partial reveal would need the previous payload, so it is rejected rather than silently degrading
+ * into a full overwrite.
  */
 object Reveal {
 
@@ -59,8 +61,11 @@ object Reveal {
                 val index = x * height + y
                 val tile = world.tiles[index].toInt()
                 val wall = world.walls[index].toInt()
+                val liquidAmount = world.liquidAmounts[index].toInt() and 0xFF
                 types[index] = when {
                     tile >= 0 -> header.tileType(tile)
+                    liquidAmount > World.LIQUID_PAINT_THRESHOLD ->
+                        header.liquidBase + (world.liquidKinds[index].toInt() and 0xFF)
                     wall >= 0 -> header.wallType(wall)
                     else -> bg
                 }.toShort()

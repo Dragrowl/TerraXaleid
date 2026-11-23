@@ -268,8 +268,17 @@ def build_arrays(hdr: MapHeader, world, light: int = 255) -> tuple[np.ndarray, n
     safe_t = np.where((t >= 0) & (t < hdr.max_tile_id), t, 0)
     safe_w = np.where((wl >= 0) & (wl < hdr.max_wall_id), wl, 0)
 
+    # Priority follows MapHelper.CreateMapTile: a block wins, then a block-less cell holding enough
+    # liquid shows the liquid colour, then the wall, then the depth background.
+    liquid_show = np.zeros((w, h), dtype=bool)
+    liquid_type = np.zeros((w, h), dtype=np.uint16)
+    if getattr(world, "liquids", None) is not None:
+        liquid_show = (t < 0) & (world.liquids > world.LIQUID_PAINT_THRESHOLD)
+        liquid_type = (hdr.liquid_base + world.liquid_kinds.astype(np.uint16))
+
     types = np.where(t >= 0, tile_lut[safe_t],
-                     np.where(wl >= 0, wall_lut[safe_w], bg[None, :]))
+                     np.where(liquid_show, liquid_type,
+                              np.where(wl >= 0, wall_lut[safe_w], bg[None, :])))
     lights = np.full((w, h), light, dtype=np.uint8)
     colors = np.zeros((w, h), dtype=np.uint8)
     return types.astype(np.uint16), lights, colors

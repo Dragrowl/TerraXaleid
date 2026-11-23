@@ -228,6 +228,8 @@ public static class WorldFile
         int total = checked(width * height);
         var tiles = new short[total];
         var walls = new short[total];
+        var liquidAmounts = new byte[total];
+        var liquidKinds = new byte[total];
         Array.Fill(tiles, (short)-1);
         Array.Fill(walls, (short)-1);
 
@@ -276,7 +278,12 @@ public static class WorldFile
                     if (((f3 >> 4) & 1) != 0) r.Skip(1);                         // wall paint
                 }
 
-                if (liquid != 0) r.Skip(1);                                      // liquid amount
+                // 1..3 = water / lava / honey, and bit 23 upgrades honey to shimmer. The `.map`
+                // liquid palette stores the same four slots in that order, so this is the palette
+                // offset while the raw amount decides whether the cell is worth painting.
+                bool shimmer = ((f3 >> 7) & 1) != 0;
+                int liquidKind = shimmer ? 3 : (liquid != 0 ? liquid - 1 : 0);
+                int liquidAmount = (liquid != 0 || shimmer) ? r.Byte() : 0;
                 if (((f3 >> 6) & 1) != 0) wallId |= r.Byte() << 8;               // wall id high byte
 
                 int repeat = 1;
@@ -291,6 +298,11 @@ public static class WorldFile
                 {
                     tiles[baseIndex + i] = (short)tileId;
                     walls[baseIndex + i] = (short)wallId;
+                    if (liquidAmount != 0)
+                    {
+                        liquidAmounts[baseIndex + i] = (byte)liquidAmount;
+                        liquidKinds[baseIndex + i] = (byte)liquidKind;
+                    }
                 }
 
                 column += repeat;
@@ -303,7 +315,7 @@ public static class WorldFile
                 $"tile stream ended at {r.Position}, expected section 2 at {end}");
         }
 
-        return new World(name, worldId, width, height, surface, rockLayer, tiles, walls);
+        return new World(name, worldId, width, height, surface, rockLayer, tiles, walls, liquidAmounts, liquidKinds);
     }
 
     /// <summary>

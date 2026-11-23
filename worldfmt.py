@@ -37,6 +37,11 @@ class World:
     tiles: np.ndarray   # (width, height) int16, -1 = no tile
     walls: np.ndarray   # (width, height) int16, -1 = no wall
     guid_bytes: bytes = b""   # the 16 bytes as stored; .map files are named after this GUID
+    liquids: np.ndarray | None = None       # (width, height) uint8 fill level 0..255
+    liquid_kinds: np.ndarray | None = None  # (width, height) uint8 0 water 1 lava 2 honey 3 shimmer
+
+    # MapHelper.GetWallType only draws liquid above this fill level.
+    LIQUID_PAINT_THRESHOLD = 32
 
     @property
     def underworld_layer(self) -> int:
@@ -112,6 +117,8 @@ def load(path: str) -> World:
 
     tiles = np.full((width, height), -1, dtype=np.int16)
     walls = np.full((width, height), -1, dtype=np.int16)
+    liquids = np.zeros((width, height), dtype=np.uint8)        # 0..255 fill level
+    liquid_kinds = np.zeros((width, height), dtype=np.uint8)   # 0 water 1 lava 2 honey 3 shimmer
 
     start, end = offsets[1], offsets[2]
     pos = start
@@ -147,8 +154,13 @@ def load(path: str) -> World:
                 wid = d[pos]; pos += 1
                 if (f3 >> 4) & 1:
                     pos += 1                     # wall paint
-            if liquid:
-                pos += 1                         # amount
+            # 1..3 = water / lava / honey, and bit 23 upgrades honey to shimmer. The .map liquid
+            # palette keeps the same four slots in that order, so `lkind` is the palette offset.
+            shimmer = bool((f3 >> 7) & 1)
+            lkind = 3 if shimmer else (liquid - 1 if liquid else 0)
+            lamount = 0
+            if liquid or shimmer:
+                lamount = d[pos]; pos += 1       # amount
             if (f3 >> 6) & 1:
                 wid |= d[pos] << 8; pos += 1     # wall id high byte
 
@@ -162,6 +174,9 @@ def load(path: str) -> World:
 
             tiles[x, col:col + mult] = tid
             walls[x, col:col + mult] = wid
+            if lamount:
+                liquids[x, col:col + mult] = lamount
+                liquid_kinds[x, col:col + mult] = lkind
             col += mult
 
     if pos != end:
@@ -169,7 +184,8 @@ def load(path: str) -> World:
 
     return World(name=name, world_id=world_id, width=width, height=height,
                  surface=float(surface), rock_layer=float(rock),
-                 tiles=tiles, walls=walls, guid_bytes=guid_bytes)
+                 tiles=tiles, walls=walls, guid_bytes=guid_bytes,
+                 liquids=liquids, liquid_kinds=liquid_kinds)
 
 
 # --------------------------------------------------------------------------- metadata
