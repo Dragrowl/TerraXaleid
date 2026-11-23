@@ -35,7 +35,21 @@
 - 图标用 `res/drawable/ic_github.xml`、`ic_bilibili.xml`（simple-icons 轮廓，已有），
   颜色先做成跟随主题的不同明度灰，后续再接强调色。
 
-## 3. 图标里的萨卡兹语文本
+## 3. 主题缩略图要用实机截图生成（不是手画矢量）
+
+正确的做法：不手绘缩略图，改用**实机渲染 + 截图**，因为缩略图要看起来就像应用本身。
+
+1. 先能确定性地进入浅色/深色 —— 已实现：`/sdcard/Android/data/io.terramap.android/files/terramap.json`
+   里 `{"theme":"light"|"dark"|"auto","darkVariant":"standard"|"oled"}`，`ON_RESUME` 时重读。
+2. 做一个**只用于截图**的模式：选择世界页的**所有文本（含标题栏）**都换成同一批随机字符串，
+   字体换成萨卡兹语；随机串的长度随机、字符随机，但**深色与浅色两次必须用完全相同的那一批**，
+   这样两张图只差配色。
+3. 分别截浅色、深色两张同尺寸图。
+4. 合成缩略图：以画布中点为基点，切线从 **+x 方向逆时针转 65°**（方向 `(cos65, -sin65)`），
+   左半取浅色截图、右半取深色截图。
+5. 现有的 `theme_thumb_*.xml` 只是占位，最终要换成上面生成的位图（`drawable-nodpi` 或按密度切图）。
+
+## 4. 图标里的萨卡兹语文本
 
 - 字体：`res/font/endfield_by_butan.ttf`，来自
   <https://github.com/lhclbt/Endfield_Font>（`EndfieldByButan.ttf`）。

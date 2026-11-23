@@ -3,6 +3,19 @@
 本项目遵循 [SemVer](https://semver.org/lang/zh-CN/)；`0.x` 阶段不承诺接口稳定。
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [0.1.1-dev.2] - 2026-11-24
+
+### Added
+- 配置文件驱动的主题：`terramap.json`（`{"theme":"auto|light|dark","darkVariant":"standard|oled"}`），
+  查找顺序为 `Android/data/io.terramap.android/files/` → `/sdcard/Download/.terramap/` → 应用私有目录；
+  文件不存在时会自动生成一份默认的，`ON_RESUME` 时重读，所以推一份新配置不用重启应用。
+- OLED 全黑配色（`background`/`surface` 纯黑，卡片 `#0A0A0A`），只在「深色 + oled」时启用。
+- 强制主题时关闭动态取色，保证同一份配置在任何设备上截出来的图一致。
+- 每读一次配置都打一行日志：`I terramap: config: theme=dark darkVariant=oled from=...`。
+
+### Fixed
+- 跟随系统缩略图的斜切方向反了：改为从 **+x 方向逆时针 65°** 过画布中点，即切线从顶边
+  `x = 79.18` 进、底边 `x = 28.82` 出；两半各自 `clip-path` 裁剪后各画内容。
 ## [0.1.1-dev.1] - 2026-11-24
 
 这一版先把素材落地，界面改造按 `docs/ROADMAP-NEXT.md` 的清单逐项推进。
