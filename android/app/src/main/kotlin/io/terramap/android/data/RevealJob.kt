@@ -94,9 +94,18 @@ object RevealJob {
                 if (target.isFile && !target.delete()) throw IOException("无法替换旧地图：${target.name}")
                 if (!tmp.renameTo(target)) throw IOException("无法写入：${target.name}")
                 val remote = root?.remoteBase
+                var sizeWarning = ""
                 if (remote != null) {
-                    if (!TerraMirror.pushBack(remote, root.playersDir, target)) {
-                        throw IOException("已在镜像生成，但写回设备失败：${target.name}")
+                    val push = TerraMirror.pushBack(remote, root.playersDir, target)
+                    if (!push.copied) {
+                        throw IOException(
+                            "已在镜像生成，但写回设备失败：${target.name}（exit ${push.code}${if (push.error.isEmpty()) "" else "，${push.error}"}）"
+                        )
+                    }
+                    if (!push.sizeMatches) {
+                        // The copy reported success; only the size read-back is odd. Keep the item as a
+                        // success and say so, instead of claiming a failure the user cannot act on.
+                        sizeWarning = "（大小校验 ${push.written ?: "?"}≠${push.expected}）"
                     }
                 }
                 targets.add(target)
@@ -106,8 +115,8 @@ object RevealJob {
                         label,
                         ItemStatus.SUCCESS,
                         when {
-                            remote != null && character.hasMap -> "已写回设备（原文件备份为 .map.bak）"
-                            remote != null -> "已写回设备（新建地图）"
+                            remote != null && character.hasMap -> "已写回设备（原文件备份为 .map.bak）$sizeWarning"
+                            remote != null -> "已写回设备（新建地图）$sizeWarning"
                             character.hasMap -> "已覆盖（原文件备份为 .map.bak）"
                             else -> "已新建地图"
                         },

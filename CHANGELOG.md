@@ -3,6 +3,17 @@
 本项目遵循 [SemVer](https://semver.org/lang/zh-CN/)；`0.x` 阶段不承诺接口稳定。
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [0.1.0-dev.6] - 2026-11-24
+
+### Fixed
+- **写回误报「写回设备失败」**：判断依据从「写回后文件的字节数必须等于本地暂存文件的字节数」改成「`cp` 的退出码」。实测（vivo V2505A）写回其实成功、进游戏地图已全亮，但设备侧 `stat` 读回的尺寸与本地不一致，旧逻辑把成功判成失败。现在尺寸只作诊断：不一致时状态仍为成功，并在文案后面标注 `（大小校验 X≠Y）`；只有 `cp` 真的失败才报错，错误里带上退出码与 stderr。
+- 写回时的属主/权限还原改为从**原文件**读取 `uid:gid`/`mode`（之前从 `.bak` 读，而 `.bak` 由 `cp` 新建、属主已变），撤销同理。
+
+### Added
+- 所有 Shizuku 调用都记 `Log.i/w/e`，tag 固定为 `terramap`：每条 shell 命令、退出码、stdout/stderr 都会进 logcat，写回成功时还会打印实际字节数。
+
+### Notes
+- `versionCode 8`。
 ## [0.1.0-dev.5] - 2026-11-24
 
 ### Added
