@@ -190,6 +190,6 @@ GPL-3.0-or-later，见 [LICENSE](LICENSE)。每个源文件头部有 `SPDX-Licen
 ## 致谢
 
 - [Shizuku](https://github.com/RikkaApps/Shizuku) — 让非 root 设备也能安全地做跨应用文件操作
-- [Endfield Font](https://github.com/lhclbt/Endfield_Font) — 界面里那套萨卡兹语字体
+- [Endfield Font](https://github.com/lhclbt/Endfield_Font) — 只用来渲染那三张主题缩略图，字体文件不进仓库
 - [simple-icons](https://github.com/simple-icons/simple-icons) — GitHub / Bilibili 图标轮廓
 - Terraria 存档格式的公开整理（wiki.gg 的 World File Format 与 map 格式说明）

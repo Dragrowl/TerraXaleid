@@ -18,7 +18,7 @@
 | `kotlin/` | L1 的 Kotlin/JVM 实现（被 Android 模块直接引用） |
 | `android/` | Compose 外壳；`app` 是界面，`core` 只把 Kotlin L1 包一层 |
 | `scripts/` | 三语言校验、打包 |
-| `docs/` | 开发者文档；`docs/assets/` 放项目标记与截图；`docs/shots/` 是截图工程源码副本 |
+| `docs/` | 开发者文档；`docs/assets/` 放项目标记与主题缩略图源图 |
 | `samples/` | 样本说明（**不放真实存档**） |
 | `dist/` | 构建产物（git 忽略） |
 

@@ -160,6 +160,6 @@ GPL-3.0-or-later, see [LICENSE](LICENSE). Every source file carries an `SPDX-Lic
 ## Credits
 
 - [Shizuku](https://github.com/RikkaApps/Shizuku) — safe cross-app file access without root
-- [Endfield Font](https://github.com/lhclbt/Endfield_Font) — the Sarkaz typeface used in the UI
+- [Endfield Font](https://github.com/lhclbt/Endfield_Font) — used only to render the three theme thumbnails; the font itself is not shipped
 - [simple-icons](https://github.com/simple-icons/simple-icons) — GitHub / Bilibili marks
 - The public documentation of the Terraria save formats (wiki.gg World File Format and map notes)

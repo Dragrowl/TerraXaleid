@@ -10,6 +10,20 @@
 - `dist/` 文件名只带 `versionName`（`terramap-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
 
+## [0.1.0-dev.22] - 2026-11-24
+
+### Removed
+- `res/font/endfield_by_butan.ttf`：萨卡兹语字体只服务于那三张主题缩略图，不再随 APK 分发，也不在仓库里留副本。
+  将来做 Windows 版需要它时，按 <https://github.com/lhclbt/Endfield_Font> 重新取。
+- `docs/shots/`：截图工程的源码副本（Kotlin 源、manifest、build 脚本）。工程本体仍在仓库外的 `G:\terramap-shots\`。
+- `res/drawable/theme_thumb_{auto,light,dark}.xml`：占位矢量，主题卡已改用实机截图。
+
+### Changed
+- 仓库里带萨卡兹语字形的只剩位图：`docs/assets/shots/*.png` 与 `res/drawable-nodpi/theme_preview_*.png`。
+- `docs/ROADMAP-NEXT.md` 全篇按现状打钩，剩下的只有 beta.1 的收口动作；README 双语致谢里注明该字体只用于缩略图。
+
+### Notes
+- `versionCode 24`。
 ## [0.1.0-dev.21] - 2026-11-24
 
 ### Added
