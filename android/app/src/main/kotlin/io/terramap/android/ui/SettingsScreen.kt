@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,6 +46,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.terramap.android.BuildConfig
 import io.terramap.android.R
 import io.terramap.android.data.BackExit
 import io.terramap.android.data.DarkVariant
@@ -56,7 +58,7 @@ import io.terramap.android.data.ThemeMode
  * `terramap.json` on change.
  */
 @Composable
-internal fun SettingsScreen(onBack: () -> Unit) {
+internal fun SettingsScreen(onBack: () -> Unit, onOpenAbout: () -> Unit) {
     val config = ThemeController.config
     Scaffold(
         topBar = {
@@ -151,6 +153,25 @@ internal fun SettingsScreen(onBack: () -> Unit) {
                         onCheckedChange = { on ->
                             ThemeController.setBackExit(if (on) BackExit.Kill else BackExit.Background)
                         },
+                    )
+                }
+            }
+
+            // One entry point, whole card tappable: the about page is a card stack too, not a menu.
+            SettingsCard(
+                title = stringResource(R.string.settings_about_title),
+                subtitle = stringResource(R.string.settings_about_subtitle, BuildConfig.VERSION_NAME),
+                modifier = Modifier.clickable(onClick = onOpenAbout),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -251,9 +272,10 @@ private fun DarkVariantRow(
 internal fun SettingsCard(
     title: String,
     subtitle: String?,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),

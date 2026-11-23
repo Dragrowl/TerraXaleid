@@ -27,6 +27,15 @@
     <string name="dark_variant_standard_body">深灰底，对比柔和。</string>
     <string name="dark_variant_oled">OLED 全黑</string>
     <string name="dark_variant_oled_body">底色纯黑，OLED 屏更省电。</string>
+    <string name="settings_about_title">关于</string>
+    <string name="settings_about_subtitle">版本 %1$s · GPL-3.0-or-later</string>
+    <string name="about_title">关于</string>
+    <string name="about_version">版本 %1$s</string>
+    <string name="about_publisher">发布者 Dragr0wl</string>
+    <string name="about_license">GPL-3.0-or-later</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_bilibili">哔哩哔哩</string>
+    <string name="about_link_failed">没有可以打开这个链接的应用</string>
     <string name="behavior_title">行为</string>
     <string name="behavior_exit_title">退回桌面时结束进程</string>
     <string name="behavior_exit_body">关闭时应用留在后台，再次打开立即回来；开启时按返回就结束进程，不占内存。</string>

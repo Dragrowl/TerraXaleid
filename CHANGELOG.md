@@ -10,6 +10,21 @@
 - `dist/` 文件名只带 `versionName`（`terramap-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
 
+## [0.1.0-dev.21] - 2026-11-24
+
+### Added
+- 关于页（单卡）：左侧软件图标，右侧「terramap / 版本 0.1.0-dev.21」；下方一行左侧是「发布者 Dragr0wl」与「GPL-3.0-or-later」，右侧是 GitHub 与哔哩哔哩两个小图标按钮——不单独成卡、没有副标题。
+- 设置页新增「关于」卡作为入口，副标题显示版本与许可，右侧一个箭头。
+- 哔哩哔哩按钮打开 `https://space.bilibili.com/3461573882415902`；GitHub 按钮先留空，画成 38% 透明的禁用态，点了不发任何跳转。
+
+### Fixed
+- 关于页的软件图标改为「矢量前景 + 深色圆角底」组合：直接把自适应图标 XML 喂给 `painterResource` 会抛 `IllegalArgumentException: Only VectorDrawables and rasterized asset types are supported`（第一次进关于页就崩）。
+
+### Changed
+- 返回分层变成三级：关于 → 设置 → 世界列表 → 退出；退出行为仍受「退回桌面时结束进程」开关控制。
+
+### Notes
+- `versionCode 23`。
 ## [0.1.0-dev.20] - 2026-11-24
 
 ### Added
