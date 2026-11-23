@@ -550,6 +550,7 @@ private fun WorldCard(
     onToggle: () -> Unit,
     onOpen: () -> Unit,
 ) {
+    val context = LocalContext.current
     Card(onClick = onOpen, modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -571,8 +572,23 @@ private fun WorldCard(
                     modifier = Modifier.horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    val labels = listOf(entry.meta.difficulty, entry.meta.size, entry.meta.evil)
-                        .filter { it.isNotBlank() }
+                    val labels = buildList {
+                        add(entry.meta.difficulty)
+                        add(entry.meta.size)
+                        add(entry.meta.evil)
+                        // Progression as chips in the same scrollable row: pre-hardmode /
+                        // hardmode / journey's end are mutually informative, not a separate line.
+                        add(
+                            if (entry.meta.hardMode) context.getString(R.string.label_hardmode_short)
+                            else context.getString(R.string.label_prehard_short)
+                        )
+                        if (entry.meta.defeatedMoonLord) {
+                            add(context.getString(R.string.label_journeys_end))
+                        }
+                        if (entry.meta.seedFlags.any { it == "getGood" }) {
+                            add("FTW")
+                        }
+                    }.filter { it.isNotBlank() }
                     labels.forEach { label ->
                         AssistChip(
                             onClick = onOpen,
@@ -580,16 +596,6 @@ private fun WorldCard(
                         )
                     }
                 }
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    text = buildString {
-                        append(if (entry.meta.hardMode) "肉山后" else "未肉山")
-                        append(" · ")
-                        append(if (entry.meta.defeatedMoonLord) "月总后" else "未月总")
-                        entry.meta.seedFlags.firstOrNull { it == "getGood" }?.let { append(" · FTW") }
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                )
             }
             Checkbox(checked = checked, onCheckedChange = { onToggle() })
         }

@@ -33,10 +33,9 @@
     <string name="status_skipped">跳过</string>
     <string name="status_failed">失败</string>
 
-    <string name="label_hardmode">肉山后</string>
-    <string name="label_prehard">未肉山</string>
-    <string name="label_moonlord">月总后</string>
-    <string name="label_no_moonlord">未月总</string>
+    <string name="label_prehard_short">困难模式之前</string>
+    <string name="label_hardmode_short">困难模式</string>
+    <string name="label_journeys_end">已击败月亮领主</string>
 
     <string name="close_game_warning">改动前请先退出世界并关闭游戏；游戏退出时会回写地图，覆盖本工具的改动。</string>
     <string name="back">返回</string>
