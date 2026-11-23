@@ -9,6 +9,7 @@
 | `kotlin/` | L1 的 Kotlin/JVM 实现（同时被 Android 模块直接引用） |
 | `android/` | Compose 外壳工程 |
 | `scripts/` | 三语言校验脚本 |
+| `docs/` | 开发者文档（架构、贡献流程、L1 状态）；使用者只看根 `README.md` |
 | `samples/` | 合成样本说明（**不放真实存档**） |
 
 ## 改代码前

@@ -23,7 +23,8 @@
   `kotlin/src/main/kotlin`，不复制源码；首屏显示 ABI/SDK/机型并跑一次核心自检。
 - **校验脚本**：`scripts/verify-dotnet.ps1`、`scripts/verify-kotlin.ps1`、
   `scripts/verify-all.ps1`；工具链缺失时退出码 2 并打印 `toolchain: unavailable`。
-- 文档：`README.md`、`ARCHITECTURE.md`（三层架构与 L1 契约）、`CONTRIBUTING.md`。
+- 文档：`README.md`（使用者入口）、`docs/ARCHITECTURE.md`（三层架构与 L1 契约）、
+  `docs/CONTRIBUTING.md`（改动与验证流程）、`docs/L1-STATUS.md`（三语言状态与已知坑）。
 
 ### Notes
 

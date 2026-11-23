@@ -4,6 +4,8 @@
 
 当前只含核心「读取 / 计算 / 写入」三部分，不含打包、GUI、网络。日后如果要发行为 APK / EXE / 本地控制台，直接在 `mapfmt.py` + `worldfmt.py` 外面套壳即可（见文末路线）。
 
+> **文档分层**：本文件是**使用者入口**（怎么用、边界在哪、结果怎么核对）。改代码、扩平台、复验三语言一致性请进 **[`docs/`](docs/README.md)**：`docs/ARCHITECTURE.md`（架构与不变量）、`docs/CONTRIBUTING.md`（改动与提交流程）、`docs/L1-STATUS.md`（三语言状态与已知坑）。
+
 ---
 
 ## 0. 定位与边界（务必先读）
@@ -29,19 +31,29 @@
 
 ## 1. 文件说明
 
+面向使用者（只关心怎么用）：
+
 | 文件 | 作用 |
 |---|---|
-| `worldfmt.py` | 读 `.wld`：世界名、worldID、宽高、surface / rockLayer / underworldLayer、tile 与 wall 索引数组（`np.ndarray`，形状 `(width, height)`，**`-1` 表示无**） |
-| `mapfmt.py` | `.map` 头解析、调色板基址推导、区块读写、数组生成（`build_arrays`） |
 | `reveal.py` | CLI：`.wld` + 模板 `.map` → 全点亮 `.map`，自带回读校验 |
 | `deploy.py` | 推回设备 + `chown`/`chmod` + 必要时 `force-stop` |
-| `selftest.py` | 自检：调色板算术、合成文件往返、真实文件不变量 |
-| `ARCHITECTURE.md` | 三层架构（L1 纯字节 / L2 存储适配 / L3 UI）与 C#、Kotlin 双实现接口契约 |
-| `scripts\verify-all.ps1` | 一次跑 Python / C# / Kotlin 三份自检，汇总 PASS/FAIL |
-| `CHANGELOG.md` | 按 Keep a Changelog 记录版本变更 |
-| `CONTRIBUTING.md` | 目录约定、改代码前的检查、提交与验证方式 |
-| `samples\` | 真实样本说明（**不放存档**，路径由参数传入） |
+| `worldfmt.py` | 读 `.wld`：世界名、worldID、宽高、surface / rockLayer、tile 与 wall 索引数组（`-1` 表示无） |
+| `mapfmt.py` | `.map` 头解析、调色板基址推导、区块读写（`build_arrays`） |
+| `players.py` | 世界 GUID ⇄ 角色地图文件名、角色列表 |
 | `requirements.txt` | 依赖（仅 numpy） |
+| `CHANGELOG.md` | 按 Keep a Changelog 记录版本变更 |
+
+面向开发者（改代码、复验、扩平台时读）：
+
+| 文件 | 作用 |
+|---|---|
+| `docs\ARCHITECTURE.md` | 三层架构（L1 纯字节 / L2 存储适配 / L3 UI）、C#/Kotlin 契约、解析不变量 |
+| `docs\CONTRIBUTING.md` | 目录约定、改代码前的检查、提交与验证方式 |
+| `docs\L1-STATUS.md` | 三语言实现状态与已知差异 |
+| `scripts\verify-all.ps1` | 一次跑 Python / C# / Kotlin 三份自检，汇总 PASS/FAIL |
+| `csharp\` `kotlin\` `android\` | 对应语言的 L1 实现与外壳工程 |
+| `samples\` | 真实样本说明（**不放存档**，路径由参数传入） |
+| `selftest.py` | 自检：调色板算术、合成文件往返、真实文件不变量 |
 
 ---
 
