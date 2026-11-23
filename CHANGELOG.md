@@ -10,6 +10,26 @@
 - `dist/` 文件名只带 `versionName`（`terramap-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
 
+## [0.1.0-dev.18] - 2026-11-24
+
+### Changed
+- **文档全量重写**，对齐当前实现（`0.1.0-dev.17` 的代码状态）：
+  - 根 `README.md` / `README_EN.md`：去掉「核心是纯数据处理、没有 GUI」这类过时表述，
+    改成「Android 上用图形界面、电脑上用命令行」两条路径；补备份/撤销/全黑重置、Shizuku 必要性与便携目录兜底、
+    版本号约定、`package-apk.ps1` 打包命令；「原理」与「仓库结构」折进 `<details>`，不再是正文噪音。
+  - `docs/ARCHITECTURE.md`：L1 契约改成实际签名（`net10.0`、`WorldFile.ParseMeta/Load`、`MapFile.Read/Write`、
+    `Reveal.Build/Write`、`PlayerMaps`）；L2 改成「Shizuku 主路线 + 便携目录兜底」并写清写入链路
+    （镜像 → 备份轮换 → 写回 → 属主还原 → 回读校验）；L3 改成实际三态页面与 shared axis 动效；
+    新增「版本号与产物」一节，说明纯 Kotlin 无需按 ABI 拆分。
+  - `docs/L1-STATUS.md`：补液体层与 `ceil(maxId/8)` 两条坑，合成自检覆盖范围逐条列出，
+    遗留项改成实际状态（Android 外壳已实现）。
+  - `docs/ROADMAP-NEXT.md`：改名为「通往 0.1.0-beta.1 的清单」，逐项标 `[x]` / `[ ]`，
+    已完成与待做分开写，并列出已就绪但尚未接线的资产。
+  - `docs/CONTRIBUTING.md`、`docs/INDEX.md`、`AGENTS.md`、`samples/README.md`：同步目录、命令、版本规则、文档分工。
+- `README.md` 里残留的 NUL 字节（早前用 PowerShell 双引号写 `` `0 `` 造成）已清除，文件重新按纯文本处理。
+
+### Notes
+- 本轮只动文档与版本号，没有功能改动；`versionCode 20`。
 ## [0.1.0-dev.17] - 2026-11-24
 
 ### Changed
