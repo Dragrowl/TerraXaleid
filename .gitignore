@@ -50,3 +50,6 @@ dist/
 *.apk
 android/build-log.txt
 android/*.png
+# release signing material stays local
+android/keystore.properties
+android/keystore/

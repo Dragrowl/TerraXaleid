@@ -74,151 +74,28 @@ python reveal.py "D:\...\我的世界.wld" --players-dir "D:\...\Terraria\Player
 ```
 
 点亮的 `.map` 会写回游戏目录，原文件保留为 `.map.bak`；结果弹窗里可以「撤销本次」。
-### 手机上直接用（Android）
+### 安装（release APK）
 
-`android/` 是一个独立 App（Material 3）：授予「所有文件访问权限」后，它会列出存档里的世界，选中世界 → 选角色（默认全部）→ 点亮。写入前自动备份为 `.map.bak`，结果页有「撤销本次」。
+```
+1) 把 dist\terramap-<版本>-release.apk 传到手机，允许「未知来源」后安装
+2) 首次启动：按提示授予「所有文件访问权限」（Android 11+ 需要手动去设置里打开）
+3) 安装并启动 Shizuku（root 或无线调试均可），回到 App 点「授权 Shizuku」→ 选「始终允许」
+4) 世界列表出现「游戏目录 (Shizuku)」→ 勾选世界 → 勾选角色 → 点亮所选
+```
+
+打包（本机）：
 
 ```powershell
 $env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
-cd android
-F:\Android\gradle\gradle-8.9\bin\gradle.bat :app:assembleDebug --no-daemon
-adb install -r app\build\outputs\apk\debug\app-debug.apk
+cd G:\terramap\android
+F:\Android\gradle\gradle-8.9\bin\gradle.bat :app:assembleRelease --no-daemon
+# 产物：app\build\outputs\apk\release\app-release.apk
 ```
 
-**关于 Android 11+ 的系统限制**：`MANAGE_EXTERNAL_STORAGE` 并不能让应用读取别的 App 的 `Android/data`，这是平台的硬限制（授权到位也一样，`ls` 直接 `Permission denied`）。App 因此优先读两个便携目录：
+**签名与升级**：`release` 用 `android/keystore/terramap-release.jks` 签名（alias `terramap`，密码放在 `android/keystore.properties`）。这两个文件都在 `.gitignore` 里，不随仓库分发；覆盖安装新版本必须用同一把 key，否则 Android 会拒绝升级。
 
-| 位置 | 用途 |
-|---|---|
-| `/sdcard/Download/TerrariaSaves/{Worlds,Players}` | 把存档复制进来，App 直接列出并点亮 |
-| `/sdcard/Documents/TerrariaSaves/{Worlds,Players}` | 同上，备份盘 |
+### 边界
 
-想直接写回游戏目录，用 PC 上的 `reveal.py` + `deploy.py`（走 adb，shell 用户有 `ext_data_rw` 权限）；root 设备后续会加 `su` 桥接。
-
-## 声明
-
-1. **本项目为独立第三方开源工具，与 Re-Logic 及 Terraria 官方无关。**
-2. **本项目主要由 AI 辅助编写与迭代（开发过程中使用了 DeepSeek-V4.1-Flash 辅助生成代码），核心功能均经过本地存档测试验证。因缺乏完整传统工程经验，代码结构可能存在不足，欢迎 Issue 反馈。**
-3. 许可证 **GPL-3.0-or-later**，全文见 [`LICENSE`](LICENSE)，各源码文件顶部带 `SPDX-License-Identifier: GPL-3.0-or-later`。
-
-<details>
-<summary><h2 id="边界">边界（为什么这样设计）</h2></summary>
-
-这些是**有意的设计约束**，不是暂时缺失：
-
-- **与 tModLoader 无关**：不加载、不依赖、不生成、不解析任何 `.tmod` / `.efmod`，玩家不需要装 tModLoader。功能不通过模组实现，等价效果由直接改写存档数据得到。
-- **不挂载 / 不注入游戏进程**：不注入 DLL、不 hook、不打内存补丁、不做运行时脚本、不修改 APK。工具在游戏关闭时离线处理文件。
-- **只修改地图缓存**：写入对象只有 `.map`；`.wld` 全程只读。
-- **不兼容国服心动版**（`con.xd.terraria`）：存档布局与版本体系不同，用国服存档运行会得到错误结果，不计划支持。
-
-</details>
-
-<details>
-<summary><h2 id="原理">原理（一格地图是怎么算出来的）</h2></summary>
-
-`.map` 不是图片，是 `4096` 格一块的稠密数组：每格 4 字节 `uint16 Type + uint8 Light + uint8 Color`，块内**列主序**，整块 zlib 压缩，头部有 `int32 长度` 前缀（长度为 0 表示整块未探索）。所以"点亮"= 把每格的 `Light` 写成 255、`Type` 按世界数据算出来。
-
-`Type` 是**调色板索引**，不是 tileID：`tile = 1 + prefixTile[tileID]`、`wall = 1 + ΣtileOptionCounts + prefixWall[wallID]`，之后依次是液体、天空渐变、泥土、岩石、地狱各段。1-based 这一点错过一次——写 0-based 会让整张图颜色错位一格（泥土变黑）。
-
-细节、字段表与踩过的坑见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) 与 [`docs/L1-STATUS.md`](docs/L1-STATUS.md)。
-
-</details>
-
-<details>
-<summary><h2 id="构建与验证">构建与验证</h2></summary>
-
-三份实现互相当对照，任何一份改动都要三份一起过。
-
-```powershell
-# 全量：Python + C# + Kotlin 依次自检，汇总 PASS/FAIL
-.\scripts\verify-all.ps1
-
-# 单跑
-python selftest.py
-dotnet run --project csharp\TerraMap.SelfTest            # 需要 .NET 10 SDK
-.\scripts\verify-kotlin.ps1                              # 需要 kotlinc 或 kotlin/.tools
-```
-
-真实存档级校验（可选，用来对黄金哈希）：
-
-```powershell
-dotnet run --project csharp\TerraMap.SelfTest -- --with-samples WORLD.wld TEMPLATE.map
-```
-
-期望输出 `reveal size 2158030 bytes, sha256 272C8A80…5FCF8`，与 Python 结果逐字节一致。
-
-Android 侧：
-
-```powershell
-cd android
-Copy-Item .\local.properties.example .\local.properties   # 把 sdk.dir 指到本机 SDK
-F:\Android\gradle\gradle-8.9\bin\gradle.bat :app:assembleDebug --no-daemon
-```
-
-工具链缺失时校验脚本以退出码 2 结束并打印 `toolchain: unavailable`，不是"通过"。
-
-</details>
-
-<details>
-<summary><h2 id="仓库结构">仓库结构</h2></summary>
-
-| 路径 | 内容 |
-|---|---|
-| `*.py`（根） | L1 参考实现：`worldfmt.py` 读 `.wld`、`mapfmt.py` 读写 `.map`、`players.py` 角色与文件名、`reveal.py` CLI、`deploy.py` 推设备 |
-| `csharp/` | L1 的 C# 实现（`net10.0`，零 NuGet）+ 自检 |
-| `kotlin/` | L1 的 Kotlin/JVM 实现（同时被 Android 模块直接引用） |
-| `android/` | Compose 外壳工程（Material 3） |
-| `scripts/` | 三语言校验脚本 |
-| `docs/` | 开发者文档：[架构](docs/ARCHITECTURE.md)、[贡献](docs/CONTRIBUTING.md)、[L1 状态](docs/L1-STATUS.md)、[索引](docs/INDEX.md) |
-| `samples/` | 样本说明（**不放真实存档**，路径由参数传入） |
-
-</details>
-
-<details>
-<summary><h2 id="限制">已知限制</h2></summary>
-
-- 写 `.map` 前**必须先退出游戏**，否则游戏退出时会用内存里的旧地图覆盖。
-- 推到 `/sdcard/...` 后需要 `chown u0_a72:ext_data_rw` + `chmod 660`；FUSE 上 `restorecon` 会报 `Operation not supported`，可忽略。
-- 图标、箱子等"地图上的小对象"不在 `.map` 里，属世界数据，本工具不涉及。
-- 世界被游戏升级重构过（tileID 段变了）后，旧模板的 option 计数表可能不再匹配，需要重新取模板。
-- **PC（Steam）的 `.map` 是旧格式 `fileVersion 318`（带 RLE），当前只认移动版 1.4.5.8 的 `33094`**。拿 PC 地图当模板会被明确拒绝（`unsupported map file version 318`），不会写坏文件。
-- 角色从没进过某个世界时，工具会为该角色新建一份 `.map`——这是"所有角色点亮"的预期行为，`--player` 可收窄范围。
-
-</details>
-
-<details>
-<summary><h2 id="路线">路线</h2></summary>
-
-版本线自 `0.1.0-dev.1` 起（SemVer，`0.x` 不承诺接口稳定）。
-
-- [x] L1 三语言实现（Python / C# / Kotlin）通过自检；C# 与 Python 输出逐字节一致
-- [x] 「世界 × 角色」逐角色写入、`--list` / `--player` / `--dry-run`
-- [x] Android Compose 骨架（`arm64-v8a` 优先）
-- [ ] Android APK：`arm64-v8a`、`armeabi-v7a`、`x86_64`
-- [ ] Windows：单文件 exe 或 portable（含 win-arm64）
-- [ ] 可选：`127.0.0.1` 本地控制台形态
-
-</details>
-
-<details>
-<summary><h2 id="许可">许可证</h2></summary>
-
-[GPL-3.0-or-later](LICENSE)（全文 35,149 B，取自 gnu.org）。选它的理由与项目形态一致：本项目读写他人存档格式，玩家需要能自行审计"到底改了哪几个字节"，并有权分发自己修改的版本；GPL-3.0 保证衍生版本同样开源。
-
-</details>
-
-## 反馈
-
-提 Issue 时带上这些，能省掉一轮来回：
-
-- 世界名、宽高、`GameMode`（`reveal.py` 会直接打印 `world : … id=… 6400x1800 surface=…`）
-- 模板 `.map` 的 `fileVersion`（318 是 PC 旧格式，见[已知限制](#限制)）
-- `--dry-run` 的完整输出，以及 `.\scripts\verify-all.ps1` 的结果
-- 平台与游戏版本（`v1.4.5.8.1 Build 1729` 这类完整串）
-
-较大的功能或架构调整，先在 Issue 里聊一下再动 PR。
-
-## 致谢
-
-- [Re-Logic](https://terraria.org/) 的 Terraria，以及 wiki 社区整理的[世界文件格式文档](https://terraria.wiki.gg/wiki/User:Minimiscience/World_File_Format)，`.wld` 的字段表有相当一部分靠它校准。
-- [lihzahrd](https://github.com/Stealthmate/lihzahrd)：其 `world.py` 的 tile 解码顺序被用作交叉验证（它只支持到 1.4.4.9，本项目在此基础上补了 1.4.5.8 的差异）。
-- [ilspycmd](https://github.com/icsharpcode/ILSpy)：反编译本机 PC 版 `Terraria.exe` 的 `Terraria.Map.MapHelper`，才拿到 `.map` 写入/读取的权威算法（区块 64×64、`MapTile` 4 字节、`Light<=18` 视为未探索）。
+- 只改存档文件；不改游戏进程、不注入、不挂载。
+- Android 侧一切读写都走 Shizuku shell（`sh -c`），App 自身只用普通 `File` 读暂存目录；不依赖 `su`，root 设备也一样。
+- 写回时保留原 `.map` 的属主与权限，原文件备份为 `.map.bak`，结果页可「撤销本次」。

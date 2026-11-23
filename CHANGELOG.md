@@ -3,6 +3,19 @@
 本项目遵循 [SemVer](https://semver.org/lang/zh-CN/)；`0.x` 阶段不承诺接口稳定。
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [0.1.0-dev.5] - 2026-11-24
+
+### Added
+- **发布签名**：`release` 变体用本地 keystore 签名（v2 方案，`CN=TerraMap`），产物 `terramap-0.1.0-dev.5-release.apk`，10.2 MB。keystore 与 `keystore.properties` 都在 `android/` 下且已加入 `.gitignore`，首次构建前缺失时 release 退化为未签名、不影响 debug 构建。
+- README 增加「安装与首次授权」小节（未知来源安装 → 所有文件访问权限 → Shizuku 授权）。
+
+### Changed
+- **所有对游戏存档的读写都走 Shizuku**，不再有 `su`/root 分支；adb root 只用于开发期排查。
+- Shizuku 以 root 运行时写回会保留原文件的属主与权限：覆盖前先 `stat` 原文件的 `uid:gid` 与 `mode`，写入后按原值 `chown`/`chmod`（`/sdcard` 上 `chmod` 可能返回 EOPNOTSUPP，失败容忍），避免 `root:root` 归属让游戏读不到地图。
+- 撤销同样保留属主/权限，并在设备侧比对 `.bak` 与恢复后的文件大小，不再依赖本地区性判断。
+
+### Notes
+- `versionCode 7`。R8 保持关闭：`ShizukuShell` 通过反射调用 `Shizuku.newProcess`，压缩会破坏它。
 ## [0.1.0-dev.4] - 2026-11-24
 
 ### Changed

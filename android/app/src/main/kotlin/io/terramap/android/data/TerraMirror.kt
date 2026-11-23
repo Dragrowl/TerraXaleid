@@ -98,9 +98,17 @@ object TerraMirror {
         // devices, which aborted the `&&` chain after the copy and made a successful write look like a
         // failure. Verifying the size of the remote file is the honest check.
         val expected = target.length()
+        // Everything goes through Shizuku, and Shizuku may well be running as root (the user can grant
+        // it superuser). A root `cp` would leave `root:root` ownership behind, so the owner and mode of
+        // the original are captured first and restored afterwards. `chmod` on /sdcard answers
+        // EOPNOTSUPP on some devices, hence `|| true` — the size check below is the real verdict.
         val command = buildString {
+            append("own=\$(stat -c %u:%g '$remote' 2>/dev/null); ")
+            append("mode=\$(stat -c %a '$remote' 2>/dev/null); ")
             append("if [ -f '$remote' ]; then cp -f '$remote' '$remote.bak'; fi; ")
-            append("cp -f '${target.absolutePath}' '$remote' && ")
+            append("cp -f '${target.absolutePath}' '$remote' || exit 1; ")
+            append("if [ -n \"\$own\" ]; then chown \"\$own\" '$remote' 2>/dev/null || true; fi; ")
+            append("if [ -n \"\$mode\" ]; then chmod \"\$mode\" '$remote' 2>/dev/null || true; fi; ")
             append("stat -c %s '$remote'")
         }
         val result = ShizukuShell.exec(command)
@@ -119,12 +127,25 @@ object TerraMirror {
         if (relative.isEmpty()) return false
         val remote = "$remoteBase/Players/$relative"
         val command = buildString {
-            append("if [ ! -f '$remote.bak' ]; then echo nobak; exit 1; fi && ")
-            append("cp -f '$remote.bak' '$remote' && chmod 660 '$remote' && ")
-            append("cp -f '$remote.bak' '${target.absolutePath}' && echo ok")
+            append("if [ ! -f '$remote.bak' ]; then echo nobak; exit 1; fi; ")
+            append("own=\$(stat -c %u:%g '$remote' 2>/dev/null); ")
+            append("mode=\$(stat -c %a '$remote' 2>/dev/null); ")
+            append("cp -f '$remote.bak' '$remote' || exit 1; ")
+            append("if [ -n \"\$own\" ]; then chown \"\$own\" '$remote' 2>/dev/null || true; fi; ")
+            append("if [ -n \"\$mode\" ]; then chmod \"\$mode\" '$remote' 2>/dev/null || true; fi; ")
+            append("cp -f '$remote.bak' '${target.absolutePath}' || exit 1; ")
+            // Compare the restored file against the backup on the device itself, so the check does not
+            // depend on what the staging area looks like.
+            append("bs=\$(stat -c %s '$remote.bak'); rs=\$(stat -c %s '$remote'); ")
+            append("if [ \"\$bs\" = \"\$rs\" ]; then echo \"\$rs\"; else echo mismatch; fi")
         }
         val result = ShizukuShell.exec(command)
-        return result?.out?.contains("ok") == true
+        val size = result?.out?.trim()?.lines()?.lastOrNull()?.trim()?.toLongOrNull()
+        if (result == null || !result.ok || size == null || size <= 0) {
+            Log.w(TAG, "mirror restore failed for $remote: code=${result?.code} size=$size err=${result?.err}")
+            return false
+        }
+        return true
     }
 
     fun cleanup() {

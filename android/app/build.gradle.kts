@@ -1,6 +1,17 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+}
+
+// Release signing lives outside the repository: `android/keystore.properties` points at the .jks next
+// to it. Without that file the release build simply stays unsigned (debug builds are unaffected), so a
+// fresh clone still compiles.
+val keystoreProperties: Properties? = run {
+    val file = rootProject.file("keystore.properties")
+    if (!file.exists()) return@run null
+    Properties().apply { file.inputStream().use { load(it) } }
 }
 
 android {
@@ -11,8 +22,8 @@ android {
         applicationId = "io.terramap.android"
         minSdk = 24
         targetSdk = 34
-        versionCode = 6
-        versionName = "0.1.0-dev.4"
+        versionCode = 7
+        versionName = "0.1.0-dev.5"
     }
 
     buildFeatures {
@@ -33,9 +44,26 @@ android {
         jvmTarget = "17"
     }
 
+    signingConfigs {
+        if (keystoreProperties != null) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            // R8 stays off: ShizukuShell calls Shizuku.newProcess via reflection, and the Shizuku
+            // provider plus Compose would need a hand-written keep file to survive shrinking.
             isMinifyEnabled = false
+            isDebuggable = false
+            if (keystoreProperties != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="brand_background">#FFFBF7F2</color>
+    <!-- Base declaration so the night-only value has a default; values-night overrides it. -->
+    <color name="brand_background_dark">#FF12140F</color>
     <color name="ic_launcher_background">#FF12161D</color>
 </resources>
