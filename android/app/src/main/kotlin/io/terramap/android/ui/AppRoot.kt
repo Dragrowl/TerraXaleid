@@ -578,13 +578,15 @@ private fun WorldCard(
                         add(entry.meta.evil)
                         // Progression as chips in the same scrollable row: pre-hardmode /
                         // hardmode / journey's end are mutually informative, not a separate line.
+                        // Hardmode is a necessary but not sufficient condition for the Moon Lord, so
+                        // the three states are mutually exclusive: only the furthest one is shown.
                         add(
-                            if (entry.meta.hardMode) context.getString(R.string.label_hardmode_short)
-                            else context.getString(R.string.label_prehard_short)
+                            when {
+                                entry.meta.defeatedMoonLord -> context.getString(R.string.label_journeys_end)
+                                entry.meta.hardMode -> context.getString(R.string.label_hardmode_short)
+                                else -> context.getString(R.string.label_prehard_short)
+                            }
                         )
-                        if (entry.meta.defeatedMoonLord) {
-                            add(context.getString(R.string.label_journeys_end))
-                        }
                         if (entry.meta.seedFlags.any { it == "getGood" }) {
                             add("FTW")
                         }
