@@ -1,0 +1,344 @@
+package io.terramap.shots
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.Restore
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.Typography
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+
+/**
+ * Screenshot harness. Everything here is hardcoded on purpose:
+ *
+ * - no file access, no permissions, no config: the theme comes from the launch intent only;
+ * - every string is a pre-generated random token rendered with the Sarcaz font, and the very same list
+ *   is used for the light and the dark capture so the pair differs in colour alone;
+ * - the system bars are hidden, so the top row of pixels is the top of the title bar - that is where
+ *   the 3:2 crop starts.
+ */
+class MainActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val dark = intent.getIntExtra(EXTRA_THEME, THEME_LIGHT) == THEME_DARK
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            hide(WindowInsetsCompat.Type.systemBars())
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+        setContent { ShotsTheme(dark) { MockWorlds() } }
+    }
+
+    companion object {
+        const val EXTRA_THEME = "theme"
+        const val THEME_LIGHT = 0
+        const val THEME_DARK = 1
+    }
+}
+
+// ---------------------------------------------------------------------------------------------
+// Palette: identical values to the app's graphite scheme. Kept in sync by hand; this module is not
+// part of the build that ships.
+// ---------------------------------------------------------------------------------------------
+
+private val ShotsLight = lightColorScheme(
+    primary = Color(0xFF4F5A51),
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFFDCE3DD),
+    onPrimaryContainer = Color(0xFF10140F),
+    secondary = Color(0xFF5B5851),
+    onSecondary = Color.White,
+    secondaryContainer = Color(0xFFE4E0D9),
+    onSecondaryContainer = Color(0xFF191713),
+    tertiary = Color(0xFF525C60),
+    onTertiary = Color.White,
+    tertiaryContainer = Color(0xFFDCE3E6),
+    onTertiaryContainer = Color(0xFF0B1113),
+    background = Color(0xFFF6F6F4),
+    onBackground = Color(0xFF1A1A18),
+    surface = Color(0xFFF6F6F4),
+    onSurface = Color(0xFF1A1A18),
+    surfaceVariant = Color(0xFFE8E8E4),
+    onSurfaceVariant = Color(0xFF494944),
+    outline = Color(0xFF7A7A73),
+    outlineVariant = Color(0xFFCFCFC9),
+)
+
+private val ShotsDark = darkColorScheme(
+    primary = Color(0xFFB4C3B6),
+    onPrimary = Color(0xFF1F2A21),
+    primaryContainer = Color(0xFF3A463B),
+    onPrimaryContainer = Color(0xFFD5E3D7),
+    secondary = Color(0xFFC7C2B8),
+    onSecondary = Color(0xFF2A2823),
+    secondaryContainer = Color(0xFF45423B),
+    onSecondaryContainer = Color(0xFFE9E4DA),
+    tertiary = Color(0xFFB6C5C9),
+    onTertiary = Color(0xFF1D2A2D),
+    tertiaryContainer = Color(0xFF37474B),
+    onTertiaryContainer = Color(0xFFD6E5E9),
+    background = Color(0xFF121212),
+    onBackground = Color(0xFFE3E3DF),
+    surface = Color(0xFF121212),
+    onSurface = Color(0xFFE3E3DF),
+    surfaceVariant = Color(0xFF232322),
+    onSurfaceVariant = Color(0xFFC7C7C1),
+    outline = Color(0xFF8F8F88),
+    outlineVariant = Color(0xFF3A3A38),
+)
+
+private val Sarcaz = FontFamily(Font(R.font.endfield_by_butan))
+
+private fun sarcazTypography(): Typography {
+    val base = Typography()
+    fun TextStyle.withSarcaz() = copy(fontFamily = Sarcaz)
+    return Typography(
+        displayLarge = base.displayLarge.withSarcaz(),
+        displayMedium = base.displayMedium.withSarcaz(),
+        displaySmall = base.displaySmall.withSarcaz(),
+        headlineLarge = base.headlineLarge.withSarcaz(),
+        headlineMedium = base.headlineMedium.withSarcaz(),
+        headlineSmall = base.headlineSmall.withSarcaz(),
+        titleLarge = base.titleLarge.withSarcaz(),
+        titleMedium = base.titleMedium.withSarcaz(),
+        titleSmall = base.titleSmall.withSarcaz(),
+        bodyLarge = base.bodyLarge.withSarcaz(),
+        bodyMedium = base.bodyMedium.withSarcaz(),
+        bodySmall = base.bodySmall.withSarcaz(),
+        labelLarge = base.labelLarge.withSarcaz(),
+        labelMedium = base.labelMedium.withSarcaz(),
+        labelSmall = base.labelSmall.withSarcaz(),
+    )
+}
+
+@Composable
+private fun ShotsTheme(dark: Boolean, content: @Composable () -> Unit) {
+    MaterialTheme(
+        colorScheme = if (dark) ShotsDark else ShotsLight,
+        typography = sarcazTypography(),
+        content = content,
+    )
+}
+
+// ---------------------------------------------------------------------------------------------
+// Pre-generated content. Lengths run from 3 to 17 characters; the same list feeds both captures.
+// ---------------------------------------------------------------------------------------------
+
+private val Title = "Sarqeth Var"
+
+private val Roots = listOf("Olumeth", "Zhul Karrn")
+
+private val Notice = "Vethra Sarqeth olumeth karrn zhul, vaedra tesh korvane azh karan vethra."
+
+private val Worlds = listOf(
+    Triple("Korvane Tesh Zhul", listOf("Vaedra", "Azhkaran Veth", "Mel"), "Sarqeth olumeth karrn."),
+    Triple("Zi Uk", listOf("Sarqeth", "Tesh", "Korvane"), "Vaedra zhul."),
+    Triple("Azhkaran Veth Mel Dra", listOf("Olumeth Kar", "Zhul", "Vethra"), "Uk sarqeth karrn olumeth."),
+)
+
+private val Footer = listOf("Vaedra", "Zhul")
+
+// ---------------------------------------------------------------------------------------------
+// Layout: the same shapes as the world list page, nothing interactive.
+// ---------------------------------------------------------------------------------------------
+
+@Composable
+private fun MockWorlds() {
+    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+            TitleBar()
+            Column(Modifier.padding(horizontal = 16.dp)) {
+                Spacer(Modifier.height(8.dp))
+                RootChips()
+                Spacer(Modifier.height(12.dp))
+                NoticeCard()
+                Spacer(Modifier.height(12.dp))
+                Worlds.forEach { world ->
+                    WorldCard(world.first, world.second, world.third)
+                    Spacer(Modifier.height(12.dp))
+                }
+                FooterBar()
+            }
+        }
+    }
+}
+
+@Composable
+private fun TitleBar() {
+    Row(
+        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = Title,
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.weight(1f),
+        )
+        Icon(
+            Icons.Outlined.Restore,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.size(26.dp),
+        )
+        Spacer(Modifier.width(20.dp))
+        Icon(
+            Icons.Outlined.Refresh,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.size(26.dp),
+        )
+    }
+}
+
+@Composable
+private fun RootChips() {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Roots.forEachIndexed { index, label ->
+            val selected = index == 0
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                color = if (selected) {
+                    MaterialTheme.colorScheme.secondaryContainer
+                } else {
+                    Color.Transparent
+                },
+                border = if (selected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = if (selected) {
+                        MaterialTheme.colorScheme.onSecondaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun NoticeCard() {
+    Surface(
+        Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Text(
+            text = Notice,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(20.dp),
+        )
+    }
+}
+
+@Composable
+private fun WorldCard(title: String, chips: List<String>, note: String) {
+    Surface(
+        Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Column(Modifier.padding(20.dp)) {
+            Row(verticalAlignment = Alignment.Top) {
+                Icon(
+                    Icons.Outlined.Map,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(28.dp),
+                )
+                Spacer(Modifier.width(14.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f),
+                )
+                Checkbox(checked = false, onCheckedChange = null)
+            }
+            Spacer(Modifier.height(12.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                chips.forEach { label ->
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = Color.Transparent,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    ) {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+            Text(
+                text = note,
+                style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun FooterBar() {
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(24.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = Footer[0],
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = Footer[1],
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}

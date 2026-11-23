@@ -3,6 +3,23 @@
 本项目遵循 [SemVer](https://semver.org/lang/zh-CN/)；`0.x` 阶段不承诺接口稳定。
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [0.1.1-dev.3] - 2026-11-24
+
+### Changed
+- **配色回到灰阶附近**：上一版主体色是暖白 `#FBF7F2` 和偏绿的 `#14170F`/`#2A2F26`，看起来又暖又绿。
+  现在浅色用 `#F6F6F4` 底 / `#E8E8E4` 卡片 / `#1A1A18` 正文，深色用 `#121212` 底 / `#232322` 卡片 /
+  `#E3E3DF` 正文；主色 `#4F5A51`（深）/ `#B4C3B6`（浅）饱和度压到 2–4%，整体读起来是中性石墨而不是
+  暖纸或绿黑。新增 `outline`/`outlineVariant` 两档，边框不再靠 `surfaceVariant` 硬顶。
+
+### Added
+- `docs/shots/` 里存了一份**截图用的独立工程**（Kotlin 源、manifest、build 脚本的副本，仅存档参考）：
+  它不在 Gradle 构建里、不进 APK，硬编码萨卡兹字体与预生成字符串、不读任何文件、隐藏系统栏。
+- `docs/assets/shots/`：实机截图 `light-3x2.png`、`dark-3x2.png` 与合成后的 `auto-3x2.png`
+  （3:2，从标题栏顶部起裁）。
+
+### Notes
+- 3:2 画幅下的 65° 切线落点与正方形不同：`w=1440,h=960` 时线从顶边 `x≈944` 进、底边 `x≈496` 出，
+  因为陡线在宽画幅里是穿上下边而不是左右边。
 ## [0.1.1-dev.2] - 2026-11-24
 
 ### Added

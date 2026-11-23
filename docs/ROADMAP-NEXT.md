@@ -49,6 +49,18 @@
    左半取浅色截图、右半取深色截图。
 5. 现有的 `theme_thumb_*.xml` 只是占位，最终要换成上面生成的位图（`drawable-nodpi` 或按密度切图）。
 
+**截图工程（已完成，见 `docs/shots/`，工程本体在 `G:\terramap-shots\`，不进这个仓库）**
+
+- 独立的 `io.terramap.shots` 应用，`allWarningsAsErrors = true` + `lint { warningsAsErrors = true }`，
+  当前 0 警告 0 lint 错误。
+- 硬编码 `Font(R.font.endfield_by_butan)` 套到整套 `Typography`；文本是预先写死的随机串
+  （长度 3–17），深浅两次用**同一批字符串**。
+- 不读任何文件、不申请权限、不查 Shizuku；主题只由启动参数决定：
+  `adb shell am start -n io.terramap.shots/.MainActivity --ei theme 0|1`。
+- 隐藏系统栏（沉浸式），所以屏幕第一行像素就是标题栏顶部，3:2 裁切从 `y=0` 开始。
+- 产出：`docs/assets/shots/{light,dark}-3x2.png` 与合成图 `auto-3x2.png`。
+- 3:2 画幅下切线落点：`w=1440,h=960` 时从顶边 `x≈944`、底边 `x≈496`（陡线穿上下边）。
+
 ## 4. 图标里的萨卡兹语文本
 
 - 字体：`res/font/endfield_by_butan.ttf`，来自

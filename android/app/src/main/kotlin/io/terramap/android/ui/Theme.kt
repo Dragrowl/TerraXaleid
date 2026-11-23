@@ -15,61 +15,69 @@ import androidx.compose.ui.platform.LocalContext
 import io.terramap.android.data.DarkVariant
 import io.terramap.android.data.ThemeMode
 
-private val Leaf = Color(0xFF4C6B43)
-private val LeafDark = Color(0xFFB6D3A8)
-private val Soil = Color(0xFF7A5A3A)
-private val SoilDark = Color(0xFFE4C4A2)
-private val Stone = Color(0xFF46626B)
-private val StoneDark = Color(0xFFA8CBD4)
+// The palette is deliberately close to the grey axis: every tone below sits at a chroma of roughly two
+// to four percent, so the UI reads as neutral graphite with a faint green-grey cast instead of a warm
+// paper white or a green-tinted black. Accent saturations are kept low for the same reason - the name
+// and the chips are what should stand out, not the surfaces behind them.
+private val Graphite = Color(0xFF4F5A51)
+private val GraphiteLight = Color(0xFFB4C3B6)
+private val WarmGrey = Color(0xFF5B5851)
+private val WarmGreyLight = Color(0xFFC7C2B8)
+private val CoolGrey = Color(0xFF525C60)
+private val CoolGreyLight = Color(0xFFB6C5C9)
 
 private val LightScheme = lightColorScheme(
-    primary = Leaf,
+    primary = Graphite,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFCDE9C1),
-    onPrimaryContainer = Color(0xFF0B2005),
-    secondary = Soil,
+    primaryContainer = Color(0xFFDCE3DD),
+    onPrimaryContainer = Color(0xFF10140F),
+    secondary = WarmGrey,
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFF1DCC5),
-    onSecondaryContainer = Color(0xFF2A1808),
-    tertiary = Stone,
+    secondaryContainer = Color(0xFFE4E0D9),
+    onSecondaryContainer = Color(0xFF191713),
+    tertiary = CoolGrey,
     onTertiary = Color.White,
-    tertiaryContainer = Color(0xFFCBE7EF),
-    onTertiaryContainer = Color(0xFF001F26),
-    background = Color(0xFFFBF7F2),
-    onBackground = Color(0xFF1C1B18),
-    surface = Color(0xFFFBF7F2),
-    onSurface = Color(0xFF1C1B18),
-    surfaceVariant = Color(0xFFEFEAE1),
-    onSurfaceVariant = Color(0xFF4A463E),
+    tertiaryContainer = Color(0xFFDCE3E6),
+    onTertiaryContainer = Color(0xFF0B1113),
+    background = Color(0xFFF6F6F4),
+    onBackground = Color(0xFF1A1A18),
+    surface = Color(0xFFF6F6F4),
+    onSurface = Color(0xFF1A1A18),
+    surfaceVariant = Color(0xFFE8E8E4),
+    onSurfaceVariant = Color(0xFF494944),
+    outline = Color(0xFF7A7A73),
+    outlineVariant = Color(0xFFCFCFC9),
 )
 
 private val DarkScheme = darkColorScheme(
-    primary = LeafDark,
-    onPrimary = Color(0xFF14300C),
-    primaryContainer = Color(0xFF35502C),
-    onPrimaryContainer = Color(0xFFCDE9C1),
-    secondary = SoilDark,
-    onSecondary = Color(0xFF40290F),
-    secondaryContainer = Color(0xFF5A4026),
-    onSecondaryContainer = Color(0xFFF1DCC5),
-    tertiary = StoneDark,
-    onTertiary = Color(0xFF00363F),
-    tertiaryContainer = Color(0xFF2C4A52),
-    onTertiaryContainer = Color(0xFFCBE7EF),
-    background = Color(0xFF14170F),
-    onBackground = Color(0xFFE6E2D9),
-    surface = Color(0xFF14170F),
-    onSurface = Color(0xFFE6E2D9),
-    surfaceVariant = Color(0xFF2A2F26),
-    onSurfaceVariant = Color(0xFFC9C4BA),
+    primary = GraphiteLight,
+    onPrimary = Color(0xFF1F2A21),
+    primaryContainer = Color(0xFF3A463B),
+    onPrimaryContainer = Color(0xFFD5E3D7),
+    secondary = WarmGreyLight,
+    onSecondary = Color(0xFF2A2823),
+    secondaryContainer = Color(0xFF45423B),
+    onSecondaryContainer = Color(0xFFE9E4DA),
+    tertiary = CoolGreyLight,
+    onTertiary = Color(0xFF1D2A2D),
+    tertiaryContainer = Color(0xFF37474B),
+    onTertiaryContainer = Color(0xFFD6E5E9),
+    background = Color(0xFF121212),
+    onBackground = Color(0xFFE3E3DF),
+    surface = Color(0xFF121212),
+    onSurface = Color(0xFFE3E3DF),
+    surfaceVariant = Color(0xFF232322),
+    onSurfaceVariant = Color(0xFFC7C7C1),
+    outline = Color(0xFF8F8F88),
+    outlineVariant = Color(0xFF3A3A38),
 )
 
 /** Same palette, but every base surface is pure black so an OLED panel actually switches pixels off. */
 private val OledDarkScheme = DarkScheme.copy(
     background = Color.Black,
     surface = Color.Black,
-    surfaceVariant = Color(0xFF0A0A0A),
-    onSurfaceVariant = Color(0xFFC9C4BA),
+    surfaceVariant = Color(0xFF0B0B0B),
+    onSurfaceVariant = Color(0xFFC7C7C1),
 )
 
 /**
