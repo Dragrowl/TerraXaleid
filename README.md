@@ -77,7 +77,7 @@ python reveal.py "D:\...\我的世界.wld" --players-dir "D:\...\Terraria\Player
 ### 安装（release APK）
 
 ```
-1) 把 dist\terramap-<版本>-release.apk 传到手机，允许「未知来源」后安装
+1) 把 dist\terramap-<版本>.apk 传到手机，允许「未知来源」后安装
 2) 首次启动：按提示授予「所有文件访问权限」（Android 11+ 需要手动去设置里打开）
 3) 安装并启动 Shizuku（root 或无线调试均可），回到 App 点「授权 Shizuku」→ 选「始终允许」
 4) 世界列表出现「游戏目录 (Shizuku)」→ 勾选世界 → 勾选角色 → 点亮所选

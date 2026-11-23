@@ -3,6 +3,16 @@
 本项目遵循 [SemVer](https://semver.org/lang/zh-CN/)；`0.x` 阶段不承诺接口稳定。
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [0.1.0-dev.7] - 2026-11-24
+
+### Changed
+- **产物命名规则**：`dist/` 里只保留 `<name>-<versionName>.apk`（如 `terramap-0.1.0-dev.7.apk`）。构建类型、签名状态或本次改了什么，一律写在提交信息、git tag 和 CHANGELOG 里，不进文件名——同一版本出现多个只差后缀的文件，迟早会装错。历史产物同步改名（`-liquid`、`-shizuku`、`-release` 三个后缀已去掉）。
+
+### Added
+- `scripts/package-apk.ps1`：从 `app/build.gradle.kts` 读 `versionName`/`versionCode`，跑 `assembleRelease`，把产物拷成 `dist/terramap-<versionName>.apk` 并打印大小与 SHA-256。`-SkipBuild` 只做拷贝与校验。
+
+### Notes
+- `versionCode 9`。
 ## [0.1.0-dev.6] - 2026-11-24
 
 ### Fixed
