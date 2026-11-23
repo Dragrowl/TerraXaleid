@@ -10,6 +10,21 @@
 - `dist/` 文件名只带 `versionName`（`terramap-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
 
+## [0.1.0-dev.19] - 2026-11-24
+
+### Added
+- **设置页**（`ui/SettingsScreen.kt`）：卡片式，每项带副标题，先落地「行为」卡。
+- **顶栏下拉**：世界列表右上角改为 `⋮` 菜单，含「设置 / 恢复与备份 / 刷新」，不再让两个图标各自占位。
+- `AppConfig` 增加 `backExit`（`background` / `kill`）与 `AppConfigStore.write()`：写到 `.tmp` 再改名，失败只记日志不抛。`ui/ThemeController.kt` 持有配置状态，设置页改动即时写入。
+- 返回行为可配置：`kill` 时按返回结束进程（先 `finishAndRemoveTask()` 再 `Process.killProcess()`，正在写图时降级为退回后台），`background` 时只把任务退到后台，进程与已解析的世界留在内存里。
+
+### Changed
+- 主题切换改成逐槽 `animateColorAsState`（300 ms，emphasized decelerate），不再整树 `Crossfade`——后者会重建组合、把当前页面和勾选状态一起丢掉。
+- `ThemeMode.Auto` 不再使用 Android 12+ 的动态取色：跟随系统只决定明暗，配色仍用本项目自己的石墨灰，缩略图才对得上。
+- 过渡动效常量搬到 `ui/Motion.kt`，页面切换与主题渐变共用同一组曲线。
+
+### Notes
+- `versionCode 21`。
 ## [0.1.0-dev.18] - 2026-11-24
 
 ### Changed

@@ -12,7 +12,7 @@ import org.json.JSONObject
  *
  * This exists because the theme has to be reproducible from the outside: the theme thumbnails are
  * captured from the running app, so a build must be able to boot straight into light or dark without
- * anyone touching the UI. The settings screen will write the same file later.
+ * anyone touching the UI. The settings screen writes the same file.
  */
 enum class ThemeMode(val wire: String) {
     Auto("auto"),
@@ -38,15 +38,34 @@ enum class DarkVariant(val wire: String) {
     }
 }
 
+/**
+ * What a back press on the world list does.
+ *
+ * [Background] keeps the activity alive behind whatever the user opens next, [Kill] removes the task
+ * so no process is left holding the parsed world and map. Both are one press: there is no
+ * "press twice to exit" step.
+ */
+enum class BackExit(val wire: String) {
+    Background("background"),
+    Kill("kill"),
+    ;
+
+    companion object {
+        fun fromWire(value: String?): BackExit =
+            entries.firstOrNull { it.wire.equals(value?.trim(), ignoreCase = true) } ?: Background
+    }
+}
+
 data class AppConfig(
     val theme: ThemeMode = ThemeMode.Auto,
     val darkVariant: DarkVariant = DarkVariant.Standard,
+    val backExit: BackExit = BackExit.Background,
     /** Where this config was read from, for the log line. Null when nothing existed yet. */
     val source: String? = null,
 )
 
 /**
- * Reads `terramap.json`. Lookup order, first hit wins:
+ * Reads and writes `terramap.json`. Lookup order, first hit wins:
  *
  * 1. `/sdcard/Android/data/io.terramap.android/files/terramap.json` — the app's own external dir,
  *    writable over adb without any permission and survives reinstalls of the same package;
@@ -72,19 +91,8 @@ object AppConfigStore {
         if (hit == null) {
             // Seed the first location so editing it in place is possible without guessing the schema.
             val seed = files.first()
-            runCatching {
-                seed.parentFile?.mkdirs()
-                seed.writeText(
-                    """
-                    {
-                      "theme": "auto",
-                      "darkVariant": "standard"
-                    }
-                    """.trimIndent() + "\n",
-                    Charsets.UTF_8,
-                )
-            }.onFailure { Log.w(TAG, "could not seed $seed: ${it.message}") }
-            Log.i(TAG, "config: none found, seeded ${seed.absolutePath}; using theme=auto darkVariant=standard")
+            writeFile(seed, AppConfig())
+            Log.i(TAG, "config: none found, seeded ${seed.absolutePath}; using defaults")
             return AppConfig()
         }
         val config = runCatching {
@@ -92,13 +100,56 @@ object AppConfigStore {
             AppConfig(
                 theme = ThemeMode.fromWire(json.optString("theme")),
                 darkVariant = DarkVariant.fromWire(json.optString("darkVariant")),
+                backExit = BackExit.fromWire(json.optString("backExit")),
                 source = hit.absolutePath,
             )
         }.getOrElse { error ->
             Log.w(TAG, "config: ${hit.absolutePath} is unreadable (${error.message}); using defaults")
             AppConfig(source = hit.absolutePath)
         }
-        Log.i(TAG, "config: theme=${config.theme.wire} darkVariant=${config.darkVariant.wire} from=${config.source}")
+        Log.i(
+            TAG,
+            "config: theme=${config.theme.wire} darkVariant=${config.darkVariant.wire} " +
+                "backExit=${config.backExit.wire} from=${config.source}",
+        )
         return config
+    }
+
+    /**
+     * Writes the same location [read] would hit first. Failure is logged, never thrown: a read-only
+     * external dir must not break a theme switch that already happened in memory.
+     */
+    fun write(context: Context, config: AppConfig): Boolean {
+        val target = candidates(context).first()
+        if (writeFile(target, config)) {
+            Log.i(
+                TAG,
+                "config: wrote theme=${config.theme.wire} darkVariant=${config.darkVariant.wire} " +
+                    "backExit=${config.backExit.wire} to=${target.absolutePath}",
+            )
+            return true
+        }
+        return false
+    }
+
+    /** Write to a sibling temp file and rename, so a half-written file never becomes the live config. */
+    private fun writeFile(target: File, config: AppConfig): Boolean = runCatching {
+        val json = JSONObject()
+            .put("theme", config.theme.wire)
+            .put("darkVariant", config.darkVariant.wire)
+            .put("backExit", config.backExit.wire)
+        val body = json.toString(2) + "\n"
+        target.parentFile?.mkdirs()
+        val temp = File(target.parentFile, "$FILE_NAME.tmp")
+        temp.writeText(body, Charsets.UTF_8)
+        if (!temp.renameTo(target)) {
+            // Devices where rename across the FUSE boundary fails: fall back to a direct write.
+            target.writeText(body, Charsets.UTF_8)
+            temp.delete()
+        }
+        true
+    }.getOrElse { error ->
+        Log.w(TAG, "config: could not write ${target.absolutePath} (${error.message})")
+        false
     }
 }

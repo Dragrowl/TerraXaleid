@@ -2,16 +2,15 @@
 
 package io.terramap.android.ui
 
-import android.os.Build
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import io.terramap.android.data.DarkVariant
 import io.terramap.android.data.ThemeMode
 
@@ -77,11 +76,58 @@ private val OledDarkScheme = DarkScheme.copy(
     background = Color.Black,
     surface = Color.Black,
     surfaceVariant = Color(0xFF0B0B0B),
-    onSurfaceVariant = Color(0xFFC7C7C1),
 )
 
+/** Resolves the config into a concrete scheme. Dynamic colour is intentionally not used. */
+private fun schemeFor(mode: ThemeMode, darkVariant: DarkVariant, systemDark: Boolean): ColorScheme {
+    val darkTheme = when (mode) {
+        ThemeMode.Auto -> systemDark
+        ThemeMode.Light -> false
+        ThemeMode.Dark -> true
+    }
+    return when {
+        !darkTheme -> LightScheme
+        darkVariant == DarkVariant.Oled -> OledDarkScheme
+        else -> DarkScheme
+    }
+}
+
 /**
- * @param mode forced by the config file; [ThemeMode.Auto] follows the system setting.
+ * Cross-fades every slot the UI actually reads, so a theme switch animates instead of snapping.
+ *
+ * A `Crossfade` over the whole tree would be simpler, but it would rebuild the composition and throw
+ * away the current stage, selected worlds and scroll position - the switch happens on the settings
+ * screen, so that would eject the user from where they are.
+ */
+@Composable
+private fun animatedScheme(target: ColorScheme): ColorScheme {
+    val spec = tween<Color>(StageTransitionMs, easing = EmphasizedDecelerate)
+    return target.copy(
+        primary = animateColorAsState(target.primary, spec, label = "primary").value,
+        onPrimary = animateColorAsState(target.onPrimary, spec, label = "onPrimary").value,
+        primaryContainer = animateColorAsState(target.primaryContainer, spec, label = "primaryContainer").value,
+        onPrimaryContainer = animateColorAsState(target.onPrimaryContainer, spec, label = "onPrimaryContainer").value,
+        secondary = animateColorAsState(target.secondary, spec, label = "secondary").value,
+        onSecondary = animateColorAsState(target.onSecondary, spec, label = "onSecondary").value,
+        secondaryContainer = animateColorAsState(target.secondaryContainer, spec, label = "secondaryContainer").value,
+        onSecondaryContainer = animateColorAsState(target.onSecondaryContainer, spec, label = "onSecondaryContainer").value,
+        tertiary = animateColorAsState(target.tertiary, spec, label = "tertiary").value,
+        onTertiary = animateColorAsState(target.onTertiary, spec, label = "onTertiary").value,
+        tertiaryContainer = animateColorAsState(target.tertiaryContainer, spec, label = "tertiaryContainer").value,
+        onTertiaryContainer = animateColorAsState(target.onTertiaryContainer, spec, label = "onTertiaryContainer").value,
+        background = animateColorAsState(target.background, spec, label = "background").value,
+        onBackground = animateColorAsState(target.onBackground, spec, label = "onBackground").value,
+        surface = animateColorAsState(target.surface, spec, label = "surface").value,
+        onSurface = animateColorAsState(target.onSurface, spec, label = "onSurface").value,
+        surfaceVariant = animateColorAsState(target.surfaceVariant, spec, label = "surfaceVariant").value,
+        onSurfaceVariant = animateColorAsState(target.onSurfaceVariant, spec, label = "onSurfaceVariant").value,
+        outline = animateColorAsState(target.outline, spec, label = "outline").value,
+        outlineVariant = animateColorAsState(target.outlineVariant, spec, label = "outlineVariant").value,
+    )
+}
+
+/**
+ * @param mode forced by the config file; [ThemeMode.Auto] follows the system light/dark setting.
  * @param darkVariant only meaningful when the resolved theme ends up dark.
  */
 @Composable
@@ -90,21 +136,8 @@ fun TerramapTheme(
     darkVariant: DarkVariant = DarkVariant.Standard,
     content: @Composable () -> Unit,
 ) {
-    val context = LocalContext.current
+    // isSystemInDarkTheme() is state, so the composition already re-runs when the system flips.
     val systemDark = isSystemInDarkTheme()
-    val darkTheme = when (mode) {
-        ThemeMode.Auto -> systemDark
-        ThemeMode.Light -> false
-        ThemeMode.Dark -> true
-    }
-    val scheme = when {
-        // Dynamic colour only when nothing is forced: a forced theme has to look the same on every
-        // device, which is exactly what the screenshot captures depend on.
-        mode == ThemeMode.Auto && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        darkTheme && darkVariant == DarkVariant.Oled -> OledDarkScheme
-        darkTheme -> DarkScheme
-        else -> LightScheme
-    }
+    val scheme = animatedScheme(schemeFor(mode, darkVariant, systemDark))
     MaterialTheme(colorScheme = scheme, content = content)
 }

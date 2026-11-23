@@ -9,6 +9,16 @@
     <string name="perm_granted">已获得访问权限</string>
     <string name="perm_check_again">我已授权，重新检查</string>
 
+    <string name="menu_more">更多</string>
+    <string name="menu_settings">设置</string>
+    <string name="menu_restore">恢复与备份</string>
+    <string name="menu_refresh">刷新</string>
+
+    <string name="settings_title">设置</string>
+    <string name="action_back">返回</string>
+    <string name="behavior_title">行为</string>
+    <string name="behavior_exit_title">退回桌面时结束进程</string>
+    <string name="behavior_exit_body">关闭时应用留在后台，再次打开立即回来；开启时按返回就结束进程，不占内存。</string>
     <string name="worlds_title">选择世界</string>
     <string name="worlds_hint">保存位置</string>
     <string name="worlds_empty">这个位置没有 .wld 存档</string>

@@ -4,12 +4,13 @@
 
 package io.terramap.android.ui
 
+import android.app.Activity
+import android.os.Process
 import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -41,6 +42,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Restore
@@ -51,6 +53,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -82,6 +86,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import io.terramap.android.R
+import io.terramap.android.data.BackExit
 import io.terramap.android.data.Backups
 import io.terramap.android.data.CharacterEntry
 import io.terramap.android.data.ItemResult
@@ -110,20 +115,20 @@ private sealed interface Stage {
     data object Worlds : Stage
     data class Characters(val entry: WorldEntry) : Stage
     data object Restore : Stage
+    data object Settings : Stage
 }
 
 /**
  * Material "shared axis X" between stages: the incoming screen slides in by an eighth of the width
- * while fading in, the outgoing one slides the other way. The curves are Google's emphasized easings -
- * decelerate on the way in, accelerate on the way out - with the 300 ms duration the spec uses.
+ * while fading in, the outgoing one slides the other way. The curves and the duration live in
+ * `Motion.kt` and are shared with the theme cross-fade.
  */
-private const val StageTransitionMs = 300
 
-private val EmphasizedDecelerate = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1f)
-private val EmphasizedAccelerate = CubicBezierEasing(0.3f, 0f, 0.8f, 0.15f)
-
-/** Worlds is the root; everything else is one level down and therefore slides in from the right. */
-private fun stageDepth(stage: Stage): Int = if (stage is Stage.Worlds) 0 else 1
+/** Worlds is the root; settings sits one level down; about sits below settings. */
+private fun stageDepth(stage: Stage): Int = when (stage) {
+    is Stage.Worlds -> 0
+    is Stage.Characters, is Stage.Restore, is Stage.Settings -> 1
+}
 
 private fun stageTransition(from: Stage, to: Stage): ContentTransform {
     val forward = stageDepth(to) >= stageDepth(from)
@@ -307,9 +312,31 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
     val root: SaveRoot? = roots.getOrNull(rootIndex)
 
     // Without this the system back gesture finishes the activity from any screen and drops the user on
-    // the launcher mid-task. Inside a sub-screen back returns to the world list; on the world list the
-    // platform default stays in place (leave the app).
+    // the launcher mid-task. Inside a sub-screen back returns to the world list.
     BackHandler(enabled = stage !is Stage.Worlds) { stage = Stage.Worlds }
+
+    // On the world list the press is ours too: whether the process survives is a setting, and the
+    // platform default (finish) is only one of the two answers.
+    val activity = context as? Activity
+    BackHandler(enabled = stage is Stage.Worlds) {
+        when (ThemeController.config.backExit) {
+            // finishAndRemoveTask only drops the task; the process itself stays cached with the parsed
+            // world and the staged mirror in memory, which is the opposite of what the switch promises.
+            // Kill it explicitly - but never while a reveal is writing, that would leave a half-written
+            // map behind.
+            BackExit.Kill -> {
+                if (running == null) {
+                    activity?.finishAndRemoveTask()
+                    Process.killProcess(Process.myPid())
+                } else {
+                    activity?.moveTaskToBack(true)
+                }
+            }
+            // moveTaskToBack keeps the world list, the staged mirror and the parsed header warm, so the
+            // next launch does not have to re-stage 12 MB of save files.
+            BackExit.Background -> activity?.moveTaskToBack(true)
+        }
+    }
 
     // Stage the game's own save tree through Shizuku; the mirror is the first root when available.
     LaunchedEffect(shizukuGranted) {
@@ -382,6 +409,7 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
             onReload = { reloadKey++ },
             onOpen = { entry -> stage = Stage.Characters(entry) },
             onOpenRestore = { stage = Stage.Restore },
+            onOpenSettings = { stage = Stage.Settings },
             shizukuAlive = shizukuAlive,
             shizukuGranted = shizukuGranted,
             onShizuku = { ShizukuShell.requestPermission(context) },
@@ -401,6 +429,10 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
                     if (existing.isEmpty()) launchReveal(pending, keepPrevious = false) else pendingReveal = pending
                 }
             },
+        )
+
+        is Stage.Settings -> SettingsScreen(
+            onBack = { stage = Stage.Worlds },
         )
 
         is Stage.Restore -> RestoreScreen(
@@ -512,20 +544,47 @@ private fun WorldsScreen(
     onReload: () -> Unit,
     onOpen: (WorldEntry) -> Unit,
     onOpenRestore: () -> Unit,
+    onOpenSettings: () -> Unit,
     shizukuAlive: Boolean,
     shizukuGranted: Boolean,
     onShizuku: () -> Unit,
 ) {
+    var menuOpen by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.worlds_title)) },
                 actions = {
-                    IconButton(onClick = onOpenRestore) {
-                        Icon(Icons.Filled.Restore, contentDescription = stringResource(R.string.restore_title))
-                    }
-                    IconButton(onClick = onReload) {
-                        Icon(Icons.Filled.Refresh, contentDescription = stringResource(R.string.worlds_reload))
+                    // One overflow entry instead of a growing row of icons: settings, the backup browser
+                    // and a refresh do not deserve equal billing in the bar.
+                    Box {
+                        IconButton(onClick = { menuOpen = true }) {
+                            Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.menu_more))
+                        }
+                        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.menu_settings)) },
+                                onClick = {
+                                    menuOpen = false
+                                    onOpenSettings()
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.menu_restore)) },
+                                onClick = {
+                                    menuOpen = false
+                                    onOpenRestore()
+                                },
+                            )
+                            HorizontalDivider()
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.menu_refresh)) },
+                                onClick = {
+                                    menuOpen = false
+                                    onReload()
+                                },
+                            )
+                        }
                     }
                 },
             )
