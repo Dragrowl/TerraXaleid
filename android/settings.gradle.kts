@@ -2,7 +2,8 @@ pluginManagement {
     repositories {
         google()
         mavenCentral()
-        gradlePluginPortal()
+        // gradlePluginPortal() is deliberately absent: every plugin this build needs ships on
+        // google() or mavenCentral(), and the portal sits behind an endpoint that stalls here.
     }
 }
 

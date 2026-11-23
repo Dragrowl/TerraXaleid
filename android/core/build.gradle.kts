@@ -2,8 +2,12 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
 }
 
+// Pinning a toolchain would require a JDK 17 next to this machine's JDK 21/25; compile with the
+// running JDK and only lower the bytecode target instead.
 kotlin {
-    jvmToolchain(17)
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
 }
 
 // The L1 core lives outside this Gradle tree so the Python / C# / Kotlin ports stay side by side.

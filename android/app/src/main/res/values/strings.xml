@@ -2,4 +2,51 @@
 <resources>
     <string name="app_name">terramap</string>
     <string name="screen_title">Terraria 地图</string>
+
+    <string name="perm_title">需要「管理全部文件访问权限」</string>
+    <string name="perm_body">本工具只改存档文件：读取 Worlds/*.wld，重写 Players/角色/世界.map。\nAndroid 11 起，访问游戏的 Android/data 目录必须授予「所有文件访问权限」。</string>
+    <string name="perm_button">去授权</string>
+    <string name="perm_granted">已获得访问权限</string>
+    <string name="perm_check_again">我已授权，重新检查</string>
+
+    <string name="worlds_title">选择世界</string>
+    <string name="worlds_hint">保存位置</string>
+    <string name="worlds_empty">这个位置没有 .wld 存档</string>
+    <string name="worlds_empty_no_root">找不到任何存档目录。\n\nAndroid 11 起系统禁止普通应用读取别的 App 的 Android/data 目录——即使给了「所有文件访问权限」也一样。三个可用办法：\n\n1. 把存档复制到 /sdcard/Download/TerrariaSaves/（Worlds 与 Players 两个子目录），本页会直接列出来；\n2. 用 PC 上仓库里的 reveal.py + deploy.py，通过 adb 直接写回游戏目录；\n3. 设备已 root 时可用 su 桥接（后续版本）。</string>
+    <string name="worlds_reload">刷新</string>
+    <string name="worlds_select_all">全选</string>
+    <string name="worlds_select_none">全不选</string>
+    <string name="worlds_issues">%1$d 个文件无法读取</string>
+
+    <string name="action_reveal">点亮所选</string>
+    <string name="chars_title">选择角色</string>
+    <string name="chars_hint">地图按「世界 × 角色」分开存放，默认全部点亮。</string>
+    <string name="chars_confirm">点亮 %1$d 个角色</string>
+    <string name="chars_new_map">将新建</string>
+
+    <string name="run_title">正在点亮</string>
+    <string name="done_title">完成</string>
+    <string name="done_undo">撤销本次</string>
+    <string name="done_close">关闭</string>
+
+    <string name="status_success">成功</string>
+    <string name="status_skipped">跳过</string>
+    <string name="status_failed">失败</string>
+
+    <string name="label_hardmode">肉山后</string>
+    <string name="label_prehard">未肉山</string>
+    <string name="label_moonlord">月总后</string>
+    <string name="label_no_moonlord">未月总</string>
+
+    <string name="close_game_warning">改动前请先退出世界并关闭游戏；游戏退出时会回写地图，覆盖本工具的改动。</string>
+    <string name="back">返回</string>
+    <string name="about_check">核心自检</string>
+    <string name="about_check_ok">核心自检通过</string>
+    <string name="about_check_fail">核心自检失败</string>
+    <string name="shizuku_title">用 Shizuku 读取游戏目录</string>
+    <string name="shizuku_body">Android 11 起，一个应用无法列出另一个应用的 Android/data 目录（「所有文件访问」也不行）。若本机装了 Shizuku 并已启动服务，授权后即可直接读取游戏存档并写回，无需复制到便携目录。</string>
+    <string name="shizuku_state_running">Shizuku 服务已运行，可以授权。</string>
+    <string name="shizuku_state_absent">未检测到 Shizuku 服务：请先安装 Shizuku 并通过 adb / root 启动它。</string>
+    <string name="shizuku_button">授权 Shizuku</string>
+    <string name="shizuku_banner_title">可以直接读取游戏目录</string>
 </resources>

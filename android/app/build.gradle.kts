@@ -11,12 +11,13 @@ android {
         applicationId = "io.terramap.android"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.1.0-dev.1"
+        versionCode = 4
+        versionName = "0.1.0-dev.3"
     }
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     composeOptions {
@@ -55,4 +56,8 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.2")
+    implementation("dev.rikka.shizuku:api:13.1.5")
+    implementation("dev.rikka.shizuku:provider:13.1.5")
+
+    testImplementation("junit:junit:4.13.2")
 }
