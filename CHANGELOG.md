@@ -3,6 +3,15 @@
 本项目遵循 [SemVer](https://semver.org/lang/zh-CN/)；`0.x` 阶段不承诺接口稳定。
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [0.1.1-dev.1] - 2026-11-24
+
+这一版先把素材落地，界面改造按 `docs/ROADMAP-NEXT.md` 的清单逐项推进。
+
+### Added
+- `res/font/endfield_by_butan.ttf`：萨卡兹语字体，取自 <https://github.com/lhclbt/Endfield_Font>。
+- `res/drawable/ic_github.xml`、`res/drawable/ic_bilibili.xml`：GitHub / Bilibili 轮廓图标，24×24 视口，路径数据来自 simple-icons。
+- 三张主题缩略图 `theme_thumb_light/dark/auto.xml`（108×108）：浅色、深色，以及「跟随系统」——按 65° 过画布中点的斜切把两半各自裁剪、各画各的内容。
+- `docs/ROADMAP-NEXT.md`：0.1.1 的完整改造清单（返回分层、顶栏下拉、设置卡片、主题与 OLED、关于卡片、图标里的随机萨卡兹文本）。
 ## [0.1.0-dev.13] - 2026-11-24
 
 ### Added

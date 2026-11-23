@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Theme card thumbnail: light. 108x108, drawn as plain bars so it stays crisp at any density. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:fillColor="#FFFBF7F2" android:pathData="M0,0h108v108h-108z" />
+    <path android:fillColor="#FF4C6B43" android:pathData="M16,26h48a4,4 0 0 1 4,4v12a4,4 0 0 1 -4,4h-48a4,4 0 0 1 -4,-4v-12a4,4 0 0 1 4,-4z" />
+    <path android:fillColor="#FFE2DDD3" android:pathData="M16,52h76a4,4 0 0 1 4,4v8a4,4 0 0 1 -4,4h-76a4,4 0 0 1 -4,-4v-8a4,4 0 0 1 4,-4z" />
+    <path android:fillColor="#FFEDE8DF" android:pathData="M16,72h60a4,4 0 0 1 4,4v8a4,4 0 0 1 -4,4h-60a4,4 0 0 1 -4,-4v-8a4,4 0 0 1 4,-4z" />
+</vector>

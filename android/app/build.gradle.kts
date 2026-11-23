@@ -22,8 +22,8 @@ android {
         applicationId = "io.terramap.android"
         minSdk = 24
         targetSdk = 34
-        versionCode = 15
-        versionName = "0.1.0-dev.13"
+        versionCode = 16
+        versionName = "0.1.1-dev.1"
     }
 
     buildFeatures {

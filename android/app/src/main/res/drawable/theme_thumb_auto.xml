@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Theme card thumbnail: follow system.
+  The cut is a straight line at 65 degrees from the vertical axis passing exactly through the centre of
+  the 108x108 canvas: direction (sin65, -cos65) = (0.9063, -0.4226), so the line enters the left edge at
+  y = 54 + 0.4226 * (54 / 0.9063) = 79.18 and leaves the right edge at y = 54 - 25.18 = 28.82.
+  Each half draws its own bars, clipped by the same polygon, so the cut runs through the content the
+  way it does in the reference thumbnails.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- backgrounds -->
+    <path android:fillColor="#FFFBF7F2" android:pathData="M0,0L108,0L108,28.82L0,79.18z" />
+    <path android:fillColor="#FF12140F" android:pathData="M0,79.18L108,28.82L108,108L0,108z" />
+
+    <!-- light half content, clipped to the upper polygon -->
+    <group>
+        <clip-path android:pathData="M0,0L108,0L108,28.82L0,79.18z" />
+        <path android:fillColor="#FF4C6B43" android:pathData="M16,26h48a4,4 0 0 1 4,4v12a4,4 0 0 1 -4,4h-48a4,4 0 0 1 -4,-4v-12a4,4 0 0 1 4,-4z" />
+        <path android:fillColor="#FFE2DDD3" android:pathData="M16,52h76a4,4 0 0 1 4,4v8a4,4 0 0 1 -4,4h-76a4,4 0 0 1 -4,-4v-8a4,4 0 0 1 4,-4z" />
+        <path android:fillColor="#FFEDE8DF" android:pathData="M16,72h60a4,4 0 0 1 4,4v8a4,4 0 0 1 -4,4h-60a4,4 0 0 1 -4,-4v-8a4,4 0 0 1 4,-4z" />
+    </group>
+
+    <!-- dark half content, clipped to the lower polygon -->
+    <group>
+        <clip-path android:pathData="M0,79.18L108,28.82L108,108L0,108z" />
+        <path android:fillColor="#FF7FA86B" android:pathData="M16,26h48a4,4 0 0 1 4,4v12a4,4 0 0 1 -4,4h-48a4,4 0 0 1 -4,-4v-12a4,4 0 0 1 4,-4z" />
+        <path android:fillColor="#FF2A2F26" android:pathData="M16,52h76a4,4 0 0 1 4,4v8a4,4 0 0 1 -4,4h-76a4,4 0 0 1 -4,-4v-8a4,4 0 0 1 4,-4z" />
+        <path android:fillColor="#FF1F231C" android:pathData="M16,72h60a4,4 0 0 1 4,4v8a4,4 0 0 1 -4,4h-60a4,4 0 0 1 -4,-4v-8a4,4 0 0 1 4,-4z" />
+    </group>
+
+    <!-- hairline along the cut so the two halves stay separated on similar tones -->
+    <path android:fillColor="#33000000" android:pathData="M0,79.18L108,28.82L108,31.6L0,81.96z" />
+</vector>
