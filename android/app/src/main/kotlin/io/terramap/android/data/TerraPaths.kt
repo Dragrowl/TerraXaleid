@@ -31,7 +31,7 @@ object TerraPaths {
      * portable folders below are therefore the reliable path on a stock device: copy the two save
      * directories there and everything else works unchanged.
      */
-    fun candidates(): List<SaveRoot> {
+    fun candidates(context: android.content.Context): List<SaveRoot> {
         val e = ext()
         val appDir = File(e, "Android/data/$TERRARIA_PACKAGE")
         return listOf(
@@ -75,8 +75,8 @@ object TerraPaths {
         )
     }
 
-    fun existingRoots(): List<SaveRoot> =
-        candidates().filter { it.worldsDir.isDirectory || it.playersDir.isDirectory }
+    fun existingRoots(context: android.content.Context): List<SaveRoot> =
+        candidates(context).filter { it.worldsDir.isDirectory || it.playersDir.isDirectory }
 
     fun worldFiles(root: SaveRoot): List<File> =
         root.worldsDir.listFiles { f -> f.isFile && f.name.endsWith(".wld", ignoreCase = true) }

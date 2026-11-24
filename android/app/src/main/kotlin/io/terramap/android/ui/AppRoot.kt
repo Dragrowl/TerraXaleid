@@ -213,22 +213,24 @@ fun AppRoot() {
         onDispose { owner.lifecycle.removeObserver(observer) }
     }
 
-    if (access || shizukuGranted) {
-        MainFlow(shizukuAlive = shizukuAlive, shizukuGranted = shizukuGranted)
-    } else {
-        PermissionScreen(
-            shizukuAlive = shizukuAlive,
-            onOpenSettings = {
-                runCatching { context.startActivity(StorageAccess.settingsIntent(context)) }
-            },
-            onRecheck = {
-                access = StorageAccess.hasAccess(context)
-                shizukuAlive = ShizukuShell.isBinderAlive()
-                shizukuGranted = ShizukuShell.hasPermission()
-            },
-            onShizuku = { ShizukuShell.requestPermission(context) },
-        )
-    }
+    // No permission gate any more: a device where neither all-files access nor Shizuku is available
+    // still opens, and the world list explains what is missing. Gating here is what made the app
+    // unreachable on Android 16, where the all-files switch is not offered at all.
+    MainFlow(
+        shizukuAlive = shizukuAlive,
+        shizukuGranted = shizukuGranted,
+        hasStorageAccess = access,
+        onGrantStorage = {
+            runCatching { context.startActivity(StorageAccess.settingsIntent(context)) }
+                .onFailure { /* settings intent unavailable: the banner text covers it */ }
+        },
+        onShizuku = { ShizukuShell.requestPermission(context) },
+        onRecheck = {
+            access = StorageAccess.hasAccess(context)
+            shizukuAlive = ShizukuShell.isBinderAlive()
+            shizukuGranted = ShizukuShell.hasPermission()
+        },
+    )
 }
 
 @Composable
@@ -309,11 +311,18 @@ private fun PermissionScreen(
 }
 
 @Composable
-private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
+private fun MainFlow(
+    shizukuAlive: Boolean,
+    shizukuGranted: Boolean,
+    hasStorageAccess: Boolean,
+    onGrantStorage: () -> Unit,
+    onShizuku: () -> Unit,
+    onRecheck: () -> Unit,
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var mirror by remember { mutableStateOf<SaveRoot?>(null) }
-    var roots by remember { mutableStateOf(TerraPaths.existingRoots()) }
+    var roots by remember { mutableStateOf(TerraPaths.existingRoots(context)) }
     var rootIndex by remember { mutableIntStateOf(0) }
     var reloadKey by remember { mutableIntStateOf(0) }
     var scan by remember { mutableStateOf<ScanResult?>(null) }
@@ -364,9 +373,11 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
         // NonCancellable: the grant flag can flip while the copy is running, and cancelling halfway
         // would leave a half-staged tree behind (and an empty world list).
         if (shizukuGranted && mirror == null) {
-            val staged = withContext(Dispatchers.IO + NonCancellable) { TerraMirror.prepare() ?: TerraMirror.adoptStaging() }
+            val staged = withContext(Dispatchers.IO + NonCancellable) {
+                TerraMirror.prepare(context) ?: TerraMirror.adoptStaging(context)
+            }
             mirror = staged
-            roots = listOfNotNull(staged) + TerraPaths.existingRoots()
+            roots = listOfNotNull(staged) + TerraPaths.existingRoots(context)
             if (staged != null) rootIndex = 0
         }
     }
@@ -434,7 +445,10 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
             onOpenSettings = { stage = Stage.Settings },
             shizukuAlive = shizukuAlive,
             shizukuGranted = shizukuGranted,
+            hasStorageAccess = hasStorageAccess,
             onShizuku = { ShizukuShell.requestPermission(context) },
+            onGrantStorage = onGrantStorage,
+            onRecheck = onRecheck,
         )
 
         is Stage.Characters -> CharactersScreen(
@@ -569,7 +583,10 @@ private fun WorldsScreen(
     onOpenSettings: () -> Unit,
     shizukuAlive: Boolean,
     shizukuGranted: Boolean,
+    hasStorageAccess: Boolean,
     onShizuku: () -> Unit,
+    onGrantStorage: () -> Unit,
+    onRecheck: () -> Unit,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     // Survives rotation: the filter is part of what the user is looking at, not transient UI state.
@@ -764,8 +781,47 @@ private fun WorldsScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                 )
                                 Spacer(Modifier.height(8.dp))
-                                Button(onClick = onShizuku) {
-                                    Text(stringResource(R.string.shizuku_button))
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Button(onClick = onShizuku) {
+                                        Text(stringResource(R.string.shizuku_button), maxLines = 1)
+                                    }
+                                    TextButton(onClick = onRecheck) {
+                                        Text(stringResource(R.string.perm_check_again), maxLines = 1)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // The portable roots live under Download/Documents, so without "all files access" the
+                // list is empty for a reason the user cannot guess from an empty state alone.
+                if (!hasStorageAccess && !shizukuGranted) {
+                    item(key = "storage-banner", span = { GridItemSpan(maxLineSpan) }) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            ),
+                        ) {
+                            Column(Modifier.padding(12.dp)) {
+                                Text(
+                                    text = stringResource(R.string.perm_title),
+                                    style = MaterialTheme.typography.titleSmall,
+                                )
+                                Spacer(Modifier.height(4.dp))
+                                Text(
+                                    text = stringResource(R.string.perm_body),
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Button(onClick = onGrantStorage) {
+                                        Text(stringResource(R.string.perm_button), maxLines = 1)
+                                    }
+                                    TextButton(onClick = onRecheck) {
+                                        Text(stringResource(R.string.perm_check_again), maxLines = 1)
+                                    }
                                 }
                             }
                         }

@@ -19,8 +19,22 @@ object TerraMirror {
     /** Save tree of the international mobile build. */
     const val TERRARIA_BASE = "/sdcard/Android/data/com.and.games505.TerrariaPaid"
 
-    /** Public staging area: the shell user can write it, and all-files access lets us read it. */
-    const val WORK_DIR = "/sdcard/Download/.terramap"
+    /**
+     * Legacy staging area. It sits under `Download`, so reading it needs "all files access"; kept only
+     * so a tree staged by an older build is still adoptable.
+     */
+    const val LEGACY_WORK_DIR = "/sdcard/Download/.terramap"
+
+    /**
+     * Staging area for this build: the app's own external files dir.
+     *
+     * `Android/data/<own package>/files` is readable by the app with no storage permission at all, and
+     * the `shell` user (member of `ext_data_rw`) can write into it, so the whole mirror round-trip no
+     * longer depends on MANAGE_EXTERNAL_STORAGE. Staging under `Download` was the reason a device with
+     * Shizuku but without all-files access could enter the app yet see no worlds.
+     */
+    fun workDir(context: android.content.Context): File =
+        File(context.getExternalFilesDir(null) ?: context.filesDir, "mirror")
 
     /**
      * Outcome of one write-back.
@@ -51,11 +65,12 @@ object TerraMirror {
      * Returns null when Shizuku is unusable or the game directory is missing; the caller then just
      * shows the other roots.
      */
-    fun prepare(): SaveRoot? {
+    fun prepare(context: android.content.Context): SaveRoot? {
         if (!isAvailable()) return null
         if (!gameTreeExists()) return null
-        val worlds = "$WORK_DIR/Worlds"
-        val players = "$WORK_DIR/Players"
+        val base = workDir(context)
+        val worlds = "${base.absolutePath}/Worlds"
+        val players = "${base.absolutePath}/Players"
         // One compound command, and no `rm -rf` on the staging tree: deleting a directory that the
         // shell still has open blocks for minutes on this device (rm reports "Text file busy" and the
         // call never returns). Copying over the existing files is enough — cp truncates in place.
@@ -87,18 +102,22 @@ object TerraMirror {
      * `prepare()` needs Shizuku to finish every step; adoption only needs the files to be there, so a
      * half-reported run still leaves the app usable — the write-back path is the same.
      */
-    fun adoptStaging(): SaveRoot? {
-        val worlds = File("$WORK_DIR/Worlds")
-        val players = File("$WORK_DIR/Players")
-        if (!worlds.isDirectory) return null
-        val wlds = worlds.listFiles { file -> file.isFile && file.name.endsWith(".wld", true) }
-        if (wlds.isNullOrEmpty()) return null
-        return SaveRoot(
-            label = "游戏目录 (Shizuku)",
-            worldsDir = worlds,
-            playersDir = players,
-            remoteBase = TERRARIA_BASE,
-        )
+    fun adoptStaging(context: android.content.Context): SaveRoot? {
+        // New location first; the Download tree is what builds before this one produced.
+        for (base in listOf(workDir(context), File(LEGACY_WORK_DIR))) {
+            val worlds = File(base, "Worlds")
+            val players = File(base, "Players")
+            if (!worlds.isDirectory) continue
+            val wlds = worlds.listFiles { file -> file.isFile && file.name.endsWith(".wld", true) }
+            if (wlds.isNullOrEmpty()) continue
+            return SaveRoot(
+                label = "娓告垙鐩綍 (Shizuku)",
+                worldsDir = worlds,
+                playersDir = players,
+                remoteBase = TERRARIA_BASE,
+            )
+        }
+        return null
     }
 
     /**
@@ -243,7 +262,7 @@ object TerraMirror {
         }
         return 0
     }
-    fun cleanup() {
-        ShizukuShell.exec("rm -rf '$WORK_DIR'")
+    fun cleanup(context: android.content.Context) {
+        ShizukuShell.exec("rm -rf '${workDir(context).absolutePath}'")
     }
 }

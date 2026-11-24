@@ -10,6 +10,19 @@
 - `dist/` 文件名只带 `versionName`（`terramap-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
 
+## [0.1.0-rc.9] - 2026-11-25
+
+### Fixed
+- Android 16 上未给 Shizuku 授权时应用进不去：启动时不再用「所有文件访问 / Shizuku 授权」做硬门槛，
+  缺权限时照常进入世界列表，权限说明改成列表里的卡片（带授权、重新检测按钮）。
+- 在 Shizuku 应用里授权后读不到 `.wld`：暂存目录从 `/sdcard/Download/.terramap` 改到应用自己的
+  `Android/data/io.terramap.android/files/mirror`。旧位置属于 Download，读取它需要「所有文件访问」，
+  于是有 Shizuku 却读不到；新位置无需任何存储权限，`shell` 用户（`ext_data_rw` 组）仍可写入。
+  旧位置的暂存树仍可被沿用。
+
+### Notes
+- `versionCode 38`。
+
 ## [0.1.0-rc.8] - 2026-11-24
 
 ### Fixed
