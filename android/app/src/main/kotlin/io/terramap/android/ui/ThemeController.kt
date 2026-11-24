@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import io.terramap.android.data.AppConfig
 import io.terramap.android.data.AppConfigStore
+import io.terramap.android.data.AppLanguage
 import io.terramap.android.data.BackExit
 import io.terramap.android.data.DarkVariant
 import io.terramap.android.data.ThemeMode
@@ -48,6 +49,8 @@ object ThemeController {
     fun setDarkVariant(variant: DarkVariant) = update(config.copy(darkVariant = variant))
 
     fun setBackExit(exit: BackExit) = update(config.copy(backExit = exit))
+
+    fun setLanguage(language: AppLanguage) = update(config.copy(language = language))
 
     private fun update(next: AppConfig) {
         config = next

@@ -2,18 +2,15 @@
 <resources>
     <string name="app_name">terramap</string>
     <string name="screen_title">Terraria 地图</string>
-
     <string name="perm_title">需要「管理全部文件访问权限」</string>
     <string name="perm_body">本工具只改存档文件：读取 Worlds/*.wld，重写 Players/角色/世界.map。\nAndroid 11 起，访问游戏的 Android/data 目录必须授予「所有文件访问权限」。</string>
     <string name="perm_button">去授权</string>
     <string name="perm_granted">已获得访问权限</string>
     <string name="perm_check_again">我已授权，重新检查</string>
-
     <string name="menu_more">更多</string>
     <string name="menu_settings">设置</string>
     <string name="menu_restore">恢复与备份</string>
     <string name="menu_refresh">刷新</string>
-
     <string name="settings_title">设置</string>
     <string name="action_back">返回</string>
     <string name="theme_title">外观</string>
@@ -40,26 +37,21 @@
     <string name="worlds_select_all">全选</string>
     <string name="worlds_select_none">全不选</string>
     <string name="worlds_issues">%1$d 个文件无法读取</string>
-
     <string name="action_reveal">点亮所选</string>
     <string name="chars_title">选择角色</string>
     <string name="chars_hint">地图按「世界 × 角色」分开存放，默认全部点亮。</string>
     <string name="chars_confirm">点亮 %1$d 个角色</string>
     <string name="chars_new_map">将新建</string>
-
     <string name="run_title">正在点亮</string>
     <string name="done_title">完成</string>
     <string name="done_undo">撤销本次</string>
     <string name="done_close">关闭</string>
-
     <string name="status_success">成功</string>
     <string name="status_skipped">跳过</string>
     <string name="status_failed">失败</string>
-
     <string name="label_prehard_short">困难模式之前</string>
     <string name="label_hardmode_short">困难模式</string>
     <string name="label_journeys_end">已击败月亮领主</string>
-
     <string name="close_game_warning">改动前请先退出世界并关闭游戏；游戏退出时会回写地图，覆盖本工具的改动。</string>
     <string name="back">返回</string>
     <string name="about_check">核心自检</string>
@@ -90,5 +82,47 @@
     <string name="overwrite_warning">勾选后，上一次的备份会被这份新的覆盖前状态替换，旧的那份将无法再恢复。</string>
     <string name="overwrite_continue">继续覆盖</string>
     <string name="cancel">取消</string>
-    <string name="close">关闭</string>    <string name="restore_delete_map_title">删除地图？</string>
-    <string name="restore_delete_map_body">将删除所选 %1$d 张地图文件，游戏里会重新生成成完全未探索的全黑状态。这一步不能撤回（地图文件不保留副本）。</string></resources>
+    <string name="close">关闭</string>
+    <string name="restore_delete_map_title">删除地图？</string>
+    <string name="restore_delete_map_body">将删除所选 %1$d 张地图文件，游戏里会重新生成成完全未探索的全黑状态。这一步不能撤回（地图文件不保留副本）。</string>
+    <string name="language_title">语言</string>
+    <string name="language_follow">跟随系统</string>
+    <string name="language_sc">简体中文</string>
+    <string name="language_tc">繁體中文（台灣）</string>
+    <string name="language_hktc">繁體中文（香港）</string>
+    <string name="language_ja">日本語</string>
+    <string name="language_en">English</string>
+    <string name="run_reading_world">读取世界 %1$s</string>
+    <string name="run_generating">生成地图 %1$d×%2$d</string>
+    <string name="run_verifying">校验地图载荷</string>
+    <string name="run_too_large">世界过大，内存不足；请每角色单独处理</string>
+    <string name="run_writing">写入角色 %1$s</string>
+    <string name="run_no_char_dir">无法创建角色目录</string>
+    <string name="run_replace_failed">无法替换旧地图：%1$s</string>
+    <string name="run_write_failed">无法写入：%1$s</string>
+    <string name="run_push_failed">已在镜像生成，但写回设备失败：%1$s（exit %2$d）</string>
+    <string name="run_size_mismatch">（大小校验 %1$s ≠ %2$s）</string>
+    <string name="run_written_back">已写回设备（原文件备份为 .map.bak）%1$s</string>
+    <string name="run_written_new">已写回设备（新建地图）%1$s</string>
+    <string name="template_missing">找不到存档目录</string>
+    <string name="template_label">模板：%1$s</string>
+    <string name="template_from_character">角色「%1$s」的地图</string>
+    <string name="template_from_donor">同尺寸地图头（%1$s）</string>
+    <string name="template_unusable">找不到可用的地图头：%1$s</string>
+    <string name="template_never_entered">该世界还没有任何角色进入过。请先用任一角色进入一次世界并退出，让游戏生成地图缓存。</string>
+    <string name="difficulty_classic">普通</string>
+    <string name="difficulty_expert">专家</string>
+    <string name="difficulty_master">大师</string>
+    <string name="difficulty_legendary">传奇</string>
+    <string name="difficulty_journey">旅行</string>
+    <string name="size_small">小世界</string>
+    <string name="size_medium">中世界</string>
+    <string name="size_large">大世界</string>
+    <string name="size_huge">超大世界</string>
+    <string name="evil_corruption">腐化</string>
+    <string name="evil_crimson">猩红</string>
+    <string name="root_game_shizuku">游戏目录 (Shizuku)</string>
+    <string name="root_shizuku_cache">Shizuku 暂存</string>
+    <string name="root_game_files">游戏目录 (files)</string>
+    <string name="root_game">游戏目录</string>
+</resources>

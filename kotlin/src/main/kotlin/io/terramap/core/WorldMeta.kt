@@ -32,6 +32,12 @@ data class WorldMeta(
     val size: String get() = sizeLabel(width)
     val evil: String get() = if (crimson) "猩红" else "腐化"
 
+    // The string properties above are the L1 default wording. UI layers that translate must read the
+    // kinds instead, so a Chinese label never leaks into another language.
+    val difficultyKind: Difficulty get() = difficultyKindOf(gameMode, forTheWorthy)
+    val sizeKind: WorldSize get() = sizeKindOf(width)
+    val evilKind: WorldEvil get() = if (crimson) WorldEvil.Crimson else WorldEvil.Corruption
+
     companion object {
         /** 4200/6400/8400 plus 17600, matching the game's own labels. */
         fun sizeLabel(width: Int): String = when {
@@ -45,6 +51,29 @@ data class WorldMeta(
          * For the Worthy shifts the difficulty up one notch, except Journey which never moves.
          * 传奇 is not a stored value — it is Master + FTW.
          */
+        fun sizeKindOf(width: Int): WorldSize = when {
+            width <= 4200 -> WorldSize.Small
+            width <= 6400 -> WorldSize.Medium
+            width <= 8400 -> WorldSize.Large
+            else -> WorldSize.Huge
+        }
+
+        fun difficultyKindOf(gameMode: Int, forTheWorthy: Boolean): Difficulty {
+            if (gameMode == 3) return Difficulty.Journey
+            val gm = gameMode.coerceIn(0, 2)
+            return if (forTheWorthy) {
+                val ladder = listOf(
+                    Difficulty.Classic,
+                    Difficulty.Expert,
+                    Difficulty.Master,
+                    Difficulty.Legendary,
+                )
+                ladder[(gm + 1).coerceAtMost(3)]
+            } else {
+                listOf(Difficulty.Classic, Difficulty.Expert, Difficulty.Master)[gm]
+            }
+        }
+
         fun difficultyLabel(gameMode: Int, forTheWorthy: Boolean): String {
             if (gameMode == 3) return "旅行"
             val gm = gameMode.coerceIn(0, 2)
@@ -56,3 +85,12 @@ data class WorldMeta(
         }
     }
 }
+
+/** Difficulty as a value, not as a word: the UI decides how to say it. */
+enum class Difficulty { Classic, Expert, Master, Legendary, Journey }
+
+/** World size as a value; [WorldMeta.sizeLabel] keeps the long-standing Chinese wording. */
+enum class WorldSize { Small, Medium, Large, Huge }
+
+/** World evil as a value. */
+enum class WorldEvil { Corruption, Crimson }

@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
@@ -87,6 +88,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import io.terramap.android.R
+import io.terramap.core.Difficulty
+import io.terramap.core.WorldEvil
+import io.terramap.core.WorldSize
 import io.terramap.android.data.BackExit
 import io.terramap.android.data.Backups
 import io.terramap.android.data.CharacterEntry
@@ -374,6 +378,7 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
                 header = pending.template.header,
                 root = root,
                 keepPreviousBackup = keepPrevious,
+                res = context.resources,
             )
             running = null
             outcome = result
@@ -665,7 +670,7 @@ private fun WorldsScreen(
                             onClick = { onPickRoot(index) },
                             label = {
                                 Text(
-                                    text = r.label,
+                                    text = rootText(r.label),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                 )
@@ -811,9 +816,9 @@ private fun WorldCard(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     val labels = buildList {
-                        add(entry.meta.difficulty)
-                        add(entry.meta.size)
-                        add(entry.meta.evil)
+                        add(difficultyText(entry.meta.difficultyKind))
+                        add(sizeText(entry.meta.sizeKind))
+                        add(evilText(entry.meta.evilKind))
                         // Progression as chips in the same scrollable row: pre-hardmode /
                         // hardmode / journey's end are mutually informative, not a separate line.
                         // Hardmode is a necessary but not sufficient condition for the Moon Lord, so
@@ -850,12 +855,13 @@ private fun CharactersScreen(
     onBack: () -> Unit,
     onReveal: (List<CharacterEntry>, TemplateResult.Ready) -> Unit,
 ) {
+    val context = LocalContext.current
     val characters = remember(entry, root) {
         if (root == null) emptyList() else WorldScanner.characters(root, entry)
     }
-    val template = remember(entry, root, roots) {
-        if (root == null) TemplateResult.Missing("找不到存档目录")
-        else Templates.resolve(entry, root, roots)
+    val template = remember(entry, root, roots, context.resources.configuration.locales[0]) {
+        if (root == null) TemplateResult.Missing(context.getString(R.string.template_missing))
+        else Templates.resolve(entry, root, roots, context.resources)
     }
     var selected by remember(entry) { mutableStateOf(characters.map { it.name }.toSet()) }
 
@@ -882,7 +888,7 @@ private fun CharactersScreen(
                     )
 
                     is TemplateResult.Ready -> Text(
-                        text = "模板：${template.source}",
+                        text = stringResource(R.string.template_label, template.source),
                         style = MaterialTheme.typography.labelSmall,
                     )
                 }
@@ -1044,4 +1050,37 @@ private fun ResultDialog(outcome: RevealOutcome, onUndo: () -> Unit, onClose: ()
             }
         }
     }
+}
+
+@Composable
+private fun difficultyText(kind: Difficulty): String = when (kind) {
+    Difficulty.Classic -> stringResource(R.string.difficulty_classic)
+    Difficulty.Expert -> stringResource(R.string.difficulty_expert)
+    Difficulty.Master -> stringResource(R.string.difficulty_master)
+    Difficulty.Legendary -> stringResource(R.string.difficulty_legendary)
+    Difficulty.Journey -> stringResource(R.string.difficulty_journey)
+}
+
+@Composable
+private fun sizeText(kind: WorldSize): String = when (kind) {
+    WorldSize.Small -> stringResource(R.string.size_small)
+    WorldSize.Medium -> stringResource(R.string.size_medium)
+    WorldSize.Large -> stringResource(R.string.size_large)
+    WorldSize.Huge -> stringResource(R.string.size_huge)
+}
+
+@Composable
+private fun evilText(kind: WorldEvil): String = when (kind) {
+    WorldEvil.Corruption -> stringResource(R.string.evil_corruption)
+    WorldEvil.Crimson -> stringResource(R.string.evil_crimson)
+}
+
+/** Save-root names are produced by discovery code; they are translated here, at the UI edge. */
+@Composable
+private fun rootText(raw: String): String = when (raw) {
+    "游戏目录 (Shizuku)" -> stringResource(R.string.root_game_shizuku)
+    "Shizuku 暂存" -> stringResource(R.string.root_shizuku_cache)
+    "游戏目录 (files)" -> stringResource(R.string.root_game_files)
+    "游戏目录" -> stringResource(R.string.root_game)
+    else -> raw
 }

@@ -2,11 +2,16 @@
 
 package io.terramap.android
 
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
+import java.util.Locale
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
@@ -14,11 +19,31 @@ import androidx.core.view.WindowCompat
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import io.terramap.android.data.AppConfigStore
+import io.terramap.android.data.AppLanguage
 import io.terramap.android.ui.AppRoot
+import io.terramap.android.ui.ProvideAppLanguage
 import io.terramap.android.ui.TerramapTheme
 import io.terramap.android.ui.ThemeController
 
 class MainActivity : ComponentActivity() {
+
+    /**
+     * The activity context carries the chosen locale, so every surface that resolves strings from it -
+     * popup menus, dialogs, toasts - speaks the same language as the Compose tree. Without this, a
+     * dropdown opened from a translated screen still renders the system language.
+     */
+    override fun attachBaseContext(newBase: Context) {
+        val language = AppConfigStore.read(newBase).language
+        super.attachBaseContext(wrap(newBase, language))
+    }
+
+    private fun wrap(base: Context, language: AppLanguage): Context {
+        val tag = language.tag ?: return base
+        val configuration = Configuration(base.resources.configuration)
+        configuration.setLocale(Locale.forLanguageTag(tag))
+        return base.createConfigurationContext(configuration)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,22 +62,30 @@ class MainActivity : ComponentActivity() {
                 onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
             }
             val config = ThemeController.config
-            TerramapTheme(mode = config.theme, darkVariant = config.darkVariant) {
-                // The status bar strip is painted by the window background, not by Compose, so without
-                // this it keeps the static colour from themes.xml and visibly lags the 450 ms scheme
-                // animation. SideEffect keeps it in step with every intermediate frame.
-                val pageBackground = MaterialTheme.colorScheme.background
-                val lightBars = pageBackground.luminance() > 0.5f
-                SideEffect {
-                    window.decorView.setBackgroundColor(pageBackground.toArgb())
-                    window.statusBarColor = pageBackground.toArgb()
-                    window.navigationBarColor = pageBackground.toArgb()
-                    WindowCompat.getInsetsController(window, window.decorView).apply {
-                        isAppearanceLightStatusBars = lightBars
-                        isAppearanceLightNavigationBars = lightBars
+            // Language lives in the activity context, so a change needs a fresh activity: recreating is
+            // the only way to have popups, dialogs and the Compose tree agree on one locale.
+            val startLanguage = remember { config.language }
+            LaunchedEffect(config.language) {
+                if (config.language != startLanguage) recreate()
+            }
+            ProvideAppLanguage(config.language) {
+                TerramapTheme(mode = config.theme, darkVariant = config.darkVariant) {
+                    // The status bar strip is painted by the window background, not by Compose, so
+                    // without this it keeps the static colour from themes.xml and visibly lags the
+                    // 450 ms scheme animation. SideEffect keeps it in step with every frame.
+                    val pageBackground = MaterialTheme.colorScheme.background
+                    val lightBars = pageBackground.luminance() > 0.5f
+                    SideEffect {
+                        window.decorView.setBackgroundColor(pageBackground.toArgb())
+                        window.statusBarColor = pageBackground.toArgb()
+                        window.navigationBarColor = pageBackground.toArgb()
+                        WindowCompat.getInsetsController(window, window.decorView).apply {
+                            isAppearanceLightStatusBars = lightBars
+                            isAppearanceLightNavigationBars = lightBars
+                        }
                     }
+                    AppRoot()
                 }
-                AppRoot()
             }
         }
     }

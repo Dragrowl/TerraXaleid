@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using System;
+using System.IO;
 using System.Buffers.Binary;
 
 namespace TerraMap.Core;
@@ -24,7 +25,19 @@ namespace TerraMap.Core;
 /// </summary>
 public sealed class MapHeader
 {
+    /// <summary>Version written by the mobile build (1.4.5.x).</summary>
     public const int FileVersion = 33094;
+
+    /// <summary>Version written by the desktop build (1.4.5.8 writes 318).</summary>
+    public const int DesktopFileVersion = 318;
+
+    /// <summary>Version written by the desktop build of 1.4.5 proper (what <c>SaveMap</c> hardcodes).</summary>
+    public const int DesktopFileVersion145 = 326;
+
+    /// <summary>Every version whose header layout we can parse.</summary>
+    public static bool IsSupportedVersion(int version) =>
+        version == FileVersion || version == DesktopFileVersion || version == DesktopFileVersion145;
+
     public const int FileType = 1;
 
     private readonly int[] _tilePrefix;
@@ -42,7 +55,8 @@ public sealed class MapHeader
         int maxWallId,
         int[] tileCounts,
         int[] wallCounts,
-        uint revision = 0)
+        uint revision = 0,
+        int version = FileVersion)
     {
         Raw = raw ?? Array.Empty<byte>();
         WorldName = worldName;
@@ -54,6 +68,7 @@ public sealed class MapHeader
         TileCounts = tileCounts;
         WallCounts = wallCounts;
         Revision = revision;
+        Version = version;
 
         _tilePrefix = new int[maxTileId + 1];
         for (int i = 0; i < tileCounts.Length && i + 1 < _tilePrefix.Length; i++)
@@ -89,6 +104,9 @@ public sealed class MapHeader
     public int[] WallCounts { get; }
 
     public uint Revision { get; }
+
+    /// <summary>Container version this header was parsed from (318 desktop, 33094 mobile).</summary>
+    public int Version { get; }
 
     public int TileBase => 1;
 
@@ -126,8 +144,9 @@ public sealed class MapHeader
         var r = new SpanReader(data);
 
         int version = r.Int32();
-        if (version != FileVersion)
-            throw new TerrariaFormatException($"unsupported map file version {version} (expected {FileVersion})");
+        if (!IsSupportedVersion(version))
+            throw new TerrariaFormatException(
+                $"unsupported map file version {version} (expected {DesktopFileVersion}, {DesktopFileVersion145} or {FileVersion})");
 
         if (!r.Take(7).SequenceEqual("relogic"u8))
             throw new TerrariaFormatException("not a Terraria map file (magic mismatch)");
@@ -165,7 +184,95 @@ public sealed class MapHeader
         byte[] raw = data.Slice(0, consumed).ToArray();
 
         return new MapHeader(raw, worldName, worldId, width, height, maxTileId, maxWallId,
-            tileCounts, wallCounts, revision);
+            tileCounts, wallCounts, revision, version);
+    }
+
+    /// <summary>
+    /// Builds a header for a freshly written map. Every tile/wall id is marked present with a single
+    /// option, so <see cref="TileType"/> is simply <c>1 + tileId</c> and <see cref="WallType"/> is
+    /// <c>1 + MaxTileId + wallId</c>. The game expands those compact indices through its own table
+    /// (option 0 of each entry), which is exactly what a fully revealed map needs.
+    /// </summary>
+    public static MapHeader Create(
+        string worldName,
+        int worldId,
+        int width,
+        int height,
+        int maxTileId,
+        int maxWallId,
+        uint revision = 1,
+        int version = DesktopFileVersion)
+    {
+        if (width <= 0 || height <= 0) throw new ArgumentOutOfRangeException(nameof(width), "world size must be positive");
+        if (maxTileId <= 0) throw new ArgumentOutOfRangeException(nameof(maxTileId));
+        if (maxWallId <= 0) throw new ArgumentOutOfRangeException(nameof(maxWallId));
+
+        var tileCounts = new int[maxTileId];
+        Array.Fill(tileCounts, 1);
+        var wallCounts = new int[maxWallId];
+        Array.Fill(wallCounts, 1);
+
+        using var ms = new MemoryStream(512);
+        using (var w = new BinaryWriter(ms, System.Text.Encoding.UTF8, leaveOpen: true))
+        {
+            w.Write(version);
+            w.Write("relogic"u8.ToArray());
+            w.Write((byte)FileType);
+            w.Write(revision);
+            w.Write(0UL);                                   // favorite
+            WriteString7(w, worldName);
+            w.Write(worldId);
+            w.Write(height);
+            w.Write(width);
+            w.Write((short)maxTileId);
+            w.Write((short)maxWallId);
+            w.Write((short)4);                              // liquid types
+            w.Write((short)256);                            // sky gradients
+            w.Write((short)256);                            // dirt gradients
+            w.Write((short)256);                            // rock gradients
+            WriteBits(w, maxTileId, allSet: true);
+            WriteBits(w, maxWallId, allSet: true);
+            for (int i = 0; i < maxTileId; i++) w.Write((byte)1);
+            for (int i = 0; i < maxWallId; i++) w.Write((byte)1);
+        }
+
+        byte[] raw = ms.ToArray();
+        return new MapHeader(raw, worldName, worldId, width, height, maxTileId, maxWallId,
+            tileCounts, wallCounts, revision, version);
+    }
+
+    private static void WriteString7(BinaryWriter w, string value)
+    {
+        byte[] bytes = System.Text.Encoding.UTF8.GetBytes(value ?? string.Empty);
+        int len = bytes.Length;
+        do
+        {
+            byte b = (byte)(len & 0x7F);
+            len >>= 7;
+            if (len > 0) b |= 0x80;
+            w.Write(b);
+        }
+        while (len > 0);
+
+        w.Write(bytes);
+    }
+
+    /// <summary>Writes the option bitmap the way <see cref="ReadBits"/> reads it: LSB-first per byte.</summary>
+    private static void WriteBits(BinaryWriter w, int count, bool allSet)
+    {
+        int bytes = (count + 7) / 8;
+        for (int b = 0; b < bytes; b++)
+        {
+            int value = 0;
+            for (int bit = 0; bit < 8; bit++)
+            {
+                int index = (b * 8) + bit;
+                bool set = allSet && index < count;
+                if (set) value |= 1 << bit;
+            }
+
+            w.Write((byte)value);
+        }
     }
 
     /// <summary>

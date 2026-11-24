@@ -10,6 +10,26 @@
 - `dist/` 文件名只带 `versionName`（`terramap-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
 
+## [0.1.0-rc.3] - 2026-11-24
+
+### Added
+- 五种显示语言：简体中文、繁體中文（台灣）、繁體中文（香港）、日本語、English。设置页「行为」卡片下面新增
+  「语言」卡片，下拉就地展开、当前值右对齐，每种语言用自己的文字显示自己的名字（`language_*`）。
+- `tools/gen_strings.py`：以 `values/strings.xml` 为唯一来源生成 `values-en` / `values-ja` /
+  `values-zh-rTW` / `values-zh-rHK`，简→繁按词组 + 逐字映射，缺键回退简体并打印键名。
+- 世界卡片的难度 / 尺寸 / 邪恶度、存档根名称改为资源化；L1 的 `WorldMeta` 增加
+  `difficultyKind` / `sizeKind` / `evilKind` 三个枚举，UI 不再直接读中文串。
+
+### Changed
+- `MainActivity` 用 `attachBaseContext` 把选定语言装进 Activity 上下文，弹层菜单、对话框、Snackbar
+  与 Compose 树共用同一 locale；语言切换后 `recreate()`，立即整屏生效。
+- 进度文案、模板说明、写回失败提示统一走 `Resources.getString`，`RevealJob.reveal` 与
+  `Templates.resolve` 因此多了一个 `res` 参数。
+
+### Notes
+- `versionCode 30`。功能与 rc.2 一致，只加多语言。
+- 搜索框、Windows 改 MaterialDesign、Windows 字体切换都不在本版范围。
+
 ## [0.1.0-rc.2] - 2026-11-24
 
 ### Added

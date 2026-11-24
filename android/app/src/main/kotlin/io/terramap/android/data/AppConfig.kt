@@ -56,10 +56,31 @@ enum class BackExit(val wire: String) {
     }
 }
 
+/**
+ * Display language. [FollowSystem] keeps whatever the device reports; the rest force one of the
+ * five shipped translations. The tag is a BCP-47 language tag used to build a localized
+ * [android.content.res.Configuration], so `zh-HK` and `zh-TW` resolve to their own resource folders.
+ */
+enum class AppLanguage(val wire: String, val tag: String?) {
+    FollowSystem("system", null),
+    SimplifiedChinese("sc", "zh-CN"),
+    TraditionalChinese("tc", "zh-TW"),
+    HongKongTraditional("hktc", "zh-HK"),
+    Japanese("ja", "ja-JP"),
+    English("en", "en-US"),
+    ;
+
+    companion object {
+        fun fromWire(value: String?): AppLanguage =
+            entries.firstOrNull { it.wire.equals(value?.trim(), ignoreCase = true) } ?: FollowSystem
+    }
+}
+
 data class AppConfig(
     val theme: ThemeMode = ThemeMode.Auto,
     val darkVariant: DarkVariant = DarkVariant.Standard,
     val backExit: BackExit = BackExit.Background,
+    val language: AppLanguage = AppLanguage.FollowSystem,
     /** Where this config was read from, for the log line. Null when nothing existed yet. */
     val source: String? = null,
 )
@@ -101,6 +122,7 @@ object AppConfigStore {
                 theme = ThemeMode.fromWire(json.optString("theme")),
                 darkVariant = DarkVariant.fromWire(json.optString("darkVariant")),
                 backExit = BackExit.fromWire(json.optString("backExit")),
+                language = AppLanguage.fromWire(json.optString("language")),
                 source = hit.absolutePath,
             )
         }.getOrElse { error ->
@@ -110,7 +132,7 @@ object AppConfigStore {
         Log.i(
             TAG,
             "config: theme=${config.theme.wire} darkVariant=${config.darkVariant.wire} " +
-                "backExit=${config.backExit.wire} from=${config.source}",
+                "backExit=${config.backExit.wire} language=${config.language.wire} from=${config.source}",
         )
         return config
     }
@@ -125,7 +147,7 @@ object AppConfigStore {
             Log.i(
                 TAG,
                 "config: wrote theme=${config.theme.wire} darkVariant=${config.darkVariant.wire} " +
-                    "backExit=${config.backExit.wire} to=${target.absolutePath}",
+                    "backExit=${config.backExit.wire} language=${config.language.wire} to=${target.absolutePath}",
             )
             return true
         }
@@ -138,6 +160,7 @@ object AppConfigStore {
             .put("theme", config.theme.wire)
             .put("darkVariant", config.darkVariant.wire)
             .put("backExit", config.backExit.wire)
+            .put("language", config.language.wire)
         val body = json.toString(2) + "\n"
         target.parentFile?.mkdirs()
         val temp = File(target.parentFile, "$FILE_NAME.tmp")

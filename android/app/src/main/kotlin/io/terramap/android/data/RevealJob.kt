@@ -2,7 +2,9 @@
 
 package io.terramap.android.data
 
+import android.content.res.Resources
 import android.util.Log
+import io.terramap.android.R
 import io.terramap.core.MapFile
 import io.terramap.core.MapHeader
 import io.terramap.core.Reveal
@@ -47,6 +49,7 @@ object RevealJob {
         header: MapHeader,
         root: SaveRoot? = null,
         keepPreviousBackup: Boolean = false,
+        res: Resources,
         onProgress: (String, Float) -> Unit = { _, _ -> },
     ): RevealOutcome = withContext(Dispatchers.IO) {
         val items = ArrayList<ItemResult>()
@@ -54,17 +57,17 @@ object RevealJob {
         var bytesWritten = 0
 
         val payload = try {
-            onProgress("读取世界 ${entry.name}", 0.05f)
+            onProgress(res.getString(R.string.run_reading_world, entry.name), 0.05f)
             val world = WorldFile.load(entry.file.readBytes())
-            onProgress("生成地图 ${world.width}×${world.height}", 0.25f)
+            onProgress(res.getString(R.string.run_generating, world.width, world.height), 0.25f)
             val bytes = buildPayload(world, header)
-            onProgress("校验地图载荷", 0.6f)
+            onProgress(res.getString(R.string.run_verifying), 0.6f)
             verify(bytes, world.width, world.height)
             bytes
         } catch (e: OutOfMemoryError) {
             Log.e(TAG, "reveal OOM on ${entry.file.name}", e)
             return@withContext RevealOutcome(
-                items = listOf(ItemResult(entry.name, ItemStatus.FAILED, "世界过大，内存不足；请每角色单独处理")),
+                items = listOf(ItemResult(entry.name, ItemStatus.FAILED, res.getString(R.string.run_too_large))),
                 targets = emptyList(),
                 bytesWritten = 0,
             )
@@ -80,10 +83,10 @@ object RevealJob {
         val total = characters.size.coerceAtLeast(1)
         characters.forEachIndexed { index, character ->
             val label = character.name
-            onProgress("写入角色 $label", 0.6f + 0.4f * index / total)
+            onProgress(res.getString(R.string.run_writing, label), 0.6f + 0.4f * index / total)
             try {
                 if (!character.directory.isDirectory && !character.directory.mkdirs()) {
-                    items.add(ItemResult(label, ItemStatus.FAILED, "无法创建角色目录"))
+                    items.add(ItemResult(label, ItemStatus.FAILED, res.getString(R.string.run_no_char_dir)))
                     return@forEachIndexed
                 }
                 val target = character.mapFile
@@ -97,21 +100,21 @@ object RevealJob {
                 }
                 val tmp = File(target.parentFile, target.name + ".tmp")
                 tmp.writeBytes(payload)
-                if (target.isFile && !target.delete()) throw IOException("无法替换旧地图：${target.name}")
-                if (!tmp.renameTo(target)) throw IOException("无法写入：${target.name}")
+                if (target.isFile && !target.delete()) throw IOException(res.getString(R.string.run_replace_failed, target.name))
+                if (!tmp.renameTo(target)) throw IOException(res.getString(R.string.run_write_failed, target.name))
                 val remote = root?.remoteBase
                 var sizeWarning = ""
                 if (remote != null) {
                     val push = TerraMirror.pushBack(remote, root.playersDir, target)
                     if (!push.copied) {
-                        throw IOException(
-                            "已在镜像生成，但写回设备失败：${target.name}（exit ${push.code}${if (push.error.isEmpty()) "" else "，${push.error}"}）"
-                        )
+                        val message = res.getString(R.string.run_push_failed, target.name, push.code)
+                        val detail = if (push.error.isEmpty()) "" else " ${push.error}"
+                        throw IOException(message + detail)
                     }
                     if (!push.sizeMatches) {
                         // The copy reported success; only the size read-back is odd. Keep the item as a
                         // success and say so, instead of claiming a failure the user cannot act on.
-                        sizeWarning = "（大小校验 ${push.written ?: "?"}≠${push.expected}）"
+                        sizeWarning = res.getString(R.string.run_size_mismatch, push.written?.toString() ?: "?", push.expected.toString())
                     }
                 }
                 targets.add(target)
@@ -121,8 +124,8 @@ object RevealJob {
                         label,
                         ItemStatus.SUCCESS,
                         when {
-                            remote != null && character.hasMap -> "已写回设备（原文件备份为 .map.bak）$sizeWarning"
-                            remote != null -> "已写回设备（新建地图）$sizeWarning"
+                            remote != null && character.hasMap -> res.getString(R.string.run_written_back, sizeWarning)
+                            remote != null -> res.getString(R.string.run_written_new, sizeWarning)
                             character.hasMap -> "已覆盖（原文件备份为 .map.bak）"
                             else -> "已新建地图"
                         },

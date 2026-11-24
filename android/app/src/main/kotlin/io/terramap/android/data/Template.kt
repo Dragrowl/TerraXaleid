@@ -2,6 +2,8 @@
 
 package io.terramap.android.data
 
+import android.content.res.Resources
+import io.terramap.android.R
 import io.terramap.core.MapHeader
 import io.terramap.core.TerrariaFormatException
 import java.io.ByteArrayOutputStream
@@ -23,7 +25,12 @@ sealed interface TemplateResult {
  */
 object Templates {
 
-    fun resolve(entry: WorldEntry, root: SaveRoot, allRoots: List<SaveRoot>): TemplateResult {
+    fun resolve(
+        entry: WorldEntry,
+        root: SaveRoot,
+        allRoots: List<SaveRoot>,
+        res: Resources,
+    ): TemplateResult {
         var versionReason: String? = null
 
         // 1. same world, any character
@@ -33,7 +40,7 @@ object Templates {
             try {
                 val header = MapHeader.parse(candidate.readBytes())
                 if (header.width == entry.meta.width && header.height == entry.meta.height) {
-                    return TemplateResult.Ready(header, "角色「${dir.name}」的地图")
+                    return TemplateResult.Ready(header, res.getString(R.string.template_from_character, dir.name))
                 }
             } catch (e: TerrariaFormatException) {
                 versionReason = e.message
@@ -55,7 +62,10 @@ object Templates {
                             width = entry.meta.width,
                             height = entry.meta.height,
                         )
-                        return TemplateResult.Ready(rebuilt, "同尺寸地图头（${map.parentFile?.name}/${map.name}）")
+                        return TemplateResult.Ready(
+                            rebuilt,
+                            res.getString(R.string.template_from_donor, "${map.parentFile?.name}/${map.name}"),
+                        )
                     } catch (e: TerrariaFormatException) {
                         versionReason = e.message
                     }
@@ -64,8 +74,8 @@ object Templates {
         }
 
         return TemplateResult.Missing(
-            versionReason?.let { "找不到可用的地图头：$it" }
-                ?: "该世界还没有任何角色进入过。请先用任一角色进入一次世界并退出，让游戏生成地图缓存。",
+            versionReason?.let { res.getString(R.string.template_unusable, it) }
+                ?: res.getString(R.string.template_never_entered),
         )
     }
 

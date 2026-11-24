@@ -30,6 +30,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.width
+import io.terramap.android.data.AppLanguage
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -181,6 +190,12 @@ internal fun SettingsScreen(onBack: () -> Unit) {
                 }
             }
 
+            // The language row sits under Behaviour. A dropdown rather than a card list: six entries
+            // would push About off the first screen, and the current value stays visible in the row.
+            SettingsCard(title = null, subtitle = null) {
+                LanguageRow()
+            }
+
             // The about block sits at the bottom of the same page - no second level to walk into.
             SettingsCard(
                 title = stringResource(R.string.about_title),
@@ -305,4 +320,77 @@ internal fun SettingsCard(
             content()
         }
     }
+}
+
+/**
+ * The language row: one line, current value on the right, dropdown opening in place.
+ *
+ * Language names are always written in their own script, so a Chinese reader can find "繁體中文"
+ * without first understanding the current language of the app.
+ */
+@Composable
+private fun LanguageRow() {
+    val current = ThemeController.config.language
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = true }
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Translate,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.width(12.dp))
+            Text(
+                text = stringResource(R.string.language_title),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                text = current.label(),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.primary,
+                maxLines = 1,
+                softWrap = false,
+            )
+            Icon(
+                imageVector = Icons.Filled.ArrowDropDown,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            AppLanguage.entries.forEach { language ->
+                DropdownMenuItem(
+                    text = {
+                        Text(text = language.label(), maxLines = 1, softWrap = false)
+                    },
+                    onClick = {
+                        expanded = false
+                        ThemeController.setLanguage(language)
+                    },
+                    trailingIcon = {
+                        if (language == current) {
+                            Icon(Icons.Filled.Check, contentDescription = null)
+                        }
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AppLanguage.label(): String = when (this) {
+    AppLanguage.FollowSystem -> stringResource(R.string.language_follow)
+    AppLanguage.SimplifiedChinese -> stringResource(R.string.language_sc)
+    AppLanguage.TraditionalChinese -> stringResource(R.string.language_tc)
+    AppLanguage.HongKongTraditional -> stringResource(R.string.language_hktc)
+    AppLanguage.Japanese -> stringResource(R.string.language_ja)
+    AppLanguage.English -> stringResource(R.string.language_en)
 }
