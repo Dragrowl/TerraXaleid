@@ -10,6 +10,19 @@
 - `dist/` 文件名只带 `versionName`（`terramap-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
 
+## [0.1.0-rc.8] - 2026-11-24
+
+### Fixed
+- 关于卡片里点 GitHub / 哔哩哔哩小按钮会闪退：`LocalContext` 给到的是包装过的配置上下文而不是
+  Activity 实例，`startActivity` 必须带 `FLAG_ACTIVITY_NEW_TASK`；同时补上 `SecurityException`
+  与 `RuntimeException` 的兜底，失败只弹提示不再崩溃。
+- 哔哩哔哩按钮改为 App 内打开：装了就用 `bilibili://space/…` 直达，没装或打不开才回落到浏览器。
+  旧代码先用 `getLaunchIntentForPackage` 判断，而 Android 11 起查不到未在 `<queries>` 声明的包，
+  所以永远判为「没装」——现在直接尝试显式 Intent，并在清单里声明该包。
+
+### Notes
+- `versionCode 36`。
+
 ## [0.1.0-rc.7] - 2026-11-24
 
 ### Fixed

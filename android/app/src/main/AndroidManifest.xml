@@ -18,6 +18,11 @@
     <!-- Target SDK 30+ hides other packages; the provider handshake needs to see the manager. -->
     <queries>
         <package android:name="moe.shizuku.privileged.api" />
+        <package android:name="tv.danmaku.bili" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
     </queries>
 
     <application

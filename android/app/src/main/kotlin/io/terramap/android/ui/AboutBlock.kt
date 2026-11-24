@@ -37,6 +37,8 @@ import io.terramap.android.R
 private val IconTile = Color(0xFF12161D)
 private const val GITHUB_URL = "https://github.com/Dragrowl/terramap"
 private const val BILIBILI_URL = "https://space.bilibili.com/3461573882415902"
+private const val BILIBILI_PACKAGE = "tv.danmaku.bili"
+private const val BILIBILI_APP_URI = "bilibili://space/3461573882415902"
 
 /**
  * The about block, laid out inside the settings screen as its last card: mark and version on top,
@@ -100,18 +102,49 @@ internal fun AboutBlock(onLinkFailed: () -> Unit) {
         LinkButton(
             icon = R.drawable.ic_bilibili,
             label = stringResource(R.string.about_bilibili),
-            onClick = { openUrl(context, BILIBILI_URL, onLinkFailed) },
+            onClick = { openBilibili(context, onLinkFailed) },
         )
     }
 }
 
-/** Opens an external link, reporting back when the device has no browser. */
-private fun openUrl(context: android.content.Context, url: String, onFailed: () -> Unit) {
+/**
+ * Contexts reached through `LocalContext` are configuration wrappers around the activity, not
+ * activity instances, so every launch has to carry NEW_TASK or the platform throws
+ * "Calling startActivity() from outside of an Activity context requires the FLAG_ACTIVITY_NEW_TASK
+ * flag" — which surfaced as a crash on these two buttons. Anything that can still go wrong (no
+ * browser, a blocked intent) is reported instead of thrown.
+ */
+private fun launch(context: android.content.Context, intent: Intent, onFailed: () -> Unit) {
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     try {
-        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        context.startActivity(intent)
     } catch (_: ActivityNotFoundException) {
         onFailed()
+    } catch (_: SecurityException) {
+        onFailed()
+    } catch (_: RuntimeException) {
+        onFailed()
     }
+}
+
+/** Opens a web link in whatever handles it. */
+private fun openUrl(context: android.content.Context, url: String, onFailed: () -> Unit) {
+    launch(context, Intent(Intent.ACTION_VIEW, Uri.parse(url)), onFailed)
+}
+
+/**
+ * Bilibili opens inside the app when it can handle the space link, and falls back to the default
+ * browser otherwise. There is no package query first: from Android 11 an app cannot see another
+ * package unless it is declared in <queries>, so `getLaunchIntentForPackage` answers null for an
+ * installed Bilibili and the old code always fell through to the browser. Launching an explicit
+ * intent is still allowed, so the attempt itself is the test.
+ */
+private fun openBilibili(context: android.content.Context, onFailed: () -> Unit) {
+    val inApp = Intent(Intent.ACTION_VIEW, Uri.parse(BILIBILI_APP_URI)).setPackage(BILIBILI_PACKAGE)
+    inApp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    val opened = runCatching { context.startActivity(inApp) }.isSuccess
+    if (opened) return
+    openUrl(context, BILIBILI_URL, onFailed)
 }
 
 /** Small icon-only link: muted grey, dimmed when there is nowhere to go. */
