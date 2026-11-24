@@ -33,6 +33,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items as gridItems
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.withStyle
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.items
@@ -77,6 +90,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -558,6 +572,8 @@ private fun WorldsScreen(
     onShizuku: () -> Unit,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
+    // Survives rotation: the filter is part of what the user is looking at, not transient UI state.
+    var query by rememberSaveable { mutableStateOf("") }
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -686,16 +702,28 @@ private fun WorldsScreen(
                 }
             }
 
+            // Search banner: sits above the list, never scrolls away, and only narrows the cards
+            // below it. Matching is a plain case-insensitive substring test on the world name.
+            SearchBanner(
+                query = query,
+                onQueryChange = { query = it },
+                hint = stringResource(R.string.worlds_search_hint),
+            )
+
             // Everything else lives in the list so the header cards can never starve it of height:
             // in portrait the old fixed Column left the worlds area with zero pixels.
-            LazyColumn(
-                modifier = Modifier.weight(1f),
+            BoxWithConstraints(Modifier.weight(1f)) {
+            val columns = gridColumns(maxWidth)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(columns),
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val currentRoot = roots.getOrNull(rootIndex)
                 if (currentRoot != null) {
-                    item(key = "root-info") {
+                    item(key = "root-info", span = { GridItemSpan(maxLineSpan) }) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
@@ -718,7 +746,7 @@ private fun WorldsScreen(
                 }
 
                 if (!shizukuGranted) {
-                    item(key = "shizuku-banner") {
+                    item(key = "shizuku-banner", span = { GridItemSpan(maxLineSpan) }) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
@@ -745,7 +773,7 @@ private fun WorldsScreen(
                 }
 
                 if (loading) {
-                    item(key = "loading") {
+                    item(key = "loading", span = { GridItemSpan(maxLineSpan) }) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -756,20 +784,29 @@ private fun WorldsScreen(
                         }
                     }
                 } else if (roots.isEmpty()) {
-                    item(key = "no-root") { EmptyState(stringResource(R.string.worlds_empty_no_root)) }
+                    item(key = "no-root", span = { GridItemSpan(maxLineSpan) }) { EmptyState(stringResource(R.string.worlds_empty_no_root)) }
                 } else if (scan == null || scan.worlds.isEmpty()) {
-                    item(key = "empty") { EmptyState(stringResource(R.string.worlds_empty)) }
+                    item(key = "empty", span = { GridItemSpan(maxLineSpan) }) { EmptyState(stringResource(R.string.worlds_empty)) }
                 } else {
-                    items(scan.worlds, key = { it.file.path }) { entry ->
+                    val visible = scan.worlds.filter {
+                        query.isBlank() || it.name.contains(query, ignoreCase = true)
+                    }
+                    if (visible.isEmpty()) {
+                        item(key = "no-match", span = { GridItemSpan(maxLineSpan) }) {
+                            EmptyState(stringResource(R.string.worlds_search_none))
+                        }
+                    }
+                    gridItems(visible, key = { it.file.path }) { entry ->
                         WorldCard(
                             entry = entry,
                             checked = entry.file.path in selected,
                             onToggle = { onToggle(entry.file.path) },
                             onOpen = { onOpen(entry) },
+                            highlight = query,
                         )
                     }
                     if (scan.issues.isNotEmpty()) {
-                        item(key = "issues") {
+                        item(key = "issues", span = { GridItemSpan(maxLineSpan) }) {
                             Column {
                                 Text(
                                     text = stringResource(R.string.worlds_issues, scan.issues.size),
@@ -788,6 +825,7 @@ private fun WorldsScreen(
                     }
                 }
             }
+            }
         }
     }
 }
@@ -798,6 +836,7 @@ private fun WorldCard(
     checked: Boolean,
     onToggle: () -> Unit,
     onOpen: () -> Unit,
+    highlight: String = "",
 ) {
     val context = LocalContext.current
     Card(onClick = onOpen, modifier = Modifier.fillMaxWidth()) {
@@ -813,7 +852,10 @@ private fun WorldCard(
             )
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(text = entry.name, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = highlighted(entry.name, highlight),
+                    style = MaterialTheme.typography.titleMedium,
+                )
                 Spacer(Modifier.height(6.dp))
                 // Scrollable so the third chip keeps its pill shape on a narrow screen instead of
                 // collapsing into a two-line block.
@@ -912,12 +954,16 @@ private fun CharactersScreen(
             }
         },
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier.padding(padding),
+        BoxWithConstraints(Modifier.padding(padding)) {
+        val columns = gridColumns(maxWidth)
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(columns),
+            modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 Text(
                     text = entry.name,
                     style = MaterialTheme.typography.headlineSmall,
@@ -929,7 +975,7 @@ private fun CharactersScreen(
                 Spacer(Modifier.height(8.dp))
                 HorizontalDivider()
             }
-            items(characters, key = { it.name }) { character ->
+            gridItems(characters, key = { it.name }) { character ->
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Row(
                         modifier = Modifier.padding(12.dp),
@@ -956,8 +1002,9 @@ private fun CharactersScreen(
                 }
             }
             if (characters.isEmpty()) {
-                item { EmptyState(stringResource(R.string.worlds_empty)) }
+                item(span = { GridItemSpan(maxLineSpan) }) { EmptyState(stringResource(R.string.worlds_empty)) }
             }
+        }
         }
     }
 }
@@ -1089,4 +1136,51 @@ private fun rootText(raw: String): String = when (raw) {
     "游戏目录 (files)" -> stringResource(R.string.root_game_files)
     "游戏目录" -> stringResource(R.string.root_game)
     else -> raw
+}
+
+
+/** Column count for the card grids: landscape phones and tablets get 2–4 columns, portrait 1. */
+private fun gridColumns(width: androidx.compose.ui.unit.Dp): Int = when {
+    width >= 1200.dp -> 4
+    width >= 840.dp -> 3
+    width >= 600.dp -> 2
+    else -> 1
+}
+
+/** Case-insensitive highlight of the search term inside a world name. */
+private fun highlighted(text: String, query: String): AnnotatedString {
+    if (query.isBlank()) return AnnotatedString(text)
+    val start = text.indexOf(query, ignoreCase = true)
+    if (start < 0) return AnnotatedString(text)
+    return buildAnnotatedString {
+        append(text)
+        addStyle(
+            SpanStyle(background = androidx.compose.ui.graphics.Color(0x66FFC107)),
+            start,
+            start + query.length,
+        )
+    }
+}
+
+/** The search banner above the world list: one line, clear button once something is typed. */
+@Composable
+private fun SearchBanner(query: String, onQueryChange: (String) -> Unit, hint: String) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        placeholder = { Text(hint, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(Icons.Filled.Close, contentDescription = null)
+                }
+            }
+        },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+    )
 }

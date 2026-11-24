@@ -124,4 +124,6 @@
     <string name="root_shizuku_cache">Shizuku 暫存</string>
     <string name="root_game_files">游戲目錄 (files)</string>
     <string name="root_game">游戲目錄</string>
+    <string name="worlds_search_hint">搜尋世界名稱</string>
+    <string name="worlds_search_none">沒有匹配的世界</string>
 </resources>

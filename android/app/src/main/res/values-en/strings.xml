@@ -131,4 +131,6 @@ Since Android 11 a normal app cannot list another app\'s Android/data folder - n
     <string name="root_shizuku_cache">Shizuku cache</string>
     <string name="root_game_files">Game folder (files)</string>
     <string name="root_game">Game folder</string>
+    <string name="worlds_search_hint">搜索世界名称</string>
+    <string name="worlds_search_none">没有匹配的世界</string>
 </resources>

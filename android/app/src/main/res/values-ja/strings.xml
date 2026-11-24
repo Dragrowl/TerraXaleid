@@ -131,4 +131,6 @@ Android 11 以降、一般アプリは他のアプリの Android/data を一覧�
     <string name="root_shizuku_cache">Shizuku 一時</string>
     <string name="root_game_files">ゲームフォルダ (files)</string>
     <string name="root_game">ゲームフォルダ</string>
+    <string name="worlds_search_hint">ワールド名を検索</string>
+    <string name="worlds_search_none">一致するワールドがありません</string>
 </resources>

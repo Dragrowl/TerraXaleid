@@ -306,6 +306,8 @@ EN = {
     "worlds_title": "Choose a world",
     "worlds_hint": "Save location",
     "worlds_empty": "No .wld saves in this location",
+    "worlds_search_hint": "Search world names",
+    "worlds_search_none": "No matching worlds",
     "worlds_empty_no_root": "No save folder found.\n\nSince Android 11 a normal app cannot list another app's Android/data folder - not even with the \"All files access\" permission. Three workarounds:\n\n1. Copy the saves to /sdcard/Download/TerrariaSaves/ (Worlds and Players subfolders) and this page lists them directly;\n2. Use reveal.py + deploy.py from the PC repository to write into the game folder over adb;\n3. A rooted device can use the su bridge (later version).",
     "worlds_reload": "Refresh",
     "worlds_select_all": "Select all",
@@ -398,6 +400,8 @@ EN = {
     "template_from_donor": "Map header of the same size (%1$s)",
     "template_unusable": "No usable map header: %1$s",
     "template_never_entered": "No character has entered this world yet. Enter it once with any character and quit so the game writes its map cache.",
+    "worlds_search_hint": "搜索世界名称",
+    "worlds_search_none": "没有匹配的世界",
 }
 
 JA = {
@@ -433,6 +437,8 @@ JA = {
     "worlds_title": "ワールドを選択",
     "worlds_hint": "保存場所",
     "worlds_empty": "この場所に .wld のセーブがありません",
+    "worlds_search_hint": "ワールド名を検索",
+    "worlds_search_none": "一致するワールドがありません",
     "worlds_empty_no_root": "セーブフォルダが見つかりません。\n\nAndroid 11 以降、一般アプリは他のアプリの Android/data を一覧できません（「すべてのファイルへのアクセス」でも不可）。回避策は 3 つあります。\n\n1. セーブを /sdcard/Download/TerrariaSaves/ にコピーする（Worlds と Players のサブフォルダ）、この画面に直接表示されます。\n2. PC リポジトリの reveal.py + deploy.py を使い、adb 経由でゲームフォルダに直接書き込む。\n3. root 化済み端末なら su ブリッジ（後のバージョン）。",
     "worlds_reload": "更新",
     "worlds_select_all": "すべて選択",
