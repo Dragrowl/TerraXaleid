@@ -964,16 +964,20 @@ private fun CharactersScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                Text(
-                    text = entry.name,
-                    style = MaterialTheme.typography.headlineSmall,
-                )
-                Text(
-                    text = stringResource(R.string.chars_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                Spacer(Modifier.height(8.dp))
-                HorizontalDivider()
+                // A lazy item's slot is a single box, not a column: without this wrapper the title and
+                // the hint paint on top of each other.
+                Column {
+                    Text(
+                        text = entry.name,
+                        style = MaterialTheme.typography.headlineSmall,
+                    )
+                    Text(
+                        text = stringResource(R.string.chars_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    HorizontalDivider()
+                }
             }
             gridItems(characters, key = { it.name }) { character ->
                 Card(modifier = Modifier.fillMaxWidth()) {
@@ -1141,9 +1145,9 @@ private fun rootText(raw: String): String = when (raw) {
 
 /** Column count for the card grids: landscape phones and tablets get 2–4 columns, portrait 1. */
 private fun gridColumns(width: androidx.compose.ui.unit.Dp): Int = when {
-    width >= 1200.dp -> 4
-    width >= 840.dp -> 3
-    width >= 600.dp -> 2
+    width >= 1240.dp -> 4
+    width >= 820.dp -> 3
+    width >= 560.dp -> 2
     else -> 1
 }
 
@@ -1178,6 +1182,7 @@ private fun SearchBanner(query: String, onQueryChange: (String) -> Unit, hint: S
             }
         },
         singleLine = true,
+        shape = androidx.compose.foundation.shape.CircleShape,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         modifier = Modifier
             .fillMaxWidth()
