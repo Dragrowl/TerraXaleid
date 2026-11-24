@@ -10,6 +10,17 @@
 - `dist/` 文件名只带 `versionName`（`terramap-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
 
+## [0.1.0-rc.10] - 2026-11-25
+
+### Fixed
+- 部分机型（尤其 Android 16）点「授权 Shizuku」没反应：Shizuku 的授权弹窗属于后台启动 Activity，
+  有些系统直接拦掉。现在发起请求后 1.8 秒仍未拿到结果，就自动把 Shizuku 应用切到前台，
+  在它的授权列表里打开开关，返回时自动重新检测。
+- 世界列表的 Shizuku 卡片新增「打开 Shizuku」按钮，随时可以手动去开关权限。
+
+### Notes
+- `versionCode 39`。
+
 ## [0.1.0-rc.9] - 2026-11-25
 
 ### Fixed

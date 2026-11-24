@@ -126,4 +126,5 @@
     <string name="root_game">游戏目录</string>
     <string name="worlds_search_hint">搜索世界名称</string>
     <string name="worlds_search_none">没有匹配的世界</string>
+    <string name="shizuku_open">打开 Shizuku</string>
 </resources>

@@ -125,6 +125,7 @@ import io.terramap.android.data.ShizukuShell
 import io.terramap.android.perms.StorageAccess
 import rikka.shizuku.Shizuku
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -216,6 +217,7 @@ fun AppRoot() {
     // No permission gate any more: a device where neither all-files access nor Shizuku is available
     // still opens, and the world list explains what is missing. Gating here is what made the app
     // unreachable on Android 16, where the all-files switch is not offered at all.
+    val scope = rememberCoroutineScope()
     MainFlow(
         shizukuAlive = shizukuAlive,
         shizukuGranted = shizukuGranted,
@@ -224,7 +226,19 @@ fun AppRoot() {
             runCatching { context.startActivity(StorageAccess.settingsIntent(context)) }
                 .onFailure { /* settings intent unavailable: the banner text covers it */ }
         },
-        onShizuku = { ShizukuShell.requestPermission(context) },
+        // Shizuku answers a permission request with a dialog of its own. On some ROMs (Android 16 in
+        // particular) that dialog is a background activity launch and silently never appears, which
+        // reads as "authorising does nothing". Wait a moment for a result and, when none arrives,
+        // bring the Shizuku app forward so the switch can be flipped there; the resume re-check below
+        // then picks the grant up.
+        onShizuku = {
+            ShizukuShell.requestPermission(context)
+            scope.launch {
+                delay(1800)
+                if (!ShizukuShell.hasPermission()) ShizukuShell.openManager(context)
+            }
+        },
+        onOpenShizuku = { ShizukuShell.openManager(context) },
         onRecheck = {
             access = StorageAccess.hasAccess(context)
             shizukuAlive = ShizukuShell.isBinderAlive()
@@ -317,6 +331,7 @@ private fun MainFlow(
     hasStorageAccess: Boolean,
     onGrantStorage: () -> Unit,
     onShizuku: () -> Unit,
+    onOpenShizuku: () -> Unit,
     onRecheck: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -446,7 +461,8 @@ private fun MainFlow(
             shizukuAlive = shizukuAlive,
             shizukuGranted = shizukuGranted,
             hasStorageAccess = hasStorageAccess,
-            onShizuku = { ShizukuShell.requestPermission(context) },
+            onShizuku = onShizuku,
+            onOpenShizuku = onOpenShizuku,
             onGrantStorage = onGrantStorage,
             onRecheck = onRecheck,
         )
@@ -585,6 +601,7 @@ private fun WorldsScreen(
     shizukuGranted: Boolean,
     hasStorageAccess: Boolean,
     onShizuku: () -> Unit,
+    onOpenShizuku: () -> Unit,
     onGrantStorage: () -> Unit,
     onRecheck: () -> Unit,
 ) {
@@ -784,6 +801,9 @@ private fun WorldsScreen(
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     Button(onClick = onShizuku) {
                                         Text(stringResource(R.string.shizuku_button), maxLines = 1)
+                                    }
+                                    TextButton(onClick = onOpenShizuku) {
+                                        Text(stringResource(R.string.shizuku_open), maxLines = 1)
                                     }
                                     TextButton(onClick = onRecheck) {
                                         Text(stringResource(R.string.perm_check_again), maxLines = 1)
