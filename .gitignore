@@ -1,41 +1,69 @@
-# Python
+# ---- Python (L1 reference implementation) ----
 __pycache__/
 *.py[cod]
 .venv/
 venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# .NET
-csharp/**/bin/
-csharp/**/obj/
+# ---- .NET (C# L1, future Windows shell) ----
+**/bin/
+**/obj/
 *.user
+*.suo
+project.lock.json
+.vs/
 
-# Kotlin / JVM
+# ---- Kotlin / JVM ----
 kotlin/.tools/
 kotlin/.verify/
-kotlin/build/
 kotlin/.gradle/
+kotlin/build/
 *.class
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 
-# Android / Gradle
+# ---- Android / Gradle ----
 android/.gradle/
 android/build/
 android/app/build/
 android/core/build/
 android/local.properties
+android/app/release/
 *.apk
 *.aab
+*.ap_
+*.dex
+
+# ---- Signing material stays local ----
 *.keystore
 *.jks
+android/keystore/
+android/keystore.properties
+keystore.properties
 
-# Local game data 鈥?never commit saves or generated maps
+# ---- Build output and local debug artifacts ----
+dist/
+build-log.txt
+android/build-log.txt
+*.png
+!docs/assets/**/*.png
+!android/app/src/main/res/drawable-nodpi/*.png
+!android/app/src/main/res/mipmap-*/*.png
+
+# ---- Local game data: never commit saves or generated maps ----
 *.wld
+*.wld.bak
 *.plr
-*.bak
+*.plr.bak
 *.map
+*.map.bak
+*.map.bad
 out_*.map
+terramap.json
 
-# Editors / OS
+# ---- Editor / OS noise ----
 .idea/
 .vscode/*
 !.vscode/extensions.json
@@ -43,13 +71,5 @@ out_*.map
 Thumbs.db
 desktop.ini
 
-# Logs
+# ---- Logs ----
 *.log
-# Build output and local debug artifacts
-dist/
-*.apk
-android/build-log.txt
-android/*.png
-# release signing material stays local
-android/keystore.properties
-android/keystore/

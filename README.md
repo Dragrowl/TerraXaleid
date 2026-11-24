@@ -17,9 +17,19 @@
 
 terramap 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应该显示什么，再写成合法的地图缓存 `.map`。结果就是：**打开游戏里的地图，整张世界全部点亮，一格黑区都不剩；而世界本身——物块、物品、NPC、进度——一个字节都不动。**
 
-核心是纯数据处理：输入字节，输出字节。不碰游戏进程，三份实现（Python / C# / Kotlin）对同一份存档给出同样的结果。Android 上的图形界面只是把这件事搬到手机上做。
+核心是纯数据处理：输入字节，输出字节。不碰游戏进程，三份实现（Python / C# / Kotlin）对同一份存档给出同样的结果。外层界面只是把这件事搬到不同平台上。
 
-> **版本号约定**：开发期一律 `0.1.0-dev.N`，`versionCode` 每轮 +1，不开平行序列。`docs/ROADMAP-NEXT.md` 那一轮做完后切 `0.1.0-beta.1`。`dist/` 里的文件名只带 `versionName`。
+## 平台状态
+
+| 平台 | 状态 | 说明 |
+|---|---|---|
+| **Android** | ✅ `0.1.0-rc.1` 可用 | Compose（Material 3）界面，读写走 Shizuku，装机即用 |
+| **Windows** | 🚧 **绝赞开发中** | WinUI 3 桌面版正在写。存档识别、预览、一键点亮、备份恢复都会在图形界面里完成，不需要命令行 |
+| L1 核心 | ✅ 三语言完成 | Python / C# / Kotlin 逐格结果一致（`decoded-grid sha256` 相同），是上面两个界面的公共底座 |
+
+> 仓库里现存的 `reveal.py` 等命令行**不是**桌面版的产品形态，它是 L1 的参考实现与回归工具：Windows 版会把同一套算法用 C# 重写后接进界面，命令行继续留在仓库里做交叉验证。
+
+> **版本号约定**：`0.1.0-dev.N` 是开发期，`0.1.0-rc.N` 是预发布（功能冻结、只修显示与稳定性），正式发布切 `0.1.0`。`versionCode` 每轮 +1，不开平行序列；`dist/` 里的文件名只带 `versionName`。
 
 ## 这工具能干什么
 
@@ -29,8 +39,8 @@ terramap 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应该
 | 只点亮某个角色 | 同上，角色列表里取消勾选其它人 |
 | 点亮完反悔 | 结果页「撤销本次」，或到「恢复与备份」里恢复 `.map.bak` |
 | 把地图清空回全黑（重新探索） | 「恢复与备份」→ 勾选 → 删除地图（全黑） |
-| 电脑上批量处理 | 命令行 `python reveal.py`，配合 `--players-dir` 一次写所有角色 |
-| 只想看看有哪些角色 | `python reveal.py ... --list`（只读） |
+| 换主题 | 设置 → 外观：跟随系统 / 浅色 / 深色；深色下还有「标准深色 / OLED 全黑」 |
+| 电脑上批量处理（临时手段） | 命令行 `python reveal.py`，配合 `--players-dir` 一次写所有角色 |
 
 地图是**按「世界 × 角色」各存一份**的（`Players/<角色>/<世界GUID>.map`），所以"点亮"必须逐角色写；默认给本机所有角色都写一份，只给一个角色写的话，其他人进游戏还是黑图。
 
@@ -39,7 +49,7 @@ terramap 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应该
 ## 手机上用（Android）
 
 ```
-1) 把 dist\terramap-0.1.0-dev.17.apk 传到手机，允许「未知来源」后安装
+1) 把 dist\terramap-0.1.0-rc.1.apk 传到手机，允许「未知来源」后安装
 2) 首次启动：按提示授予「所有文件访问权限」（Android 11+ 要手动去系统设置里打开）
 3) 安装并启动 Shizuku（root 或无线调试均可），回到 App 点「授权 Shizuku」→ 选「始终允许」
 4) 世界列表出现「游戏目录 (Shizuku)」→ 勾选世界 → 勾选角色 → 点亮所选
@@ -47,11 +57,15 @@ terramap 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应该
 
 - 改之前请**先退出世界并关闭游戏**：游戏退出时会把内存里的地图写回磁盘，覆盖本工具的成果。
 - 写回时把原 `.map` 备份成 `.map.bak`（再覆盖时旧备份依次让位成 `.bak.1`、`.bak.2`），结果页可以一键撤销。
-- 顶栏的时钟图标进「恢复与备份」：恢复备份 / 只删备份 / 把地图删成完全未探索的全黑状态。
+- 右上角 ⋮ 里有「设置 / 恢复与备份 / 刷新」；返回键逐级退回，主页再按一次退出（可在设置里改成直接结束进程）。
 
 为什么必须要 Shizuku：Android 11 起系统禁止普通应用读取**别的应用**的 `Android/data`，连「所有文件访问」也拿不到那个目录。没有 Shizuku 时，可以用 `Download/TerrariaSaves/` 或 `Documents/TerrariaSaves/` 这两个便携目录：把 `Worlds/` 与 `Players/` 拷进去，App 直接读写它们，再用文件管理器搬回游戏目录。
 
-## 电脑上用（命令行）
+## 桌面端
+
+**Windows 版绝赞开发中**：WinUI 3 + C#，目标是把「识别 Steam / GOG / 便携存档 → 列表选世界 → 预览 → 一键点亮 → 备份与恢复」全做进图形界面，和 Android 版共用同一套 L1 算法与不变量。完成后发布会以单文件便携 exe 为主。
+
+在那之前，桌面上只能这样用命令行（也需要它来做三语言交叉验证）：
 
 ### 需要什么
 
@@ -113,19 +127,19 @@ Android（需要 `JAVA_HOME` 指向 JDK 21；Gradle 8.9 与 SDK 34 见 `local.pr
 ```powershell
 $env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
 powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
-# 产物：dist\terramap-0.1.0-dev.17.apk
+# 产物：dist\terramap-0.1.0-rc.1.apk
 ```
 
 `package-apk.ps1` 从 `android/app/build.gradle.kts` 读 `versionName` / `versionCode`，跑 `:app:assembleRelease`，按版本号命名并打印 size 与 SHA-256。
 
-**签名与升级**：`release` 用 `android/keystore/terramap-release.jks` 签名（alias `terramap`，密码在 `android/keystore.properties`）。两个文件都在 `.gitignore` 里，不随仓库分发；覆盖安装必须用同一把 key。
+**签名与升级**：`release` 用本地 keystore 签名（alias `terramap`，密码在 `android/keystore.properties`）。keystore 与密码文件都不进仓库；覆盖安装必须用同一把 key。
 
 ## 原理（折叠）
 
 <details>
 <summary>一格地图是怎么算出来的</summary>
 
-1. 读 `.wld`：段偏移表 → 世界信息（名字/尺寸/难度/出生点/地表线/岩石层）→ tile 流（列优先、RLE 不跨列）→ 得到每格的 `tileID` 与 `wallID`。
+1. 读 `.wld`：段偏移表 → 世界信息（名字/尺寸/难度/出生点/地表线/岩石层）→ tile 流（列优先、RLE 不跨列）→ 得到每格的 `tileID`、`wallID` 与液体存量。
 2. 读模板 `.map`：头部给出调色板基址（`tile` 段起点 1、`wall` 段、液体 4 槽、天空/泥土/岩石渐变、地狱）与各 tileID 的变体数量。
 3. 逐格决定 Type：有方块 → 方块调色板；否则液体存量 > 32 → 液体调色板；否则有墙 → 墙调色板；否则按深度取渐变背景。
 4. Light 一律 255（= 已探索、完全照亮），Color 0。
@@ -142,7 +156,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
 | 路径 | 内容 |
 |---|---|
 | `*.py` | L1 参考实现（`worldfmt` / `mapfmt` / `players` / `reveal` / `deploy`）与自检 |
-| `csharp/` | L1 的 C# 实现（`net10.0`，零 NuGet）+ 自检 |
+| `csharp/` | L1 的 C# 实现（`net10.0`，零 NuGet）+ 自检；Windows 桌面版将基于它 |
 | `kotlin/` | L1 的 Kotlin/JVM 实现 + 自检（被 Android 模块直接引用，不复制源码） |
 | `android/` | Compose 外壳（Material 3），`app` + `core` 两个模块 |
 | `scripts/` | 三语言校验、打包脚本 |
@@ -155,7 +169,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
 <details>
 <summary>已知限制</summary>
 
-- PC/Steam 的 `.map` 是 `fileVersion 318`（带 RLE），目前只认移动版的 `33094`；读到 318 会明确报 `unsupported map file version 318` 并且不写文件。
+- PC/Steam 的 `.map` 是 `fileVersion 318`（带 RLE），目前只认移动版的 `33094`；读到 318 会明确报 `unsupported map file version 318` 并且不写文件。这是 Windows 版要先解决的第一件事。
 - 不兼容心动代理的国服 Terraria（包名与存档布局都不同）。
 - 只处理地图缓存。世界文件本身只读不改；改难度那种事不在本工具范围内。
 - Android 端一切读写走 Shizuku shell；没有 Shizuku 就只能用便携目录。
@@ -165,7 +179,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
 <details>
 <summary>接下来做什么</summary>
 
-这一轮（顶栏下拉、设置页、主题卡片、关于块、返回分层）已在 `0.1.0-beta.1` 收口；剩余的可选项见 [docs/ROADMAP-NEXT.md](docs/ROADMAP-NEXT.md)：连按两次返回退出、预测式返回动画、强调色、Windows 版。
+- **Windows 桌面版（WinUI 3）**：绝赞开发中，见 [docs/ROADMAP-NEXT.md](docs/ROADMAP-NEXT.md)。
+- PC `.map`（fileVersion 318）读写支持，让桌面版也能直接吃 Steam 存档。
+- 细节优化：连按两次返回退出、预测式返回动画、强调色。
 
 </details>
 
