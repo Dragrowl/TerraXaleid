@@ -3,6 +3,7 @@
 package io.terramap.android.ui
 
 import android.content.res.Configuration
+import android.os.LocaleList
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -21,13 +22,13 @@ import java.util.Locale
  * `LocalConfiguration` makes Compose recompose the whole tree when the language changes.
  */
 @Composable
-internal fun ProvideAppLanguage(language: AppLanguage, content: @Composable () -> Unit) {
+internal fun ProvideAppLanguage(
+    language: AppLanguage,
+    system: LocaleList,
+    content: @Composable () -> Unit,
+) {
     val base = LocalContext.current
-    val tag = language.tag
-    if (tag == null) {
-        content()
-        return
-    }
+    val tag = resolveTag(language, system)
 
     val localized = remember(base, tag) {
         val configuration = Configuration(base.resources.configuration)
@@ -39,6 +40,31 @@ internal fun ProvideAppLanguage(language: AppLanguage, content: @Composable () -
         LocalConfiguration provides localized.resources.configuration,
         content = content,
     )
+}
+
+/**
+ * The concrete locale a choice maps to.
+ *
+ * "Follow the system" is not a locale of its own: it is whichever of the five supported languages the
+ * device is set to right now, so the UI can translate immediately instead of waiting for a restart.
+ * [AppLanguage.wire] still stores `system`, which is why the next launch re-resolves it and a system
+ * language change in between is picked up.
+ */
+internal fun resolveTag(language: AppLanguage, system: LocaleList): String {
+    if (language.tag != null) return language.tag
+    val locale = if (system.isEmpty) Locale.getDefault() else system[0]
+    return when (locale.language.lowercase(Locale.ROOT)) {
+        "zh" -> {
+            val region = locale.country.uppercase(Locale.ROOT)
+            when (region) {
+                "TW", "MO" -> "zh-TW"
+                "HK" -> "zh-HK"
+                else -> "zh-CN"
+            }
+        }
+        "ja" -> "ja-JP"
+        else -> "en-US"
+    }
 }
 
 /** Text a language option is labelled with, in that language's own script. */

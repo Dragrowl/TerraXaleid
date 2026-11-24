@@ -18,7 +18,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import io.terramap.android.data.AppConfigStore
-import io.terramap.android.data.AppLanguage
+import io.terramap.android.ui.resolveTag
 import io.terramap.android.ui.AppRoot
 import io.terramap.android.ui.ProvideAppLanguage
 import io.terramap.android.ui.TerramapTheme
@@ -33,11 +33,11 @@ class MainActivity : ComponentActivity() {
      */
     override fun attachBaseContext(newBase: Context) {
         val language = AppConfigStore.read(newBase).language
-        super.attachBaseContext(wrap(newBase, language))
+        val system = newBase.resources.configuration.locales
+        super.attachBaseContext(wrap(newBase, resolveTag(language, system)))
     }
 
-    private fun wrap(base: Context, language: AppLanguage): Context {
-        val tag = language.tag ?: return base
+    private fun wrap(base: Context, tag: String): Context {
         val configuration = Configuration(base.resources.configuration)
         configuration.setLocale(Locale.forLanguageTag(tag))
         return base.createConfigurationContext(configuration)
@@ -60,7 +60,10 @@ class MainActivity : ComponentActivity() {
                 onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
             }
             val config = ThemeController.config
-            ProvideAppLanguage(config.language) {
+            // The device locale, never the wrapped one: "follow the system" has to keep following the
+            // phone even while the UI itself is translated to something else.
+            val systemLocales = applicationContext.resources.configuration.locales
+            ProvideAppLanguage(config.language, systemLocales) {
                 TerramapTheme(mode = config.theme, darkVariant = config.darkVariant) {
                     // The status bar strip is painted by the window background, not by Compose, so
                     // without this it keeps the static colour from themes.xml and visibly lags the
