@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge" alt="GPL-3.0-or-later"></a>
-  <a href="https://github.com/Dragrowl/terramap/releases"><img src="https://img.shields.io/github/v/release/Dragrowl/terramap?include_prereleases&style=for-the-badge&label=release&color=2E7D32" alt="release"></a>
+  <a href="https://github.com/Dragrowl/terramap/releases/latest"><img src="https://img.shields.io/github/v/release/Dragrowl/terramap?style=for-the-badge&label=release&color=2E7D32" alt="release"></a>
   <a href="#build--verify"><img src="https://img.shields.io/badge/selftest-PASS-2E7D32?style=for-the-badge" alt="selftest"></a>
   <a href="#build--verify"><img src="https://img.shields.io/badge/L1-python%20%7C%20csharp%20%7C%20kotlin-8957E5?style=for-the-badge" alt="L1 three languages"></a>
 </p>
