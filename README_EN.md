@@ -6,6 +6,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge" alt="GPL-3.0-or-later"></a>
+  <a href="https://github.com/Dragrowl/terramap/releases/latest"><img src="https://img.shields.io/github/v/release/Dragrowl/terramap?style=for-the-badge&label=release&color=2E7D32" alt="release"></a>
   <a href="#build--verify"><img src="https://img.shields.io/badge/selftest-PASS-2E7D32?style=for-the-badge" alt="selftest"></a>
   <a href="#build--verify"><img src="https://img.shields.io/badge/L1-python%20%7C%20csharp%20%7C%20kotlin-8957E5?style=for-the-badge" alt="L1 three languages"></a>
 </p>
@@ -30,6 +31,13 @@ The core is pure data processing: bytes in, bytes out, never touching the game p
 
 > **Versioning**: `0.1.0-dev.N` while developing, `0.1.0-rc.N` for pre-releases (feature frozen, display and stability fixes only), then `0.1.0`. `versionCode` increments every round; no parallel series. `dist/` file names carry `versionName` only.
 
+## Before you start
+
+- **Android**: 11 or newer. Install and start [Shizuku](https://github.com/RikkaApps/Shizuku/releases/latest) first (latest build on its Releases page) — all cross-app file access goes through it.
+- **Desktop (command line)**: Python 3.10+ with `numpy`.
+- **Both**: quit the game completely first — it writes the in-memory map back to disk on exit and would overwrite the result.
+- Only the map cache is touched; the world file stays read-only, and the original map is backed up as `.map.bak`, so every run can be undone.
+
 ## What it can do
 
 | Goal | How |
@@ -50,7 +58,7 @@ Tile colours follow the real priority of `Terraria.Map.MapHelper.CreateMapTile`:
 ```
 1) Copy the APK from Releases (or `terramap-<version>.apk` under dist\) to the phone and install it (allow unknown sources)
 2) First launch: grant "All files access" (Android 11+ sends you to system settings)
-3) Install and start Shizuku (root or wireless debugging), then tap "授权 Shizuku" → "始终允许"
+3) Install and start [Shizuku](https://github.com/RikkaApps/Shizuku/releases/latest) (root or wireless debugging), then tap "授权 Shizuku" → "始终允许"
 4) A "游戏目录 (Shizuku)" root appears → tick worlds → tick characters → reveal
 ```
 

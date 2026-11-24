@@ -6,6 +6,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge" alt="GPL-3.0-or-later"></a>
+  <a href="https://github.com/Dragrowl/terramap/releases/latest"><img src="https://img.shields.io/github/v/release/Dragrowl/terramap?style=for-the-badge&label=release&color=2E7D32" alt="release"></a>
   <a href="#构建与验证"><img src="https://img.shields.io/badge/selftest-PASS-2E7D32?style=for-the-badge" alt="selftest"></a>
   <a href="#构建与验证"><img src="https://img.shields.io/badge/L1-python%20%7C%20csharp%20%7C%20kotlin-8957E5?style=for-the-badge" alt="L1 三语言"></a>
 </p>
@@ -29,6 +30,13 @@ terramap 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应该
 > 仓库里现存的 `reveal.py` 等命令行**不是**桌面版的产品形态，它是 L1 的参考实现与回归工具：Windows 版会把同一套算法用 C# 重写后接进界面，命令行继续留在仓库里做交叉验证。
 
 
+## 使用之前
+
+- **手机端**：Android 11 以上；需要先装并启动 [Shizuku](https://github.com/RikkaApps/Shizuku/releases/latest)（最新版在 Releases 页），本工具的跨应用读写全靠它。
+- **桌面端（命令行）**：Python 3.10+ 与 `numpy`。
+- **通用**：动手前先把游戏完全退出——游戏退出时会把内存里的地图写回磁盘，覆盖本工具的成果。
+- 只处理地图缓存，世界文件本身只读；改之前会自动备份成 `.map.bak`，随时可撤销。
+
 ## 这工具能干什么
 
 | 想做的事 | 怎么做 |
@@ -49,7 +57,7 @@ terramap 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应该
 ```
 1) 把 Releases 里的 APK（或 dist\ 下的 `terramap-<版本>.apk`）传到手机，允许「未知来源」后安装
 2) 首次启动：按提示授予「所有文件访问权限」（Android 11+ 要手动去系统设置里打开）
-3) 安装并启动 Shizuku（root 或无线调试均可），回到 App 点「授权 Shizuku」→ 选「始终允许」
+3) 安装并启动 [Shizuku](https://github.com/RikkaApps/Shizuku/releases/latest)（root 或无线调试均可），回到 App 点「授权 Shizuku」→ 选「始终允许」
 4) 世界列表出现「游戏目录 (Shizuku)」→ 勾选世界 → 勾选角色 → 点亮所选
 ```
 

@@ -35,6 +35,7 @@ import io.terramap.android.BuildConfig
 import io.terramap.android.R
 
 private val IconTile = Color(0xFF12161D)
+private const val GITHUB_URL = "https://github.com/Dragrowl/terramap"
 private const val BILIBILI_URL = "https://space.bilibili.com/3461573882415902"
 
 /**
@@ -93,22 +94,23 @@ internal fun AboutBlock(onLinkFailed: () -> Unit) {
         LinkButton(
             icon = R.drawable.ic_github,
             label = stringResource(R.string.about_github),
-            // No repository URL yet: disabled rather than a button that lies.
-            onClick = null,
+            onClick = { openUrl(context, GITHUB_URL, onLinkFailed) },
         )
         Spacer(Modifier.width(4.dp))
         LinkButton(
             icon = R.drawable.ic_bilibili,
             label = stringResource(R.string.about_bilibili),
-            onClick = {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(BILIBILI_URL))
-                try {
-                    context.startActivity(intent)
-                } catch (_: ActivityNotFoundException) {
-                    onLinkFailed()
-                }
-            },
+            onClick = { openUrl(context, BILIBILI_URL, onLinkFailed) },
         )
+    }
+}
+
+/** Opens an external link, reporting back when the device has no browser. */
+private fun openUrl(context: android.content.Context, url: String, onFailed: () -> Unit) {
+    try {
+        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+    } catch (_: ActivityNotFoundException) {
+        onFailed()
     }
 }
 

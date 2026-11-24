@@ -10,6 +10,17 @@
 - `dist/` 文件名只带 `versionName`（`terramap-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
 
+## [0.1.0-rc.2] - 2026-11-24
+
+### Added
+- 设置页「关于」卡片里的 GitHub 按钮接通仓库地址（`https://github.com/Dragrowl/terramap`），
+  与哔哩哔哩按钮共用同一套「没有浏览器就弹 Snackbar」的处理。
+- 首个 GitHub Release 随本版发布，仓库 README 顶部加了 release 徽章、新增「使用之前」一节，
+  指向 Shizuku 最新 Release。
+
+### Notes
+- `versionCode 29`。功能与 rc.1 一致，只是把发布渠道接通。
+
 ## [0.1.0-rc.1] - 2026-11-24
 
 ### Changed
