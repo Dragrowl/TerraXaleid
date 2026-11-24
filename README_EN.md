@@ -5,7 +5,7 @@
 <h1 align="center">terramap</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.0--dev.17-3178C6?style=for-the-badge" alt="version">
+  <img src="https://img.shields.io/badge/version-0.1.0--beta.1-2E7D32?style=for-the-badge" alt="version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge" alt="GPL-3.0-or-later"></a>
   <a href="#build-and-verify"><img src="https://img.shields.io/badge/selftest-PASS-2E7D32?style=for-the-badge" alt="selftest"></a>
   <a href="#build-and-verify"><img src="https://img.shields.io/badge/L1-python%20%7C%20csharp%20%7C%20kotlin-8957E5?style=for-the-badge" alt="L1 three languages"></a>
@@ -19,7 +19,7 @@ terramap reads a Terraria world file (`.wld`), decides what every tile should lo
 
 It is pure data processing: bytes in, bytes out. No game process is involved, and three implementations (Python / C# / Kotlin) produce the same result for the same save. The Android app is just a UI that runs the same thing on the phone.
 
-> **Versioning**: during development the version is always `0.1.0-dev.N`, with `versionCode` incremented each round; no parallel series. After the round described in `docs/ROADMAP-NEXT.md` is finished it becomes `0.1.0-beta.1`. Files in `dist/` carry only the `versionName`.
+> **Versioning**: `0.1.0-dev.N` during development (`versionCode` +1 per round), then `0.1.0-beta.1` once the round in `docs/ROADMAP-NEXT.md` is done — that round is done, so the current tag is `0.1.0-beta.1`. Files in `dist/` carry only the `versionName`.
 
 ## What it does
 

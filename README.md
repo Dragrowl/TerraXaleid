@@ -5,7 +5,7 @@
 <h1 align="center">terramap</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.0--dev.17-3178C6?style=for-the-badge" alt="version">
+  <img src="https://img.shields.io/badge/version-0.1.0--beta.1-2E7D32?style=for-the-badge" alt="version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge" alt="GPL-3.0-or-later"></a>
   <a href="#构建与验证"><img src="https://img.shields.io/badge/selftest-PASS-2E7D32?style=for-the-badge" alt="selftest"></a>
   <a href="#构建与验证"><img src="https://img.shields.io/badge/L1-python%20%7C%20csharp%20%7C%20kotlin-8957E5?style=for-the-badge" alt="L1 三语言"></a>
@@ -165,7 +165,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
 <details>
 <summary>接下来做什么</summary>
 
-见 [`docs/ROADMAP-NEXT.md`](docs/ROADMAP-NEXT.md)：顶栏下拉、设置页（主题卡片 / 退回桌面行为）、关于页、页面返回分层收尾。这一轮完成后切 `0.1.0-beta.1`。
+这一轮（顶栏下拉、设置页、主题卡片、关于页、返回分层）已在 `0.1.0-beta.1` 收口；剩余的可选项见 [docs/ROADMAP-NEXT.md](docs/ROADMAP-NEXT.md)：连按两次返回退出、预测式返回动画、强调色、Windows 版。
 
 </details>
 
