@@ -1,7 +1,7 @@
 # terramap — 给 AI 代理的仓库约定
 
 Terraria 存档地图读写工具：输入 `.wld` 字节、输出 `.map` 字节，不碰游戏进程。
-当前版本 `0.1.0-dev.17`，版本号规则见文末。
+当前版本 `当前版本`，版本号规则见文末。
 
 使用者看 [`README.md`](README.md)；人类开发者先看 [`docs/INDEX.md`](docs/INDEX.md)。
 
@@ -55,7 +55,7 @@ Terraria 存档地图读写工具：输入 `.wld` 字节、输出 `.map` 字节�
 ## 版本号
 
 - `versionName` 一律 `0.1.0-dev.N`：每轮 +1，`versionCode` 同步 +1，不开平行序列。
-- `docs/ROADMAP-NEXT.md` 那一轮完成后切 `0.1.0-beta.1`。
+- 版本号由维护者在发版时统一决定，PR 不要自己改。
 - `dist/` 文件名只带 `versionName`；改动内容进 `CHANGELOG.md` 与 git tag。
 
 ## Git
@@ -71,4 +71,4 @@ Terraria 存档地图读写工具：输入 `.wld` 字节、输出 `.map` 字节�
 - [架构与不变量](docs/ARCHITECTURE.md)
 - [贡献流程](docs/CONTRIBUTING.md)
 - [L1 三语言状态](docs/L1-STATUS.md)
-- [下一步清单](docs/ROADMAP-NEXT.md)
+- [文档索引](docs/INDEX.md)

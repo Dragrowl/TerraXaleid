@@ -29,7 +29,7 @@ Kotlin 输出长度略有不同（`java.util.zip.Deflater` 与 zlib 的压缩流
 - 三份自检的 `--with-samples <world> <map> [dumpPath]` 都会打印它。
 - `GridDigest` 相同 = 语义等价。
 
-含液体的那版（0.1.0-dev.2 起）三方 `GridDigest` = `D4FEC839110830DEB2AAB373D9259F4807B23CA22A0346831D05AD29C01FB5DE`；
+含液体的那版（当前版本 起）三方 `GridDigest` = `D4FEC839110830DEB2AAB373D9259F4807B23CA22A0346831D05AD29C01FB5DE`；
 C# 与 Python 的整文件 sha256 也相同（`ABEBD4AB…1290150`，2,179,420 B）。
 
 ## 已验证的坑（别重犯）

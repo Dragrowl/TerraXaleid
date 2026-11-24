@@ -5,7 +5,6 @@
 <h1 align="center">terramap</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.0--rc.1-2E7D32?style=for-the-badge" alt="version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge" alt="GPL-3.0-or-later"></a>
   <a href="#build--verify"><img src="https://img.shields.io/badge/selftest-PASS-2E7D32?style=for-the-badge" alt="selftest"></a>
   <a href="#build--verify"><img src="https://img.shields.io/badge/L1-python%20%7C%20csharp%20%7C%20kotlin-8957E5?style=for-the-badge" alt="L1 three languages"></a>
@@ -23,7 +22,7 @@ The core is pure data processing: bytes in, bytes out, never touching the game p
 
 | Platform | State | Notes |
 |---|---|---|
-| **Android** | ✅ `0.1.0-rc.1` available | Compose (Material 3) UI, reads and writes through Shizuku |
+| **Android** | ✅ available | Compose (Material 3) UI, reads and writes through Shizuku; install the APK from Releases |
 | **Windows** | 🚧 **in active development** | A WinUI 3 desktop build is being written. Save discovery, preview, one-click reveal, backup/restore — all in a GUI, no command line |
 | L1 core | ✅ done in three languages | Python / C# / Kotlin agree tile-for-tile (identical `decoded-grid sha256`); both UIs sit on it |
 
@@ -49,7 +48,7 @@ Tile colours follow the real priority of `Terraria.Map.MapHelper.CreateMapTile`:
 ## On Android
 
 ```
-1) Copy dist\terramap-0.1.0-rc.1.apk to the phone and install it (allow unknown sources)
+1) Copy the APK from Releases (or `terramap-<version>.apk` under dist\) to the phone and install it (allow unknown sources)
 2) First launch: grant "All files access" (Android 11+ sends you to system settings)
 3) Install and start Shizuku (root or wireless debugging), then tap "授权 Shizuku" → "始终允许"
 4) A "游戏目录 (Shizuku)" root appears → tick worlds → tick characters → reveal
@@ -127,7 +126,7 @@ Android (needs `JAVA_HOME` pointing at JDK 21; Gradle 8.9 and SDK 34, see `local
 ```powershell
 $env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
 powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
-# output: dist\terramap-0.1.0-rc.1.apk
+# output: dist\terramap-<versionName>.apk
 ```
 
 `package-apk.ps1` reads `versionName` / `versionCode` from `android/app/build.gradle.kts`, runs `:app:assembleRelease`, names the artefact after the version and prints size plus SHA-256.
@@ -173,15 +172,6 @@ Details and traps: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/L1-STA
 - The Chinese "心动" (XD) release is not supported: different package name and save layout.
 - Only the map cache is touched. World files stay read-only; changing difficulty is out of scope.
 - On Android every read and write goes through a Shizuku shell; without it only the portable folders work.
-
-</details>
-
-<details>
-<summary>What's next</summary>
-
-- **Windows desktop (WinUI 3)** — in active development, see [docs/ROADMAP-NEXT.md](docs/ROADMAP-NEXT.md).
-- `fileVersion 318` support so the desktop build can read Steam saves directly.
-- Small things: double-back to exit, predictive back animation, accent colour.
 
 </details>
 

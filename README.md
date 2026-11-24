@@ -5,7 +5,6 @@
 <h1 align="center">terramap</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.0--rc.1-2E7D32?style=for-the-badge" alt="version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge" alt="GPL-3.0-or-later"></a>
   <a href="#构建与验证"><img src="https://img.shields.io/badge/selftest-PASS-2E7D32?style=for-the-badge" alt="selftest"></a>
   <a href="#构建与验证"><img src="https://img.shields.io/badge/L1-python%20%7C%20csharp%20%7C%20kotlin-8957E5?style=for-the-badge" alt="L1 三语言"></a>
@@ -23,13 +22,12 @@ terramap 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应该
 
 | 平台 | 状态 | 说明 |
 |---|---|---|
-| **Android** | ✅ `0.1.0-rc.1` 可用 | Compose（Material 3）界面，读写走 Shizuku，装机即用 |
+| **Android** | ✅ 可用 | Compose（Material 3）界面，读写走 Shizuku，装 Releases 里的 APK 即用 |
 | **Windows** | 🚧 **绝赞开发中** | WinUI 3 桌面版正在写。存档识别、预览、一键点亮、备份恢复都会在图形界面里完成，不需要命令行 |
 | L1 核心 | ✅ 三语言完成 | Python / C# / Kotlin 逐格结果一致（`decoded-grid sha256` 相同），是上面两个界面的公共底座 |
 
 > 仓库里现存的 `reveal.py` 等命令行**不是**桌面版的产品形态，它是 L1 的参考实现与回归工具：Windows 版会把同一套算法用 C# 重写后接进界面，命令行继续留在仓库里做交叉验证。
 
-> **版本号约定**：`0.1.0-dev.N` 是开发期，`0.1.0-rc.N` 是预发布（功能冻结、只修显示与稳定性），正式发布切 `0.1.0`。`versionCode` 每轮 +1，不开平行序列；`dist/` 里的文件名只带 `versionName`。
 
 ## 这工具能干什么
 
@@ -49,7 +47,7 @@ terramap 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应该
 ## 手机上用（Android）
 
 ```
-1) 把 dist\terramap-0.1.0-rc.1.apk 传到手机，允许「未知来源」后安装
+1) 把 Releases 里的 APK（或 dist\ 下的 `terramap-<版本>.apk`）传到手机，允许「未知来源」后安装
 2) 首次启动：按提示授予「所有文件访问权限」（Android 11+ 要手动去系统设置里打开）
 3) 安装并启动 Shizuku（root 或无线调试均可），回到 App 点「授权 Shizuku」→ 选「始终允许」
 4) 世界列表出现「游戏目录 (Shizuku)」→ 勾选世界 → 勾选角色 → 点亮所选
@@ -127,7 +125,7 @@ Android（需要 `JAVA_HOME` 指向 JDK 21；Gradle 8.9 与 SDK 34 见 `local.pr
 ```powershell
 $env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
 powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
-# 产物：dist\terramap-0.1.0-rc.1.apk
+# 产物：dist\terramap-<versionName>.apk
 ```
 
 `package-apk.ps1` 从 `android/app/build.gradle.kts` 读 `versionName` / `versionCode`，跑 `:app:assembleRelease`，按版本号命名并打印 size 与 SHA-256。
@@ -173,15 +171,6 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
 - 不兼容心动代理的国服 Terraria（包名与存档布局都不同）。
 - 只处理地图缓存。世界文件本身只读不改；改难度那种事不在本工具范围内。
 - Android 端一切读写走 Shizuku shell；没有 Shizuku 就只能用便携目录。
-
-</details>
-
-<details>
-<summary>接下来做什么</summary>
-
-- **Windows 桌面版（WinUI 3）**：绝赞开发中，见 [docs/ROADMAP-NEXT.md](docs/ROADMAP-NEXT.md)。
-- PC `.map`（fileVersion 318）读写支持，让桌面版也能直接吃 Steam 存档。
-- 细节优化：连按两次返回退出、预测式返回动画、强调色。
 
 </details>
 

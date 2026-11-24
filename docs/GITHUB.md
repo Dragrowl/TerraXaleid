@@ -51,10 +51,10 @@ git push origin --tags
 
 ## 发布（Release）正文模板
 
-标题：`0.1.0-rc.1`
+标题：`<versionName>`（例如 `0.1.0`）
 
 ```markdown
-**Android 预发布版**：`terramap-0.1.0-rc.1.apk`
+**Android 预发布版**：`terramap-<versionName>.apk`
 
 - 世界列表直接读游戏目录（Shizuku），选世界 → 选角色 → 点亮
 - 写回前自动备份为 `.map.bak`，结果页可一键撤销
@@ -65,7 +65,7 @@ git push origin --tags
 > Windows 桌面版（WinUI 3）绝赞开发中，本轮不提供。
 > 功能冻结，只修显示与稳定性问题。
 
-校验：`sha256 039c24b7bf2e10cd43db838a2abf6842b992453bf37cbe27fffb444a601e2a0b`
+校验：`sha256 <构建产物算出来的值>`
 ```
 
 ## 推送前自检

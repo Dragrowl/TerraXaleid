@@ -1,6 +1,6 @@
 # 架构
 
-当前版本 `0.1.0-dev.17`。本文描述**结构与接口契约**，不含打包产物。
+当前版本 `当前版本`。本文描述**结构与接口契约**，不含打包产物。
 
 ---
 
@@ -176,7 +176,7 @@ AppRoot
   （emphasized decelerate `CubicBezierEasing(0.05, 0.7, 0.1, 1)`），出反向（emphasized accelerate
   `(0.3, 0, 0.8, 0.15)`）；方向由 `stageDepth` 决定。
 - 主题：`ui/Theme.kt` 三套配色（浅色 / 深色 / OLED），石墨灰，饱和度 2–4%；
-  选择来自配置文件，`ON_RESUME` 重读；**设置页与主题卡片尚未实现**（见 `ROADMAP-NEXT.md`）。
+  选择来自配置文件，`ON_RESUME` 重读；**设置页与主题卡片尚未实现**（见 `INDEX.md`）。
 - 返回：子页面 `BackHandler` 回世界列表；世界列表按返回退出应用。
 
 ### 3.2 WinUI 3（未实现，计划）
@@ -241,8 +241,8 @@ int16 n2 ; n2 × uint16     // banner 可领取数（version >= 289）
 
 ## 5. 版本号与产物
 
-- `versionName` 一律 `0.1.0-dev.N`，`versionCode` 每轮 +1，不开平行序列；路线那一轮完成后切 `0.1.0-beta.1`。
-- `dist/` 文件名只带 `versionName`（`terramap-0.1.0-dev.17.apk`），不带 `-release` / `-shizuku` 之类的定语。
+- `versionName` 一律 `0.1.0-dev.N`，`versionCode` 每轮 +1，不开平行序列；路线那一轮完成后切 `当前版本`。
+- `dist/` 文件名只带 `versionName`（`terramap-当前版本.apk`），不带 `-release` / `-shizuku` 之类的定语。
   构建类型、签名状态、改动内容进提交信息、git tag 与 CHANGELOG。
 - Android 是**纯 Kotlin + Compose，没有 `lib/` 下的原生 `.so`**，所以一个通用 APK 同时适配
   `arm64-v8a` 与 `x86_64`，不需要 `abiFilters` 或 ABI 拆分。只有将来加入原生库才需要。
