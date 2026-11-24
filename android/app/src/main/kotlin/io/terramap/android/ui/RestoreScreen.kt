@@ -82,8 +82,10 @@ fun RestoreScreen(
     val deleteMapEnabled = busy == null && selected.isNotEmpty()
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
+            TopAppBar(colors = terramapTopBarColors(),
+                modifier = terramapTopBarBackground(),
                 title = { Text(stringResource(R.string.restore_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

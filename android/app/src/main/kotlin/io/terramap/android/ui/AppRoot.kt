@@ -45,6 +45,7 @@ import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AssistChip
@@ -225,7 +226,9 @@ private fun PermissionScreen(
     ) { onRecheck() }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.app_name)) }) },
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = { TopAppBar(colors = terramapTopBarColors(),
+                modifier = terramapTopBarBackground(),title = { Text(stringResource(R.string.app_name)) }) },
     ) { padding ->
         Column(
             modifier = Modifier
@@ -551,8 +554,10 @@ private fun WorldsScreen(
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
+            TopAppBar(colors = terramapTopBarColors(),
+                modifier = terramapTopBarBackground(),
                 title = { Text(stringResource(R.string.worlds_title)) },
                 actions = {
                     // One overflow entry instead of a growing row of icons: settings, the backup browser
@@ -564,6 +569,9 @@ private fun WorldsScreen(
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.menu_settings)) },
+                                leadingIcon = {
+                                    Icon(Icons.Filled.Settings, contentDescription = null)
+                                },
                                 onClick = {
                                     menuOpen = false
                                     onOpenSettings()
@@ -571,6 +579,9 @@ private fun WorldsScreen(
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.menu_restore)) },
+                                leadingIcon = {
+                                    Icon(Icons.Filled.Restore, contentDescription = null)
+                                },
                                 onClick = {
                                     menuOpen = false
                                     onOpenRestore()
@@ -579,6 +590,9 @@ private fun WorldsScreen(
                             HorizontalDivider()
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.menu_refresh)) },
+                                leadingIcon = {
+                                    Icon(Icons.Filled.Refresh, contentDescription = null)
+                                },
                                 onClick = {
                                     menuOpen = false
                                     onReload()
@@ -846,8 +860,10 @@ private fun CharactersScreen(
     var selected by remember(entry) { mutableStateOf(characters.map { it.name }.toSet()) }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
+            TopAppBar(colors = terramapTopBarColors(),
+                modifier = terramapTopBarBackground(),
                 title = { Text(stringResource(R.string.chars_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

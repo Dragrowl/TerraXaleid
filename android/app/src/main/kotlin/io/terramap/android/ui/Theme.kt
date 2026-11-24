@@ -71,7 +71,11 @@ private val DarkScheme = darkColorScheme(
     outlineVariant = Color(0xFF3A3A38),
 )
 
-/** Same palette, but every base surface is pure black so an OLED panel actually switches pixels off. */
+/**
+ * Same palette, but the page background is pure black so an OLED panel switches those pixels off.
+ * Cards keep a slightly lifted fill (#0B0B0B): a fully black card on a fully black page loses its
+ * edge, and the point of the variant is the background, not a uniformly black sheet.
+ */
 private val OledDarkScheme = DarkScheme.copy(
     background = Color.Black,
     surface = Color.Black,
@@ -101,7 +105,7 @@ private fun schemeFor(mode: ThemeMode, darkVariant: DarkVariant, systemDark: Boo
  */
 @Composable
 private fun animatedScheme(target: ColorScheme): ColorScheme {
-    val spec = tween<Color>(StageTransitionMs, easing = EmphasizedDecelerate)
+    val spec = tween<Color>(ThemeTransitionMs, easing = EmphasizedDecelerate)
     return target.copy(
         primary = animateColorAsState(target.primary, spec, label = "primary").value,
         onPrimary = animateColorAsState(target.onPrimary, spec, label = "onPrimary").value,
@@ -138,6 +142,7 @@ fun TerramapTheme(
 ) {
     // isSystemInDarkTheme() is state, so the composition already re-runs when the system flips.
     val systemDark = isSystemInDarkTheme()
-    val scheme = animatedScheme(schemeFor(mode, darkVariant, systemDark))
+    val target = schemeFor(mode, darkVariant, systemDark)
+    val scheme = animatedScheme(target)
     MaterialTheme(colorScheme = scheme, content = content)
 }

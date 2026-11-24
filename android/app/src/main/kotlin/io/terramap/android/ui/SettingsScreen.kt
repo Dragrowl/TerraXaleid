@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -74,8 +77,10 @@ internal fun SettingsScreen(onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val linkFailed = stringResource(R.string.about_link_failed)
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
+            TopAppBar(colors = terramapTopBarColors(),
+                modifier = terramapTopBarBackground(),
                 title = { Text(stringResource(R.string.settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -135,16 +140,21 @@ internal fun SettingsScreen(onBack: () -> Unit) {
                     title = stringResource(R.string.dark_variant_title),
                     subtitle = null,
                 ) {
-                    DarkVariantRow(
-                        title = stringResource(R.string.dark_variant_standard),
-                        selected = config.darkVariant == DarkVariant.Standard,
-                        onClick = { ThemeController.setDarkVariant(DarkVariant.Standard) },
-                    )
-                    DarkVariantRow(
-                        title = stringResource(R.string.dark_variant_oled),
-                        selected = config.darkVariant == DarkVariant.Oled,
-                        onClick = { ThemeController.setDarkVariant(DarkVariant.Oled) },
-                    )
+                    // Two tabs on one row: the choice is binary, so a stacked radio list wastes height.
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        VariantTab(
+                            modifier = Modifier.weight(1f),
+                            label = stringResource(R.string.dark_variant_standard),
+                            selected = config.darkVariant == DarkVariant.Standard,
+                            onClick = { ThemeController.setDarkVariant(DarkVariant.Standard) },
+                        )
+                        VariantTab(
+                            modifier = Modifier.weight(1f),
+                            label = stringResource(R.string.dark_variant_oled),
+                            selected = config.darkVariant == DarkVariant.Oled,
+                            onClick = { ThemeController.setDarkVariant(DarkVariant.Oled) },
+                        )
+                    }
                 }
             }
 
@@ -243,21 +253,28 @@ private fun ThemeOption(
 }
 
 @Composable
-private fun DarkVariantRow(
-    title: String,
+private fun VariantTab(
+    modifier: Modifier,
+    label: String,
     selected: Boolean,
     onClick: () -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    val scheme = MaterialTheme.colorScheme
+    val shape = RoundedCornerShape(10.dp)
+    Box(
+        modifier = modifier
+            .height(44.dp)
+            .clip(shape)
+            .background(if (selected) scheme.secondaryContainer else Color.Transparent)
+            .border(
+                width = 1.dp,
+                color = if (selected) Color.Transparent else scheme.outlineVariant,
+                shape = shape,
+            )
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
     ) {
-        RadioButton(selected = selected, onClick = onClick)
-        Spacer(Modifier.size(4.dp))
-        Text(text = title, style = MaterialTheme.typography.bodyLarge)
+        Text(text = label, style = MaterialTheme.typography.labelLarge)
     }
 }
 

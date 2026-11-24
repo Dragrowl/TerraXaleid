@@ -10,7 +10,29 @@
 - `dist/` 文件名只带 `versionName`（`terramap-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
 
-## [0.1.0-dev.23] - 2026-11-24
+## [0.1.0-beta.3] - 2026-11-24
+
+### Changed
+- 「深色变体」改成两个并排、一行高的选项卡（选中实底、未选中描边），副标题与说明文字全部去掉。
+- 主题切换的渐变时间从 300 ms 提到 450 ms（`ThemeTransitionMs`），页面切换仍是 300 ms；
+  `Scaffold` 显式铺 `background`，页面底色与顶栏同一时刻变。
+- 顶栏改成「透明容器 + `terramapTopBarBackground()` 动画底色层」：Material3 的 `TopAppBar`
+  会在动画开始前就把 `containerColor` 定死，改前它要等切换结束才跳色。
+- 状态栏与导航栏跟着主题走：`MainActivity` 里按当前动画帧的 `background` 同步 window、
+  statusBar、navigationBar 底色，并用 `isAppearanceLightStatusBars` 同步图标明暗。
+  改前状态栏那条一直是主题 XML 里的静态色，看起来正是「标题栏慢半拍」。
+  同一帧实测：状态栏 `(215,215,214)`、顶栏 `(215,215,214)`、页面 `(215,215,214)`、卡片 `(207,207,204)`。
+- 右上角下拉菜单三项补上图标（齿轮 / 时钟 / 刷新）。
+
+### Fixed
+- OLED 变体的层次：页面背景与顶栏是纯 `#000000`，卡片仍保留 `#0B0B0B` 的微亮填充——
+  之前把卡片也压成纯黑，卡片边界消失，整屏看起来像一片低明度灰。
+  实测像素：页面留白 `(0,0,0)`、顶栏 `(0,0,0)`、卡片 `(11,11,11)`。
+
+### Notes
+- `versionCode 27`。
+
+## [0.1.0-beta.2] - 2026-11-24
 
 ### Changed
 - 关于不再是二级页面：内容作为设置页最后一张卡直接铺开，`Stage.About`、`AboutScreen`、入口卡与返回分层里的那一级一起删掉。
