@@ -10,6 +10,18 @@
 - `dist/` 文件名只带 `versionName`（`terramap-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
 
+## [0.1.0-rc.1] - 2026-11-24
+
+### Changed
+- 「深色变体」卡片去掉标题，只留两个选项卡。
+- 配色整体回到严格的中性灰：所有底色 R=G=B（此前 background / surfaceVariant 带 2–4 点暖色偏移，
+  大面积铺开时偏黄）。强调色只保留极淡的灰绿。
+- 选项卡选中态改用「卡片底色 + 10% onSurface」合成，不再借用带暖调的 `secondaryContainer`。
+  实测 OLED：页面 `(0,0,0)`、卡片 `(11,11,11)`、未选中选项卡底 `(33,33,33)`，色偏全为 0。
+
+### Notes
+- `versionCode 28`。预发布版：功能冻结，只修显示问题。
+
 ## [0.1.0-beta.3] - 2026-11-24
 
 ### Changed

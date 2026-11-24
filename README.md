@@ -5,7 +5,7 @@
 <h1 align="center">terramap</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.0--beta.3-2E7D32?style=for-the-badge" alt="version">
+  <img src="https://img.shields.io/badge/version-0.1.0--rc.1-2E7D32?style=for-the-badge" alt="version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge" alt="GPL-3.0-or-later"></a>
   <a href="#构建与验证"><img src="https://img.shields.io/badge/selftest-PASS-2E7D32?style=for-the-badge" alt="selftest"></a>
   <a href="#构建与验证"><img src="https://img.shields.io/badge/L1-python%20%7C%20csharp%20%7C%20kotlin-8957E5?style=for-the-badge" alt="L1 三语言"></a>

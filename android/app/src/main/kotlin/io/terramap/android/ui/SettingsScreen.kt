@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.material3.CardDefaults
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -137,7 +138,7 @@ internal fun SettingsScreen(onBack: () -> Unit) {
             // device that is currently in dark mode.
             if (resolvedDark) {
                 SettingsCard(
-                    title = stringResource(R.string.dark_variant_title),
+                    title = null,
                     subtitle = null,
                 ) {
                     // Two tabs on one row: the choice is binary, so a stacked radio list wastes height.
@@ -265,7 +266,7 @@ private fun VariantTab(
         modifier = modifier
             .height(44.dp)
             .clip(shape)
-            .background(if (selected) scheme.secondaryContainer else Color.Transparent)
+            .background(if (selected) scheme.onSurface.copy(alpha = 0.10f).compositeOver(scheme.surfaceVariant) else Color.Transparent)
             .border(
                 width = 1.dp,
                 color = if (selected) Color.Transparent else scheme.outlineVariant,
@@ -281,7 +282,7 @@ private fun VariantTab(
 /** Card shell shared by every settings block: bold title, muted subtitle, then the control. */
 @Composable
 internal fun SettingsCard(
-    title: String,
+    title: String?,
     subtitle: String?,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
@@ -291,7 +292,9 @@ internal fun SettingsCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text(text = title, style = MaterialTheme.typography.titleMedium)
+            if (title != null) {
+                Text(text = title, style = MaterialTheme.typography.titleMedium)
+            }
             if (subtitle != null) {
                 Text(
                     text = subtitle,

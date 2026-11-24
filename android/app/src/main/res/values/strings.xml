@@ -21,7 +21,6 @@
     <string name="theme_auto">跟随系统</string>
     <string name="theme_light">浅色</string>
     <string name="theme_dark">深色</string>
-    <string name="dark_variant_title">深色变体</string>
     <string name="dark_variant_standard">标准深色</string>
     <string name="dark_variant_oled">OLED 全黑</string>
     <string name="about_title">关于</string>

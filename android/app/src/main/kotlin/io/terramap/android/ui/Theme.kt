@@ -14,61 +14,60 @@ import androidx.compose.ui.graphics.Color
 import io.terramap.android.data.DarkVariant
 import io.terramap.android.data.ThemeMode
 
-// The palette is deliberately close to the grey axis: every tone below sits at a chroma of roughly two
-// to four percent, so the UI reads as neutral graphite with a faint green-grey cast instead of a warm
-// paper white or a green-tinted black. Accent saturations are kept low for the same reason - the name
-// and the chips are what should stand out, not the surfaces behind them.
-private val Graphite = Color(0xFF4F5A51)
-private val GraphiteLight = Color(0xFFB4C3B6)
-private val WarmGrey = Color(0xFF5B5851)
-private val WarmGreyLight = Color(0xFFC7C2B8)
-private val CoolGrey = Color(0xFF525C60)
-private val CoolGreyLight = Color(0xFFB6C5C9)
+// The palette is deliberately neutral: every surface sits on the grey axis (R=G=B or within one
+// point), so nothing reads as warm paper or a yellow-tinted card. Only the accent keeps a faint
+// green-grey cast, which is what keeps the UI from looking like plain Material grey.
+private val Graphite = Color(0xFF4F5751)
+private val GraphiteLight = Color(0xFFBCC4BE)
+private val NeutralGrey = Color(0xFF565656)
+private val NeutralGreyLight = Color(0xFFC6C6C6)
+private val CoolGrey = Color(0xFF545B5C)
+private val CoolGreyLight = Color(0xFFBFC6C8)
 
 private val LightScheme = lightColorScheme(
     primary = Graphite,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFDCE3DD),
-    onPrimaryContainer = Color(0xFF10140F),
-    secondary = WarmGrey,
+    primaryContainer = Color(0xFFDDE1DE),
+    onPrimaryContainer = Color(0xFF101410),
+    secondary = NeutralGrey,
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFE4E0D9),
-    onSecondaryContainer = Color(0xFF191713),
+    secondaryContainer = Color(0xFFE3E3E3),
+    onSecondaryContainer = Color(0xFF1A1A1A),
     tertiary = CoolGrey,
     onTertiary = Color.White,
-    tertiaryContainer = Color(0xFFDCE3E6),
-    onTertiaryContainer = Color(0xFF0B1113),
-    background = Color(0xFFF6F6F4),
-    onBackground = Color(0xFF1A1A18),
-    surface = Color(0xFFF6F6F4),
-    onSurface = Color(0xFF1A1A18),
-    surfaceVariant = Color(0xFFE8E8E4),
-    onSurfaceVariant = Color(0xFF494944),
-    outline = Color(0xFF7A7A73),
-    outlineVariant = Color(0xFFCFCFC9),
+    tertiaryContainer = Color(0xFFDDE2E3),
+    onTertiaryContainer = Color(0xFF0B1112),
+    background = Color(0xFFF5F5F5),
+    onBackground = Color(0xFF1A1A1A),
+    surface = Color(0xFFF5F5F5),
+    onSurface = Color(0xFF1A1A1A),
+    surfaceVariant = Color(0xFFE7E7E7),
+    onSurfaceVariant = Color(0xFF4A4A4A),
+    outline = Color(0xFF7A7A7A),
+    outlineVariant = Color(0xFFCFCFCF),
 )
 
 private val DarkScheme = darkColorScheme(
     primary = GraphiteLight,
-    onPrimary = Color(0xFF1F2A21),
-    primaryContainer = Color(0xFF3A463B),
-    onPrimaryContainer = Color(0xFFD5E3D7),
-    secondary = WarmGreyLight,
-    onSecondary = Color(0xFF2A2823),
-    secondaryContainer = Color(0xFF45423B),
-    onSecondaryContainer = Color(0xFFE9E4DA),
+    onPrimary = Color(0xFF1F2420),
+    primaryContainer = Color(0xFF3A413B),
+    onPrimaryContainer = Color(0xFFD6DED8),
+    secondary = NeutralGreyLight,
+    onSecondary = Color(0xFF2A2A2A),
+    secondaryContainer = Color(0xFF434343),
+    onSecondaryContainer = Color(0xFFE6E6E6),
     tertiary = CoolGreyLight,
-    onTertiary = Color(0xFF1D2A2D),
-    tertiaryContainer = Color(0xFF37474B),
-    onTertiaryContainer = Color(0xFFD6E5E9),
+    onTertiary = Color(0xFF1D2425),
+    tertiaryContainer = Color(0xFF374043),
+    onTertiaryContainer = Color(0xFFD6E0E2),
     background = Color(0xFF121212),
-    onBackground = Color(0xFFE3E3DF),
+    onBackground = Color(0xFFE2E2E2),
     surface = Color(0xFF121212),
-    onSurface = Color(0xFFE3E3DF),
-    surfaceVariant = Color(0xFF232322),
-    onSurfaceVariant = Color(0xFFC7C7C1),
-    outline = Color(0xFF8F8F88),
-    outlineVariant = Color(0xFF3A3A38),
+    onSurface = Color(0xFFE2E2E2),
+    surfaceVariant = Color(0xFF232323),
+    onSurfaceVariant = Color(0xFFC6C6C6),
+    outline = Color(0xFF8F8F8F),
+    outlineVariant = Color(0xFF3A3A3A),
 )
 
 /**
