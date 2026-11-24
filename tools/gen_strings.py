@@ -43,8 +43,7 @@ NEW_SC = {
     "language_title": "语言",
     "language_follow": "跟随系统",
     "language_sc": "简体中文",
-    "language_tc": "繁體中文（台灣）",
-    "language_hktc": "繁體中文（香港）",
+    "language_tc": "繁體中文",
     "language_ja": "日本語",
     "language_en": "English",
     "run_reading_world": "读取世界 %1$s",
@@ -261,7 +260,7 @@ TW_WORDS = {
     "搜索": "搜尋",
     "信息": "資訊",
 }
-HK_WORDS = {
+HK_WORDS_UNUSED = {
     "文件": "檔案",
     "目录": "資料夾",
     "默认": "預設",
@@ -272,7 +271,7 @@ HK_WORDS = {
 }
 
 # Keys whose text is a language name and therefore must not be converted.
-NO_CONVERT = {"language_sc", "language_tc", "language_hktc", "language_ja", "language_en"}
+NO_CONVERT = {"language_sc", "language_tc", "language_ja", "language_en"}
 
 EN = {
     "app_name": "terramap",
@@ -378,8 +377,7 @@ EN = {
     "language_title": "Language",
     "language_follow": "System",
     "language_sc": "简体中文",
-    "language_tc": "繁體中文（台灣）",
-    "language_hktc": "繁體中文（香港）",
+    "language_tc": "繁體中文",
     "language_ja": "日本語",
     "language_en": "English",
     "run_reading_world": "Reading world %1$s",
@@ -506,8 +504,7 @@ JA = {
     "language_title": "言語",
     "language_follow": "システムに従う",
     "language_sc": "简体中文",
-    "language_tc": "繁體中文（台灣）",
-    "language_hktc": "繁體中文（香港）",
+    "language_tc": "繁體中文",
     "language_ja": "日本語",
     "language_en": "English",
     "run_reading_world": "ワールド %1$s を読み込み",
@@ -586,7 +583,7 @@ def main() -> int:
     problems = write_resources(RES / "values-en" / "strings.xml", entries, EN)
     problems += write_resources(RES / "values-ja" / "strings.xml", entries, JA)
 
-    for folder, words in (("values-zh-rTW", TW_WORDS), ("values-zh-rHK", HK_WORDS)):
+    for folder, words in (("values-zh-rTW", TW_WORDS),):
         converted = {
             name: (text if name in NO_CONVERT else to_traditional(text, words))
             for name, text in entries

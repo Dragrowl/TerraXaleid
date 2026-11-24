@@ -65,7 +65,6 @@ enum class AppLanguage(val wire: String, val tag: String?) {
     FollowSystem("system", null),
     SimplifiedChinese("sc", "zh-CN"),
     TraditionalChinese("tc", "zh-TW"),
-    HongKongTraditional("hktc", "zh-HK"),
     Japanese("ja", "ja-JP"),
     English("en", "en-US"),
     ;

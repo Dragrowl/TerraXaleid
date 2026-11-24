@@ -567,13 +567,19 @@ private fun WorldsScreen(
                 actions = {
                     // One overflow entry instead of a growing row of icons: settings, the backup browser
                     // and a refresh do not deserve equal billing in the bar.
+                    // The three labels are resolved out here: a DropdownMenu body is composed in a popup
+                    // subcomposition that does not reliably inherit the locale wrapper, so resolving the
+                    // strings inside it can leave the menu in the language the process started with.
+                    val settingsLabel = stringResource(R.string.menu_settings)
+                    val restoreLabel = stringResource(R.string.menu_restore)
+                    val refreshLabel = stringResource(R.string.menu_refresh)
                     Box {
                         IconButton(onClick = { menuOpen = true }) {
                             Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.menu_more))
                         }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.menu_settings)) },
+                                text = { Text(settingsLabel) },
                                 leadingIcon = {
                                     Icon(Icons.Filled.Settings, contentDescription = null)
                                 },
@@ -583,7 +589,7 @@ private fun WorldsScreen(
                                 },
                             )
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.menu_restore)) },
+                                text = { Text(restoreLabel) },
                                 leadingIcon = {
                                     Icon(Icons.Filled.Restore, contentDescription = null)
                                 },
@@ -594,7 +600,7 @@ private fun WorldsScreen(
                             )
                             HorizontalDivider()
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.menu_refresh)) },
+                                text = { Text(refreshLabel) },
                                 leadingIcon = {
                                     Icon(Icons.Filled.Refresh, contentDescription = null)
                                 },

@@ -367,24 +367,29 @@ private fun LanguageRow() {
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+        // Strings are resolved here, in the row's own composition, and handed to the menu as plain
+        // text. A DropdownMenu body is composed in a popup subcomposition which does not reliably pick
+        // up the locale wrapper this app installs around the screen, so resolving inside the popup can
+        // leave it showing the language the process started with.
+        val options = AppLanguage.entries.map { it to it.label() }
         Box(Modifier.align(Alignment.TopEnd)) {
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            AppLanguage.entries.forEach { language ->
-                DropdownMenuItem(
-                    text = {
-                        Text(text = language.label(), maxLines = 1, softWrap = false)
-                    },
-                    onClick = {
-                        expanded = false
-                        ThemeController.setLanguage(language)
-                    },
-                    trailingIcon = {
-                        if (language == current) {
-                            Icon(Icons.Filled.Check, contentDescription = null)
-                        }
-                    },
-                )
-            }
+                options.forEach { (language, label) ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = label, maxLines = 1, softWrap = false)
+                        },
+                        onClick = {
+                            expanded = false
+                            ThemeController.setLanguage(language)
+                        },
+                        trailingIcon = {
+                            if (language == current) {
+                                Icon(Icons.Filled.Check, contentDescription = null)
+                            }
+                        },
+                    )
+                }
             }
         }
     }
@@ -395,7 +400,6 @@ private fun AppLanguage.label(): String = when (this) {
     AppLanguage.FollowSystem -> stringResource(R.string.language_follow)
     AppLanguage.SimplifiedChinese -> stringResource(R.string.language_sc)
     AppLanguage.TraditionalChinese -> stringResource(R.string.language_tc)
-    AppLanguage.HongKongTraditional -> stringResource(R.string.language_hktc)
     AppLanguage.Japanese -> stringResource(R.string.language_ja)
     AppLanguage.English -> stringResource(R.string.language_en)
 }

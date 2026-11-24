@@ -58,7 +58,7 @@ internal fun resolveTag(language: AppLanguage, system: LocaleList): String {
             val region = locale.country.uppercase(Locale.ROOT)
             when (region) {
                 "TW", "MO" -> "zh-TW"
-                "HK" -> "zh-HK"
+                "HK" -> "zh-TW"
                 else -> "zh-CN"
             }
         }
@@ -67,12 +67,3 @@ internal fun resolveTag(language: AppLanguage, system: LocaleList): String {
     }
 }
 
-/** Text a language option is labelled with, in that language's own script. */
-internal fun AppLanguage.displayName(): String = when (this) {
-    AppLanguage.FollowSystem -> "system"
-    AppLanguage.SimplifiedChinese -> "简体中文"
-    AppLanguage.TraditionalChinese -> "繁體中文（台灣）"
-    AppLanguage.HongKongTraditional -> "繁體中文（香港）"
-    AppLanguage.Japanese -> "日本語"
-    AppLanguage.English -> "English"
-}
