@@ -332,7 +332,10 @@ internal fun SettingsCard(
 private fun LanguageRow() {
     val current = ThemeController.config.language
     var expanded by remember { mutableStateOf(false) }
-    Box {
+    // The menu is anchored to a zero-width marker at the left edge: Material's own positioning follows
+    // the anchor box, so a full-width row would open the menu under the right edge (and run off-screen
+    // on a narrow layout) instead of under the label the user just tapped.
+    Box(Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -364,7 +367,8 @@ private fun LanguageRow() {
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        Box(Modifier.align(Alignment.TopStart)) {
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             AppLanguage.entries.forEach { language ->
                 DropdownMenuItem(
                     text = {
@@ -380,6 +384,7 @@ private fun LanguageRow() {
                         }
                     },
                 )
+            }
             }
         }
     }

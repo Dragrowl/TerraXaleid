@@ -10,8 +10,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
@@ -62,12 +60,6 @@ class MainActivity : ComponentActivity() {
                 onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
             }
             val config = ThemeController.config
-            // Language lives in the activity context, so a change needs a fresh activity: recreating is
-            // the only way to have popups, dialogs and the Compose tree agree on one locale.
-            val startLanguage = remember { config.language }
-            LaunchedEffect(config.language) {
-                if (config.language != startLanguage) recreate()
-            }
             ProvideAppLanguage(config.language) {
                 TerramapTheme(mode = config.theme, darkVariant = config.darkVariant) {
                     // The status bar strip is painted by the window background, not by Compose, so
