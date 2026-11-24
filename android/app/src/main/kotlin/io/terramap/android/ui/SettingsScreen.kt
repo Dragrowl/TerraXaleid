@@ -9,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,7 +26,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,10 +34,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,11 +50,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import io.terramap.android.BuildConfig
 import io.terramap.android.R
 import io.terramap.android.data.BackExit
 import io.terramap.android.data.DarkVariant
 import io.terramap.android.data.ThemeMode
+import kotlinx.coroutines.launch
 
 /**
  * Every option is an expanded card with a subtitle - no dropdowns, no second level - so the whole
@@ -58,8 +62,17 @@ import io.terramap.android.data.ThemeMode
  * `terramap.json` on change.
  */
 @Composable
-internal fun SettingsScreen(onBack: () -> Unit, onOpenAbout: () -> Unit) {
+internal fun SettingsScreen(onBack: () -> Unit) {
     val config = ThemeController.config
+    val systemDark = isSystemInDarkTheme()
+    val resolvedDark = when (config.theme) {
+        ThemeMode.Auto -> systemDark
+        ThemeMode.Light -> false
+        ThemeMode.Dark -> true
+    }
+    val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val linkFailed = stringResource(R.string.about_link_failed)
     Scaffold(
         topBar = {
             TopAppBar(
@@ -74,6 +87,7 @@ internal fun SettingsScreen(onBack: () -> Unit, onOpenAbout: () -> Unit) {
                 },
             )
         },
+        snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
         Column(
             modifier = Modifier
@@ -114,21 +128,20 @@ internal fun SettingsScreen(onBack: () -> Unit, onOpenAbout: () -> Unit) {
                 }
             }
 
-            // Only meaningful once the resolved theme is dark, so it appears with the dark choice.
-            if (config.theme == ThemeMode.Dark) {
+            // Shown whenever the resolved theme is dark, which includes the automatic mode on a
+            // device that is currently in dark mode.
+            if (resolvedDark) {
                 SettingsCard(
                     title = stringResource(R.string.dark_variant_title),
-                    subtitle = stringResource(R.string.dark_variant_subtitle),
+                    subtitle = null,
                 ) {
                     DarkVariantRow(
                         title = stringResource(R.string.dark_variant_standard),
-                        body = stringResource(R.string.dark_variant_standard_body),
                         selected = config.darkVariant == DarkVariant.Standard,
                         onClick = { ThemeController.setDarkVariant(DarkVariant.Standard) },
                     )
                     DarkVariantRow(
                         title = stringResource(R.string.dark_variant_oled),
-                        body = stringResource(R.string.dark_variant_oled_body),
                         selected = config.darkVariant == DarkVariant.Oled,
                         onClick = { ThemeController.setDarkVariant(DarkVariant.Oled) },
                     )
@@ -137,7 +150,7 @@ internal fun SettingsScreen(onBack: () -> Unit, onOpenAbout: () -> Unit) {
 
             SettingsCard(
                 title = stringResource(R.string.behavior_title),
-                subtitle = stringResource(R.string.behavior_exit_body),
+                subtitle = null,
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -157,23 +170,12 @@ internal fun SettingsScreen(onBack: () -> Unit, onOpenAbout: () -> Unit) {
                 }
             }
 
-            // One entry point, whole card tappable: the about page is a card stack too, not a menu.
+            // The about block sits at the bottom of the same page - no second level to walk into.
             SettingsCard(
-                title = stringResource(R.string.settings_about_title),
-                subtitle = stringResource(R.string.settings_about_subtitle, BuildConfig.VERSION_NAME),
-                modifier = Modifier.clickable(onClick = onOpenAbout),
+                title = stringResource(R.string.about_title),
+                subtitle = null,
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                AboutBlock(onLinkFailed = { scope.launch { snackbar.showSnackbar(linkFailed) } })
             }
         }
     }
@@ -243,7 +245,6 @@ private fun ThemeOption(
 @Composable
 private fun DarkVariantRow(
     title: String,
-    body: String,
     selected: Boolean,
     onClick: () -> Unit,
 ) {
@@ -256,14 +257,7 @@ private fun DarkVariantRow(
     ) {
         RadioButton(selected = selected, onClick = onClick)
         Spacer(Modifier.size(4.dp))
-        Column {
-            Text(text = title, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                text = body,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+        Text(text = title, style = MaterialTheme.typography.bodyLarge)
     }
 }
 

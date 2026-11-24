@@ -165,7 +165,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
 <details>
 <summary>接下来做什么</summary>
 
-这一轮（顶栏下拉、设置页、主题卡片、关于页、返回分层）已在 `0.1.0-beta.1` 收口；剩余的可选项见 [docs/ROADMAP-NEXT.md](docs/ROADMAP-NEXT.md)：连按两次返回退出、预测式返回动画、强调色、Windows 版。
+这一轮（顶栏下拉、设置页、主题卡片、关于块、返回分层）已在 `0.1.0-beta.1` 收口；剩余的可选项见 [docs/ROADMAP-NEXT.md](docs/ROADMAP-NEXT.md)：连按两次返回退出、预测式返回动画、强调色、Windows 版。
 
 </details>
 

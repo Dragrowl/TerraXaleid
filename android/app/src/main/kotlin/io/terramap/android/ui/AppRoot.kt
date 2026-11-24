@@ -116,7 +116,6 @@ private sealed interface Stage {
     data class Characters(val entry: WorldEntry) : Stage
     data object Restore : Stage
     data object Settings : Stage
-    data object About : Stage
 }
 
 /**
@@ -125,11 +124,10 @@ private sealed interface Stage {
  * `Motion.kt` and are shared with the theme cross-fade.
  */
 
-/** Worlds is the root; settings sits one level down; about sits below settings. */
+/** Worlds is the root, everything else sits one level down. */
 private fun stageDepth(stage: Stage): Int = when (stage) {
     is Stage.Worlds -> 0
     is Stage.Characters, is Stage.Restore, is Stage.Settings -> 1
-    is Stage.About -> 2
 }
 
 private fun stageTransition(from: Stage, to: Stage): ContentTransform {
@@ -314,13 +312,8 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
     val root: SaveRoot? = roots.getOrNull(rootIndex)
 
     // Without this the system back gesture finishes the activity from any screen and drops the user on
-    // the launcher mid-task. Inside a sub-screen back walks up one level: about -> settings -> worlds.
-    BackHandler(enabled = stage !is Stage.Worlds) {
-        stage = when (stage) {
-            is Stage.About -> Stage.Settings
-            else -> Stage.Worlds
-        }
-    }
+    // the launcher mid-task. Inside a sub-screen back simply returns to the world list.
+    BackHandler(enabled = stage !is Stage.Worlds) { stage = Stage.Worlds }
 
     // On the world list the press is ours too: whether the process survives is a setting, and the
     // platform default (finish) is only one of the two answers.
@@ -440,10 +433,7 @@ private fun MainFlow(shizukuAlive: Boolean, shizukuGranted: Boolean) {
 
         is Stage.Settings -> SettingsScreen(
             onBack = { stage = Stage.Worlds },
-            onOpenAbout = { stage = Stage.About },
         )
-
-        is Stage.About -> AboutScreen(onBack = { stage = Stage.Settings })
 
         is Stage.Restore -> RestoreScreen(
             rows = restoreRows,

@@ -7,7 +7,7 @@
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | 三层划分、L1 接口契约（C# / Kotlin 实际签名）、六条解析不变量、L2 的 Android 实现（Shizuku 主路线与写入链路）、L3 三态页面与动效、世界列表字段来源、难度派生、Banner 变长块的坑、版本号与产物约定 |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | 目录约定、改代码前的检查、验证与打包命令、版本号规则、文档分工、提交规范 |
 | [`L1-STATUS.md`](L1-STATUS.md) | 三语言实现状态、黄金样本哈希、`GridDigest` 等价判定、八个踩过的坑、自检覆盖范围、遗留项 |
-| [`ROADMAP-NEXT.md`](ROADMAP-NEXT.md) | 通往 `0.1.0-beta.1` 的清单：返回分层、顶栏下拉、设置页与主题卡、关于页、图标文字，带完成标记 |
+| [`ROADMAP-NEXT.md`](ROADMAP-NEXT.md) | 通往 `0.1.0-beta.1` 的清单：返回分层、顶栏下拉、设置页与主题卡、关于块、图标文字，带完成标记 |
 | [`../AGENTS.md`](../AGENTS.md) | 给 AI 代理的代码边界与硬约定（人也可以当速查表） |
 | [`assets/mark.svg`](assets/mark.svg) | README 用的项目标记 |
 | [`assets/shots/`](assets/shots/) | 主题缩略图用的实机截图（`light-3x2.png`、`dark-3x2.png`、`auto-3x2.png`） |
