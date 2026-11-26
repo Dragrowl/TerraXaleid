@@ -38,7 +38,7 @@ if (-not (Test-Path $built)) { throw "missing build output: $built" }
 
 $dist = Join-Path $root 'dist'
 New-Item -ItemType Directory -Force -Path $dist | Out-Null
-$target = Join-Path $dist ('terramap-{0}.apk' -f $versionName)
+$target = Join-Path $dist ('TerraXaleid-{0}.apk' -f $versionName)
 Copy-Item $built $target -Force
 
 $hash = (Get-FileHash $target -Algorithm SHA256).Hash.ToLower()

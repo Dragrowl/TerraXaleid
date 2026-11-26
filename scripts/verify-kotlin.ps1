@@ -97,7 +97,7 @@ if ($compilerJar -and $java -and $stdlib) {
     try { & jar cf $outJar . } finally { Pop-Location }
     if (-not (Test-Path $outJar)) { Write-Host 'jar: FAILED'; exit 1 }
 
-    & $java -cp "$outJar;$stdlib" io.terramap.core.SelfTestKt @sampleArgs
+    & $java -cp "$outJar;$stdlib" io.terraxaleid.core.SelfTestKt @sampleArgs
     exit $LASTEXITCODE
 }
 

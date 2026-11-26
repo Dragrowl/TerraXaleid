@@ -31,7 +31,7 @@
    并且三份自检都要过。只改一份的 PR 不会被合。
 3. 调色板（1-based Type、`255*y/surface` 渐变、区块 64×64 列主序、液体在墙之前）属于硬约定，
    改动前先读 `ARCHITECTURE.md` 的「六条不变量」。
-4. Android 侧只做展示与调用：解析逻辑不进 `android/`，一律走 `io.terramap.core`。
+4. Android 侧只做展示与调用：解析逻辑不进 `android/`，一律走 `io.terraxaleid.core`。
 5. 设备上的读写只走 `ShizukuShell.exec()`（`sh -c`）。不要引入 `su`、`Runtime.exec`、
    `ProcessBuilder`——这样非 root 设备也能用，root 设备也不会多一条路径。
 
@@ -55,7 +55,7 @@ Android 构建与打包：
 
 ```powershell
 $env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
-powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1     # → dist\terramap-<versionName>.apk
+powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1     # → dist\TerraXaleid-<versionName>.apk
 ```
 
 需要 `local.properties` 指向 SDK（模板见 `android/local.properties.example`），该文件不进仓库。

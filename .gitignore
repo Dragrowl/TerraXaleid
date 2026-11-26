@@ -73,3 +73,6 @@ desktop.ini
 
 # ---- Logs ----
 *.log
+
+# Local-only planning notes (never pushed)
+*.local.md

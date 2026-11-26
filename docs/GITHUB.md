@@ -54,7 +54,7 @@ git push origin --tags
 标题：`<versionName>`（例如 `0.1.0`）
 
 ```markdown
-**Android 预发布版**：`terramap-<versionName>.apk`
+**Android 预发布版**：`TerraXaleid-<versionName>.apk`
 
 - 世界列表直接读游戏目录（Shizuku），选世界 → 选角色 → 点亮
 - 写回前自动备份为 `.map.bak`，结果页可一键撤销

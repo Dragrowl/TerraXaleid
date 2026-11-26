@@ -8,7 +8,7 @@
 |---|---|---|---|---|
 | Python | 仓库根 `*.py` | `python selftest.py` | PASS | 是，黄金样本来源 |
 | C# | `csharp/TerraMap.Core`、`csharp/TerraMap.SelfTest` | `dotnet build` + `dotnet run`（`net10.0`，零 NuGet） | PASS，0 警告 0 错误 | 是，与 Python **逐字节一致** |
-| Kotlin | `kotlin/src/main/kotlin/io/terramap/core` | `scripts\verify-kotlin.ps1`（离线 `kotlin-compiler-embeddable` 或 gradle） | PASS | 是，靠 `GridDigest` 判等价 |
+| Kotlin | `kotlin/src/main/kotlin/io/terraxaleid/core` | `scripts\verify-kotlin.ps1`（离线 `kotlin-compiler-embeddable` 或 gradle） | PASS | 是，靠 `GridDigest` 判等价 |
 
 Android 的 `core` 模块通过 `sourceSets.main.kotlin.srcDir("../../kotlin/src/main/kotlin")`
 **直接引用** Kotlin 版，不复制源码——所以改 L1 只需要改一处，App 自动跟着变。

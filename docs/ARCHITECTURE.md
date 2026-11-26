@@ -71,7 +71,7 @@ static class PlayerMaps { string MapFileNameForWorld(ReadOnlySpan<byte> guid); .
 `RevealOptions.OverwriteExplored = false` 会抛 `NotSupportedException`：全量覆盖是本工具的
 唯一语义（做不到「只补黑区而不动已探索格」时宁可明确报错，也不静默产出半对的文件）。
 
-### 1.3 Kotlin（`io.terramap.core`，纯 Kotlin/JVM，无 `android.*` 依赖）
+### 1.3 Kotlin（`io.terraxaleid.core`，纯 Kotlin/JVM，无 `android.*` 依赖）
 
 ```kotlin
 fun WorldFile.parseMeta(data: ByteArray): WorldMeta
@@ -117,7 +117,7 @@ root 不是必要条件——Shizuku 用 shell 身份即可，因为 shell 属�
 
 ```
 prepare()   一条 shell：mkdir -p + cp Worlds/*.wld + cp -rf Players/.  → 镜像到
-            /sdcard/Download/.terramap/{Worlds,Players}
+            /sdcard/Android/data/io.terraxaleid.android/files/mirror/{Worlds,Players}
             （不能先 rm -rf：这台机器上会 Text file busy 并把整条 shell 卡住）
 Reveal      在镜像上跑 L1，写出新的 .map（本地路径）
 rotate      .map.bak → .bak.1 → .bak.2 依次让位（勾选「删除上一次的备份」时跳过）
@@ -126,7 +126,7 @@ pushBack    从原文件读 uid:gid 与 mode；无原文件时回退到父目录
 verify      回读 MapData.exploredCount() == W*H
 ```
 
-所有 shell 调用都打 `Log`，tag 固定 `terramap`，形如
+所有 shell 调用都打 `Log`，tag 固定 `terraxaleid`，形如
 `exec[cp -f ... && stat -c %s ...] -> 0 out=930790 err=`。
 
 ### 2.2 Windows（未实现，计划）
@@ -242,7 +242,7 @@ int16 n2 ; n2 × uint16     // banner 可领取数（version >= 289）
 ## 5. 版本号与产物
 
 - `versionName` 一律 `0.1.0-dev.N`，`versionCode` 每轮 +1，不开平行序列；路线那一轮完成后切 `当前版本`。
-- `dist/` 文件名只带 `versionName`（`terramap-当前版本.apk`），不带 `-release` / `-shizuku` 之类的定语。
+- `dist/` 文件名只带 `versionName`（`TerraXaleid-当前版本.apk`），不带 `-release` / `-shizuku` 之类的定语。
   构建类型、签名状态、改动内容进提交信息、git tag 与 CHANGELOG。
 - Android 是**纯 Kotlin + Compose，没有 `lib/` 下的原生 `.so`**，所以一个通用 APK 同时适配
   `arm64-v8a` 与 `x86_64`，不需要 `abiFilters` 或 ABI 拆分。只有将来加入原生库才需要。

@@ -11,7 +11,7 @@ kotlin {
 }
 
 application {
-    mainClass.set("io.terramap.core.SelfTestKt")
+    mainClass.set("io.terraxaleid.core.SelfTestKt")
 }
 
 sourceSets {
@@ -24,7 +24,7 @@ tasks.register<JavaExec>("selftest") {
     group = "verification"
     description = "Runs the L1 self test (synthetic data only, no game files needed)"
     classpath = sourceSets["main"].runtimeClasspath
-    mainClass.set("io.terramap.core.SelfTestKt")
+    mainClass.set("io.terraxaleid.core.SelfTestKt")
     args = listOf()
 }
 
@@ -32,6 +32,6 @@ val selftestWithSamples by tasks.registering(JavaExec::class) {
     group = "verification"
     description = "Runs the L1 self test and also checks a real .wld/.map pair"
     classpath = sourceSets["main"].runtimeClasspath
-    mainClass.set("io.terramap.core.SelfTestKt")
+    mainClass.set("io.terraxaleid.core.SelfTestKt")
     args = listOf("--with-samples", providers.gradleProperty("world").getOrElse(""), providers.gradleProperty("map").getOrElse(""))
 }

@@ -1,6 +1,6 @@
 # TerraXaleid — 给 AI 代理的仓库约定
 
-> 产品名是 **TerraXaleid**（原名 terramap，与在线地图服务撞名后改名）。代码里的 `io.terramap.*`、`terramap.json`、日志 tag `terramap` 属于历史标识，随包名迁移时一起换，未迁移前**不要**在文档里把两者混着写。
+> 产品名是 **TerraXaleid**（原名 terramap，与在线地图服务撞名后改名）。代码标识已全部迁移：包名 `io.terraxaleid.*`、配置文件 `terraxaleid.json`、日志 tag `terraxaleid`；旧的 `terramap.*` 只在 CHANGELOG 的历史条目里出现。
 
 Terraria 存档地图读写工具：输入 `.wld` 字节、输出 `.map` 字节，不碰游戏进程。
 当前版本 `当前版本`，版本号规则见文末。
@@ -15,7 +15,7 @@ Terraria 存档地图读写工具：输入 `.wld` 字节、输出 `.map` 字节�
   - `players.py` 只负责「世界 GUID ⇄ 角色地图文件名」与角色选择。
   - `reveal.py` 是 CLI，`deploy.py` 推设备；两者不做解析。
 - `csharp/TerraMap.Core`：L1 的 C# 实现（`net10.0`，**零 NuGet**）；`TerraMap.SelfTest` 是自检（普通 `main`，不引测试框架）。
-- `kotlin/src/main/kotlin/io/terramap/core`：L1 的 Kotlin 实现；`android/core` 用
+- `kotlin/src/main/kotlin/io/terraxaleid/core`：L1 的 Kotlin 实现；`android/core` 用
   `srcDir("../../kotlin/src/main/kotlin")` **直接引用**，不复制源码。
 - `android/app`：Compose 外壳，只做展示与调用。
   - `data/ShizukuShell.kt` 是**唯一**的 shell 出口（`Shizuku.newProcess` 反射调用，命令走 `sh -c`）。
@@ -43,7 +43,7 @@ Terraria 存档地图读写工具：输入 `.wld` 字节、输出 `.map` 字节�
 - 写回前备份原文件为 `.map.bak`，再覆盖时旧备份让位成 `.bak.1`、`.bak.2`（上限 2 份）。
 - 写回后按**原文件**的 `uid:gid` 与 `mode` 还原；原文件不存在时用父目录属主，`chmod` 默认 `660`。
 - 判断成功看 `cp` 退出码；字节数只作诊断（部分设备 `stat` 读回值不一致，曾因此误报失败）。
-- 所有 shell 调用打 `Log`，tag 固定 `terramap`：命令、退出码、stdout/stderr 都要有。
+- 所有 shell 调用打 `Log`，tag 固定 `terraxaleid`：命令、退出码、stdout/stderr 都要有。
 
 ## 工作方式
 

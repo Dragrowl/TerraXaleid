@@ -7,8 +7,37 @@
 
 - `0.1.0-dev.N` 是唯一开发线：N 每轮递增，`versionCode` 同步 +1，不开 `0.1.1-dev.*` 之类的平行序列。
 - `0.1.0-beta.1`：`docs/ROADMAP-NEXT.md` 那一轮（顶栏下拉 / 设置页 / 主题卡 / 关于页 / 返回分层）全部落地后切。
-- `dist/` 文件名只带 `versionName`（`terramap-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
+- `dist/` 文件名只带 `versionName`（`TerraXaleid-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
+
+## [0.1.0-rc.14] - 2026-11-27
+
+### Changed
+
+- 应用标识全部迁到新名字：包名 `io.terramap.android` → `io.terraxaleid.android`，核心库命名空间
+  `io.terramap.core` → `io.terraxaleid.core`，配置文件 `terramap.json` → `terraxaleid.json`，
+  日志 tag `terramap` → `terraxaleid`，安装包文件名 `TerraXaleid-<版本>.apk`。
+- 暂存目录从 `/sdcard/Download/.terramap` 换到应用自己的外部目录；旧目录里上一次留下的
+  暂存树仍会被接管，不会丢配置或存档。
+- 旧配置文件名（`terramap.json`）在三个查找位置都保留为后备，升级后设置不会重置。
+
+### Notes
+
+- **包名变了等于换了一个应用**：新版本会与旧版并存，请先卸载旧版再安装；卸载会清掉
+  Shizuku 对本应用的授权，装好后需要在应用内重新授权一次。
+- `versionCode 43`。
+
+## [0.1.0-rc.13] - 2026-11-27
+
+- 项目更名 **TerraXaleid**（原名 terramap，与在线地图服务撞名）：仓库改名并保留旧地址重定向；应用内标识（包名、配置文件、日志 tag）在下一版随包名迁移，届时需卸载重装。
+
+- 镜像里删掉的存档会跟着消失：生成镜像时顺手清掉游戏里已经没有的世界与角色目录，不再拿上一次的残留当现状。
+- Shizuku 可用时不再采用上一次留下的暂存目录（那里面可能装着早已删除的存档）。
+
+## [0.1.0-rc.12] - 2026-11-27
+
+- 游戏里把所有角色删光后，软件不再显示残留的角色目录与地图（游戏目录按 `<角色>.plr` 判定，便携目录仍全部保留）。
+- 「打开 Shizuku」在 Shizuku 未启动/未安装时点不动的问题：改为按包名取启动入口，失败再退到「应用信息」，都失败时提示「没有找到 Shizuku」。
 
 ## [0.1.0-rc.11] - 2026-11-27
 
@@ -40,7 +69,7 @@
 - Android 16 上未给 Shizuku 授权时应用进不去：启动时不再用「所有文件访问 / Shizuku 授权」做硬门槛，
   缺权限时照常进入世界列表，权限说明改成列表里的卡片（带授权、重新检测按钮）。
 - 在 Shizuku 应用里授权后读不到 `.wld`：暂存目录从 `/sdcard/Download/.terramap` 改到应用自己的
-  `Android/data/io.terramap.android/files/mirror`。旧位置属于 Download，读取它需要「所有文件访问」，
+  `Android/data/io.terraxaleid.android/files/mirror`。旧位置属于 Download，读取它需要「所有文件访问」，
   于是有 Shizuku 却读不到；新位置无需任何存储权限，`shell` 用户（`ext_data_rw` 组）仍可写入。
   旧位置的暂存树仍可被沿用。
 
@@ -321,7 +350,7 @@
 
 ### Added
 - 配置文件驱动的主题：`terramap.json`（`{"theme":"auto|light|dark","darkVariant":"standard|oled"}`），
-  查找顺序为 `Android/data/io.terramap.android/files/` → `/sdcard/Download/.terramap/` → 应用私有目录；
+  查找顺序为 `Android/data/io.terraxaleid.android/files/` → `/sdcard/Download/.terramap/` → 应用私有目录；
   文件不存在时会自动生成一份默认的，`ON_RESUME` 时重读，所以推一份新配置不用重启应用。
 - OLED 全黑配色（`background`/`surface` 纯黑，卡片 `#0A0A0A`），只在「深色 + oled」时启用。
 - 强制主题时关闭动态取色，保证同一份配置在任何设备上截出来的图一致。
@@ -517,16 +546,4 @@ Android 第一版可用形态：申请「所有文件访问权限」→ 列出�
 
 - 只识别移动版（1.4.5.8，`.map` fileVersion 33094）；PC/Steam 的 318 格式会被明确拒绝。
 - 与 tModLoader 无关；不挂载、不注入游戏进程；只读写存档文件。
-- 不兼容国服心动版（`con.xd.terraria`）。## 0.1.0-rc.13
-
-- 项目更名 **TerraXaleid**（原名 terramap，与在线地图服务撞名）：仓库改名并保留旧地址重定向；应用内标识（包名、配置文件、日志 tag）在下一版随包名迁移，届时需卸载重装。
-
-- 镜像里删掉的存档会跟着消失：生成镜像时顺手清掉游戏里已经没有的世界与角色目录，不再拿上一次的残留当现状。
-- Shizuku 可用时不再采用上一次留下的暂存目录（那里面可能装着早已删除的存档）。
-
-## 0.1.0-rc.12
-
-- 游戏里把所有角色删光后，软件不再显示残留的角色目录与地图（游戏目录按 `<角色>.plr` 判定，便携目录仍全部保留）。
-- 「打开 Shizuku」在 Shizuku 未启动/未安装时点不动的问题：改为按包名取启动入口，失败再退到「应用信息」，都失败时提示「没有找到 Shizuku」。
-
-
+- 不兼容国服心动版（`con.xd.terraria`）。
