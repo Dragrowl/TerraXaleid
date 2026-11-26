@@ -1,4 +1,6 @@
-# terramap — 给 AI 代理的仓库约定
+# TerraXaleid — 给 AI 代理的仓库约定
+
+> 产品名是 **TerraXaleid**（原名 terramap，与在线地图服务撞名后改名）。代码里的 `io.terramap.*`、`terramap.json`、日志 tag `terramap` 属于历史标识，随包名迁移时一起换，未迁移前**不要**在文档里把两者混着写。
 
 Terraria 存档地图读写工具：输入 `.wld` 字节、输出 `.map` 字节，不碰游戏进程。
 当前版本 `当前版本`，版本号规则见文末。

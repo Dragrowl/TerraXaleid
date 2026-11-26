@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="docs/assets/mark.svg" alt="terramap" width="96">
+  <img src="docs/assets/mark.svg" alt="TerraXaleid" width="96">
 </p>
 
-<h1 align="center">terramap</h1>
+<h1 align="center">TerraXaleid</h1>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge" alt="GPL-3.0-or-later"></a>
-  <a href="https://github.com/Dragrowl/terramap/releases"><img src="https://img.shields.io/github/v/release/Dragrowl/terramap?include_prereleases&style=for-the-badge&label=release&color=2E7D32&cacheSeconds=60" alt="release"></a>
+  <a href="https://github.com/Dragrowl/TerraXaleid/releases"><img src="https://img.shields.io/github/v/release/Dragrowl/TerraXaleid?include_prereleases&style=for-the-badge&label=release&color=2E7D32&cacheSeconds=60" alt="release"></a>
   <a href="#构建与验证"><img src="https://img.shields.io/badge/selftest-PASS-2E7D32?style=for-the-badge" alt="selftest"></a>
   <a href="#构建与验证"><img src="https://img.shields.io/badge/L1-python%20%7C%20csharp%20%7C%20kotlin-8957E5?style=for-the-badge" alt="L1 三语言"></a>
 </p>
@@ -15,7 +15,7 @@
   中文 | <a href="README_EN.md">English</a>
 </p>
 
-terramap 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应该显示什么，再写成合法的地图缓存 `.map`。结果就是：**打开游戏里的地图，整张世界全部点亮，一格黑区都不剩；而世界本身——物块、物品、NPC、进度——一个字节都不动。**
+TerraXaleid 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应该显示什么，再写成合法的地图缓存 `.map`。结果就是：**打开游戏里的地图，整张世界全部点亮，一格黑区都不剩；而世界本身——物块、物品、NPC、进度——一个字节都不动。**
 
 核心是纯数据处理：输入字节，输出字节。不碰游戏进程，三份实现（Python / C# / Kotlin）对同一份存档给出同样的结果。外层界面只是把这件事搬到不同平台上。
 
@@ -23,17 +23,19 @@ terramap 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应该
 
 | 平台 | 状态 | 说明 |
 |---|---|---|
-| **Android** | ✅ 可用 | Compose（Material 3）界面，读写走 Shizuku，装 Releases 里的 APK 即用 |
-| **Windows** | 🚧 **绝赞开发中** | WinUI 3 桌面版正在写。存档识别、预览、一键点亮、备份恢复都会在图形界面里完成，不需要命令行 |
-| L1 核心 | ✅ 三语言完成 | Python / C# / Kotlin 逐格结果一致（`decoded-grid sha256` 相同），是上面两个界面的公共底座 |
+| **Android** | ✅ 可用（`0.1.0-rc` 线） | Compose（Material 3）界面，读写走 Shizuku，装 Releases 里的 APK 即用 |
+| **Windows** | 🚧 核心可用，界面待做 | C# 端的 `terramap-cli` 已能读 Steam 存档、写 PC 版 `.map`（`--reveal-pc`）并自带 `--auto-test` 自检；图形界面尚未开始，计划改用 MaterialDesign 而不是 WinUI 3 |
+| L1 核心 | ✅ 三语言完成 | Python / C# / Kotlin 逐格结果一致（`decoded-grid sha256` 相同），是各平台界面的公共底座 |
 
-> 仓库里现存的 `reveal.py` 等命令行**不是**桌面版的产品形态，它是 L1 的参考实现与回归工具：Windows 版会把同一套算法用 C# 重写后接进界面，命令行继续留在仓库里做交叉验证。
+> Windows 的打包方式也定了：自包含单文件 exe 受 Windows App SDK 清单限制起不来（`SessionHandleIPCProxyStub.dll` 重复注册），所以改出 setup 安装包；版本号并入同一条 `0.1.0` 线，人工核验后一起进 beta。
+
+> 仓库里的 `reveal.py` 与 `terramap-cli` 仍然保留：前者是 L1 的参考实现，后者是 Windows 端的真实入口，也用来做交叉验证。
 
 
 ## 使用之前
 
 - **手机端**：Android 11 以上；需要先装并启动 [Shizuku](https://github.com/RikkaApps/Shizuku/releases/latest)（最新版在 Releases 页），本工具的跨应用读写全靠它。
-- **桌面端（命令行）**：Python 3.10+ 与 `numpy`。
+- **桌面端（命令行）**：Python 3.10+ 与 `numpy`；或者直接用 C# 的 `terramap-cli`（`dotnet` 10 运行时，无需 Python）。
 - **通用**：动手前先把游戏完全退出——游戏退出时会把内存里的地图写回磁盘，覆盖本工具的成果。
 - 只处理地图缓存，世界文件本身只读；改之前会自动备份成 `.map.bak`，随时可撤销。
 
@@ -69,9 +71,19 @@ terramap 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应该
 
 ## 桌面端
 
-**Windows 版绝赞开发中**：WinUI 3 + C#，目标是把「识别 Steam / GOG / 便携存档 → 列表选世界 → 预览 → 一键点亮 → 备份与恢复」全做进图形界面，和 Android 版共用同一套 L1 算法与不变量。完成后发布会以单文件便携 exe 为主。
+Windows 端目前的形态是 C# 命令行 `terramap-cli`：`--inspect` 看存档、`--reveal-pc` 直接写 PC 版 `.map`、`--auto-test` 端到端自检（读世界 → 认角色 → 写图 → 回读比对）。图形界面还没开工——决定不用 WinUI 3，改走 MaterialDesign，等界面落定后再谈安装包。
 
-在那之前，桌面上只能这样用命令行（也需要它来做三语言交叉验证）：
+```powershell
+# 端到端跑一遍：世界 + 角色，写完立刻回读比对
+dotnet run --project windows\Terramap.Cli -- --auto-test --world 111test --player koboshi
+
+# 自己指定输出文件（不落盘就加 --dry-run）
+dotnet run --project windows\Terramap.Cli -- --reveal-pc --world WORLD.wld --template TEMPLATE.map --out OUT.map
+```
+
+PC 版地图是 `fileVersion 326`（单条 raw deflate 流、行主序），移动版是 `33094`（64×64 区块、zlib），两套编码器都在仓库里，不能混用。
+
+Python 的参考实现继续用来做三语言交叉验证：
 
 ### 需要什么
 
@@ -138,7 +150,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
 
 `package-apk.ps1` 从 `android/app/build.gradle.kts` 读 `versionName` / `versionCode`，跑 `:app:assembleRelease`，按版本号命名并打印 size 与 SHA-256。
 
-**签名与升级**：`release` 用本地 keystore 签名（alias `terramap`，密码在 `android/keystore.properties`）。keystore 与密码文件都不进仓库；覆盖安装必须用同一把 key。
+**签名与升级**：`release` 用本地 keystore 签名（alias 沿用 `terramap`，改名后暂未换，换别名会破坏覆盖升级；密码在 `android/keystore.properties`）。keystore 与密码文件都不进仓库；覆盖安装必须用同一把 key。
 
 ## 原理（折叠）
 
@@ -162,7 +174,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
 | 路径 | 内容 |
 |---|---|
 | `*.py` | L1 参考实现（`worldfmt` / `mapfmt` / `players` / `reveal` / `deploy`）与自检 |
-| `csharp/` | L1 的 C# 实现（`net10.0`，零 NuGet）+ 自检；Windows 桌面版将基于它 |
+| `csharp/` | L1 的 C# 实现（`net10.0`，零 NuGet）+ 自检 |
+| `windows/` | Windows 端：`Terramap.Core.Win`（存档发现）与 `Terramap.Cli`（命令行入口） |
 | `kotlin/` | L1 的 Kotlin/JVM 实现 + 自检（被 Android 模块直接引用，不复制源码） |
 | `android/` | Compose 外壳（Material 3），`app` + `core` 两个模块 |
 | `scripts/` | 三语言校验、打包脚本 |
@@ -175,7 +188,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
 <details>
 <summary>已知限制</summary>
 
-- PC/Steam 的 `.map` 是 `fileVersion 318`（带 RLE），目前只认移动版的 `33094`；读到 318 会明确报 `unsupported map file version 318` 并且不写文件。这是 Windows 版要先解决的第一件事。
+- PC/Steam 的 `.map` 是 `fileVersion 326`（旧版本 318/316/315），移动端是 `33094`。两套都已实现，但**不能互认**：把 PC 图塞进手机、或反过来，游戏会认出格式不对而不显示，写图的工具必须按目标平台选编码器。界面上还没做两者的互转。
 - 不兼容心动代理的国服 Terraria（包名与存档布局都不同）。
 - 只处理地图缓存。世界文件本身只读不改；改难度那种事不在本工具范围内。
 - Android 端一切读写走 Shizuku shell；没有 Shizuku 就只能用便携目录。
@@ -193,7 +206,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
 问题与建议走 Issue。附上这几样能省很多来回：
 
 - 世界尺寸与难度（截图世界列表即可）
-- `adb logcat -s terramap:*` 的输出（Android 端每条 Shizuku 命令、退出码、stdout/stderr 都在里面）
+- `adb logcat -s terramap:*` 的输出（日志 tag 暂未改名；Android 端每条 Shizuku 命令、退出码、stdout/stderr 都在里面）
 - 出错时 `.map` 的字节数，以及是否能复现
 
 ## 许可
@@ -206,3 +219,7 @@ GPL-3.0-or-later，见 [LICENSE](LICENSE)。每个源文件头部有 `SPDX-Licen
 - [Endfield Font](https://github.com/lhclbt/Endfield_Font) — 只用来渲染那三张主题缩略图，字体文件不进仓库
 - [simple-icons](https://github.com/simple-icons/simple-icons) — GitHub / Bilibili 图标轮廓
 - Terraria 存档格式的公开整理（wiki.gg 的 World File Format 与 map 格式说明）
+
+## 关于改名
+
+项目原名 `terramap`，与若干在线地图服务撞名，现更名 **TerraXaleid**（terra + kaleidoscope，取「把世界的碎片拼回一张图」）。仓库已改名并保留旧地址重定向；应用内部标识（包名 `io.terramap.android`、配置文件名 `terramap.json`）会在下一个版本随包名一起迁移，迁移意味着**卸载重装**，届时会在 CHANGELOG 里写清楚。

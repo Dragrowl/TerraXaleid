@@ -4,7 +4,7 @@
 
 ## 仓库名与描述
 
-- Repository name：`terramap`
+- Repository name：`TerraXaleid`（原名 `terramap`，旧地址自动重定向）
 - Description（GitHub 仓库描述，一句话，建议 ≤ 120 字符）：
 
 ```
@@ -43,8 +43,8 @@ gplv3
 远程仓库还没有配置（本机无 `origin`）。在 GitHub 上建好空仓库后：
 
 ```powershell
-cd G:\terramap
-git remote add origin https://github.com/<你的账号>/terramap.git
+cd G:\terramap   # 本地目录名沿用旧名，改不改都行
+git remote add origin https://github.com/<你的账号>/TerraXaleid.git
 git push -u origin main
 git push origin --tags
 ```

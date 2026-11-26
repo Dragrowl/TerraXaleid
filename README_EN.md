@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="docs/assets/mark.svg" alt="terramap" width="96">
+  <img src="docs/assets/mark.svg" alt="TerraXaleid" width="96">
 </p>
 
-<h1 align="center">terramap</h1>
+<h1 align="center">TerraXaleid</h1>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge" alt="GPL-3.0-or-later"></a>
-  <a href="https://github.com/Dragrowl/terramap/releases"><img src="https://img.shields.io/github/v/release/Dragrowl/terramap?include_prereleases&style=for-the-badge&label=release&color=2E7D32&cacheSeconds=60" alt="release"></a>
+  <a href="https://github.com/Dragrowl/TerraXaleid/releases"><img src="https://img.shields.io/github/v/release/Dragrowl/TerraXaleid?include_prereleases&style=for-the-badge&label=release&color=2E7D32&cacheSeconds=60" alt="release"></a>
   <a href="#build--verify"><img src="https://img.shields.io/badge/selftest-PASS-2E7D32?style=for-the-badge" alt="selftest"></a>
   <a href="#build--verify"><img src="https://img.shields.io/badge/L1-python%20%7C%20csharp%20%7C%20kotlin-8957E5?style=for-the-badge" alt="L1 three languages"></a>
 </p>
@@ -15,7 +15,7 @@
   <a href="README.md">中文</a> | English
 </p>
 
-terramap reads a Terraria world file (`.wld`), works out what every tile should look like on the in-game map, and writes a valid map cache (`.map`). The result: **the whole world is revealed when you open the map — no black patches left — while the world itself (tiles, items, NPCs, progress) is not touched by a single byte.**
+TerraXaleid reads a Terraria world file (`.wld`), works out what every tile should look like on the in-game map, and writes a valid map cache (`.map`). The result: **the whole world is revealed when you open the map — no black patches left — while the world itself (tiles, items, NPCs, progress) is not touched by a single byte.**
 
 The core is pure data processing: bytes in, bytes out, never touching the game process. Three implementations (Python / C# / Kotlin) produce the same result for the same save. The UI layers only move that work onto different platforms.
 
@@ -24,10 +24,10 @@ The core is pure data processing: bytes in, bytes out, never touching the game p
 | Platform | State | Notes |
 |---|---|---|
 | **Android** | ✅ available | Compose (Material 3) UI, reads and writes through Shizuku; install the APK from Releases |
-| **Windows** | 🚧 **in active development** | A WinUI 3 desktop build is being written. Save discovery, preview, one-click reveal, backup/restore — all in a GUI, no command line |
+| **Windows** | 🚧 core works, no GUI yet | The C# `terramap-cli` already discovers Steam saves, writes PC `.map` files (`--reveal-pc`) and self-tests end to end (`--auto-test`). The GUI has not started and will use MaterialDesign instead of WinUI 3 |
 | L1 core | ✅ done in three languages | Python / C# / Kotlin agree tile-for-tile (identical `decoded-grid sha256`); both UIs sit on it |
 
-> The `reveal.py` command line in this repo is **not** the shape of the desktop product — it is the L1 reference implementation and regression harness. The Windows build reuses the same algorithms through the C# core; the CLI stays for cross-checking.
+> Packaging for Windows is settled too: a self-contained single-file exe cannot start (the Windows App SDK manifest registers `SessionHandleIPCProxyStub.dll` twice), so the plan is a setup installer; the version joins the same `0.1.0` line and moves to beta after a manual check.
 
 > **Versioning**: `0.1.0-dev.N` while developing, `0.1.0-rc.N` for pre-releases (feature frozen, display and stability fixes only), then `0.1.0`. `versionCode` increments every round; no parallel series. `dist/` file names carry `versionName` only.
 
@@ -56,7 +56,7 @@ Tile colours follow the real priority of `Terraria.Map.MapHelper.CreateMapTile`:
 ## On Android
 
 ```
-1) Copy the APK from Releases (or `terramap-<version>.apk` under dist\) to the phone and install it (allow unknown sources)
+1) Copy the APK from Releases (or `TerraXaleid-<version>.apk` under dist\) to the phone and install it (allow unknown sources)
 2) First launch: grant "All files access" (Android 11+ sends you to system settings)
 3) Install and start [Shizuku](https://github.com/RikkaApps/Shizuku/releases/latest) (root or wireless debugging), then tap "授权 Shizuku" → "始终允许"
 4) A "游戏目录 (Shizuku)" root appears → tick worlds → tick characters → reveal
@@ -70,7 +70,14 @@ Why Shizuku is required: since Android 11 an app cannot list another app's `Andr
 
 ## On desktop
 
-**The Windows build is in active development**: WinUI 3 + C#, aiming at Steam/GOG/portable save discovery → world list → preview → one-click reveal → backup & restore, all in a GUI, sharing the L1 algorithms and invariants with the Android build. The first release is planned as a single-file portable executable.
+The Windows side is currently a C# command line, `terramap-cli`: `--inspect` to look at a save, `--reveal-pc` to write a PC `.map`, `--auto-test` for an end-to-end check (read world → resolve the character → write the map → read it back). The GUI has not started; MaterialDesign was chosen over WinUI 3, and packaging will be revisited once the UI exists.
+
+```powershell
+dotnet run --project windows\Terramap.Cli -- --auto-test --world 111test --player koboshi
+dotnet run --project windows\Terramap.Cli -- --reveal-pc --world WORLD.wld --template TEMPLATE.map --out OUT.map
+```
+
+PC maps are `fileVersion 326` (one raw deflate stream, row-major); mobile maps are `33094` (64×64 chunks, zlib). Both encoders live in this repo and are not interchangeable.
 
 Until then the only desktop path is the command line (which also drives the three-language cross-check):
 
@@ -134,12 +141,12 @@ Android (needs `JAVA_HOME` pointing at JDK 21; Gradle 8.9 and SDK 34, see `local
 ```powershell
 $env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
 powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
-# output: dist\terramap-<versionName>.apk
+# output: dist\TerraXaleid-<versionName>.apk
 ```
 
 `package-apk.ps1` reads `versionName` / `versionCode` from `android/app/build.gradle.kts`, runs `:app:assembleRelease`, names the artefact after the version and prints size plus SHA-256.
 
-**Signing**: release builds use a local keystore (alias `terramap`, password in `android/keystore.properties`). Neither the keystore nor the password file is in the repository; upgrades must be signed with the same key.
+**Signing**: release builds use a local keystore (alias `TerraXaleid`, password in `android/keystore.properties`). Neither the keystore nor the password file is in the repository; upgrades must be signed with the same key.
 
 ## How it works
 
@@ -163,7 +170,8 @@ Details and traps: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/L1-STA
 | Path | Contents |
 |---|---|
 | `*.py` | L1 reference implementation (`worldfmt` / `mapfmt` / `players` / `reveal` / `deploy`) plus self-test |
-| `csharp/` | C# L1 (`net10.0`, no NuGet) and its self-test; the Windows desktop build sits on this |
+| `csharp/` | C# L1 (`net10.0`, no NuGet) and its self-test |
+| `windows/` | Windows side: `Terramap.Core.Win` (save discovery) and `Terramap.Cli` (command line) |
 | `kotlin/` | Kotlin/JVM L1 and self-test (referenced by the Android module, not copied) |
 | `android/` | Compose shell (Material 3), `app` + `core` modules |
 | `scripts/` | three-language verification and packaging |
@@ -176,7 +184,7 @@ Details and traps: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/L1-STA
 <details>
 <summary>Known limits</summary>
 
-- Steam/PC `.map` files are `fileVersion 318` (with RLE); only the mobile `33094` is supported today. A 318 file is rejected with `unsupported map file version 318` and nothing is written — this is the first item the Windows build has to solve.
+- Steam/PC `.map` files are `fileVersion 326` (older: 318/316/315), mobile is `33094`. Both encoders exist, but the formats are not interchangeable: a PC map dropped into a phone (or the reverse) is rejected by the game. Converting between them is not exposed in any UI yet.
 - The Chinese "心动" (XD) release is not supported: different package name and save layout.
 - Only the map cache is touched. World files stay read-only; changing difficulty is out of scope.
 - On Android every read and write goes through a Shizuku shell; without it only the portable folders work.
@@ -194,7 +202,7 @@ Details and traps: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/L1-STA
 Issues are the place. These help a lot:
 
 - world size and difficulty (a screenshot of the world list is enough)
-- `adb logcat -s terramap:*` output (every Shizuku command, exit code and stdio is logged)
+- `adb logcat -s TerraXaleid:*` output (every Shizuku command, exit code and stdio is logged)
 - the `.map` byte size when it fails, and whether it is reproducible
 
 ## License
@@ -207,3 +215,7 @@ GPL-3.0-or-later, see [LICENSE](LICENSE). Every source file carries an `SPDX-Lic
 - [Endfield Font](https://github.com/lhclbt/Endfield_Font) — used only to render the three theme thumbnails; the font file is not in the repository
 - [simple-icons](https://github.com/simple-icons/simple-icons) — GitHub / Bilibili icon outlines
 - The public write-ups of the Terraria save formats (wiki.gg World File Format and map format pages)
+
+## Renamed
+
+The project used to be called `terramap`, which collides with a few online map services. It is now **TerraXaleid** (terra + kaleidoscope: piecing the world back into one picture). The GitHub repo was renamed and the old URL redirects; the Android package id (`io.terramap.android`) and the config file name (`terramap.json`) migrate together with the package name in the next release, which means uninstall + reinstall — the CHANGELOG will spell it out.
