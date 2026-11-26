@@ -276,7 +276,7 @@ HK_WORDS_UNUSED = {
 NO_CONVERT = {"language_sc", "language_tc", "language_ja", "language_en"}
 
 EN = {
-    "app_name": "terramap",
+    "app_name": "TerraXaleid",
     "screen_title": "Terraria maps",
     "perm_title": "All-files access is required",
     "perm_body": "This tool only touches save files: it reads Worlds/*.wld and rewrites Players/<character>/<world>.map.\nSince Android 11, reaching the game's Android/data folder requires the \"All files access\" permission.",
@@ -338,7 +338,7 @@ EN = {
     "about_check_ok": "Core self-test passed",
     "about_check_fail": "Core self-test failed",
     "shizuku_title": "Read the game folder with Shizuku",
-    "shizuku_body": "Since Android 11 an app cannot list another app's Android/data folder, not even with all-files access. With Shizuku installed and running, granting it here lets terramap read the saves and write them back directly, with no copying to a portable folder.",
+    "shizuku_body": "Since Android 11 an app cannot list another app's Android/data folder, not even with all-files access. With Shizuku installed and running, granting it here lets TerraXaleid read the saves and write them back directly, with no copying to a portable folder.",
     "shizuku_state_running": "Shizuku is running; you can grant access.",
     "shizuku_state_absent": "No Shizuku service detected: install Shizuku and start it over adb or root first.",
     "shizuku_button": "Grant Shizuku",
@@ -410,7 +410,7 @@ EN = {
 }
 
 JA = {
-    "app_name": "terramap",
+    "app_name": "TerraXaleid",
     "screen_title": "Terraria マップ",
     "perm_title": "「すべてのファイルへのアクセス」が必要です",
     "perm_body": "このツールはセーブデータのみを扱います。Worlds/*.wld を読み、Players/キャラ/<世界>.map を書き換えます。\nAndroid 11 以降、ゲームの Android/data にアクセスするには「すべてのファイルへのアクセス」権限が必要です。",

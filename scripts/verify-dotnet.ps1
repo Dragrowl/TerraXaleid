@@ -21,7 +21,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-$project = Join-Path $root 'csharp\TerraMap.SelfTest\TerraMap.SelfTest.csproj'
+$project = Join-Path $root 'csharp\TerraXaleid.SelfTest\TerraXaleid.SelfTest.csproj'
 
 if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
     Write-Host 'toolchain: unavailable (dotnet not found)'

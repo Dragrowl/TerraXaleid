@@ -3,9 +3,9 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using TerraMap.Core;
+using TerraXaleid.Core;
 
-namespace TerraMap.Cli;
+namespace TerraXaleid.Cli;
 
 internal static class Program
 {
@@ -43,16 +43,16 @@ internal static class Program
     private static void Usage()
     {
         Console.WriteLine("""
-            terramap-cli - Terraria map diagnostics and reveal (L1 reference implementation)
+            terraxaleid-cli - Terraria map diagnostics and reveal (L1 reference implementation)
 
-              terramap-cli --inspect <file.map>                read a .map and print what it contains
-              terramap-cli --reveal --world <file.wld> --out <file.map>
+              terraxaleid-cli --inspect <file.map>                read a .map and print what it contains
+              terraxaleid-cli --reveal --world <file.wld> --out <file.map>
                              [--template <file.map>] [--no-backup] [--dry-run]
-              terramap-cli --reveal-pc --world <file.wld> --out <file.map> [--dry-run]
+              terraxaleid-cli --reveal-pc --world <file.wld> --out <file.map> [--dry-run]
                                                                write the desktop (326) format
-              terramap-cli --auto-test --world <file.wld|name> --player <character> [--dry-run]
+              terraxaleid-cli --auto-test --world <file.wld|name> --player <character> [--dry-run]
                              writes Players/<character>/<world guid>.map and reads it back
-              terramap-cli --list                              discover save folders
+              terraxaleid-cli --list                              discover save folders
             """);
     }
 
@@ -110,7 +110,7 @@ internal static class Program
             Console.WriteLine($"template    generated {header.Version} header (tile {maxTileId}, wall {maxWallId})");
         }
 
-        MapData revealed = TerraMap.Core.Reveal.Build(header, world);
+        MapData revealed = TerraXaleid.Core.Reveal.Build(header, world);
         Console.WriteLine($"built       {revealed.ExploredCount()} explored cells in {watch.ElapsedMilliseconds} ms");
 
         byte[] image = MapFile.Write(header, revealed);

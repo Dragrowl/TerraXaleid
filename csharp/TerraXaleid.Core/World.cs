@@ -2,7 +2,7 @@
 
 using System;
 
-namespace TerraMap.Core;
+namespace TerraXaleid.Core;
 
 /// <summary>
 /// The tile/wall grid of a world. Arrays are stored column-major (<c>index = x * Height + y</c>)

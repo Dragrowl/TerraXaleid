@@ -7,7 +7,7 @@
 | 语言 | 位置 | 怎么跑 | 结果 | 真实存档校验 |
 |---|---|---|---|---|
 | Python | 仓库根 `*.py` | `python selftest.py` | PASS | 是，黄金样本来源 |
-| C# | `csharp/TerraMap.Core`、`csharp/TerraMap.SelfTest` | `dotnet build` + `dotnet run`（`net10.0`，零 NuGet） | PASS，0 警告 0 错误 | 是，与 Python **逐字节一致** |
+| C# | `csharp/TerraXaleid.Core`、`csharp/TerraXaleid.SelfTest` | `dotnet build` + `dotnet run`（`net10.0`，零 NuGet） | PASS，0 警告 0 错误 | 是，与 Python **逐字节一致**；另含 PC `fileVersion 326` 的读写（`PcMapFormat`） |
 | Kotlin | `kotlin/src/main/kotlin/io/terraxaleid/core` | `scripts\verify-kotlin.ps1`（离线 `kotlin-compiler-embeddable` 或 gradle） | PASS | 是，靠 `GridDigest` 判等价 |
 
 Android 的 `core` 模块通过 `sourceSets.main.kotlin.srcDir("../../kotlin/src/main/kotlin")`
@@ -29,7 +29,7 @@ Kotlin 输出长度略有不同（`java.util.zip.Deflater` 与 zlib 的压缩流
 - 三份自检的 `--with-samples <world> <map> [dumpPath]` 都会打印它。
 - `GridDigest` 相同 = 语义等价。
 
-含液体的那版（当前版本 起）三方 `GridDigest` = `D4FEC839110830DEB2AAB373D9259F4807B23CA22A0346831D05AD29C01FB5DE`；
+含液体的那版（`0.1.0-rc` 线起）三方 `GridDigest` = `D4FEC839110830DEB2AAB373D9259F4807B23CA22A0346831D05AD29C01FB5DE`；
 C# 与 Python 的整文件 sha256 也相同（`ABEBD4AB…1290150`，2,179,420 B）。
 
 ## 已验证的坑（别重犯）
@@ -63,8 +63,9 @@ C# 与 Python 的整文件 sha256 也相同（`ABEBD4AB…1290150`，2,179,420 B
 
 ## 遗留项
 
-- PC/Steam 的 `.map` 是 `fileVersion 318`（带 RLE），当前只认移动版 `33094`；读到 318 会明确报
-  `unsupported map file version 318` 并且不写文件。
+- 移动版只认 `33094`；PC/Steam 的 `326`（1.4.5）由 C# 的 `PcMapFormat` 单独处理，历史版本
+  `318` / `316` / `315` 会在 `--reveal-pc` 里被明确拒绝，不写文件。
+- 两种格式之间还没有转换器（PC 图拿到手机、或反过来都用不了）。
 - `kotlin/.tools`（编译器 jar，约 120 MB）只在本机存在，不进版本库；换机器由
   `verify-kotlin.ps1` 如实报 `toolchain: unavailable`（退出码 2）。
 - L1 只做「全量覆盖」：`RevealOptions.OverwriteExplored = false` 会抛 `NotSupportedException`，

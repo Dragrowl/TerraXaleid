@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">terramap</string>
+    <string name="app_name">TerraXaleid</string>
     <string name="screen_title">Terraria マップ</string>
     <string name="perm_title">「すべてのファイルへのアクセス」が必要です</string>
     <string name="perm_body">このツールはセーブデータのみを扱います。Worlds/*.wld を読み、Players/キャラ/&lt;世界&gt;.map を書き換えます。

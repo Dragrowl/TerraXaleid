@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">terramap</string>
+    <string name="app_name">TerraXaleid</string>
     <string name="screen_title">Terraria 地圖</string>
     <string name="perm_title">需要「管理全部檔案訪問權限」</string>
     <string name="perm_body">本工具只改存檔檔案：讀取 Worlds/*.wld，重寫 Players/角色/世界.map。\nAndroid 11 起，訪問游戲的 Android/data 目錄必須授予「所有檔案訪問權限」。</string>

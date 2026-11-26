@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace TerraMap.Core;
+namespace TerraXaleid.Core;
 
 /// <summary>
 /// Per-tile / per-wall "option" counts, i.e. how many palette variants the game keeps for each id,

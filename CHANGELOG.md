@@ -6,9 +6,24 @@
 ## 版本号约定
 
 - `0.1.0-dev.N` 是唯一开发线：N 每轮递增，`versionCode` 同步 +1，不开 `0.1.1-dev.*` 之类的平行序列。
-- `0.1.0-beta.1`：`docs/ROADMAP-NEXT.md` 那一轮（顶栏下拉 / 设置页 / 主题卡 / 关于页 / 返回分层）全部落地后切。
+- `0.1.0-rc.N`：功能冻结后的候选发布，只修显示与稳定性问题；`versionCode` 继续逐版 +1。
+- `0.1.0`：`rc` 线稳定后转为正式版。
 - `dist/` 文件名只带 `versionName`（`TerraXaleid-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
+
+## [0.1.0-rc.15] - 2026-11-27
+
+### Changed
+
+- 应用显示名统一为 **TerraXaleid**（桌面图标与系统设置里的应用名），五套语言资源一致。
+- 桌面端工程与命名空间同步改名：`TerraXaleid.Core` / `TerraXaleid.SelfTest` / `TerraXaleid.Core.Win` /
+  `TerraXaleid.Cli`，命令行产物 `terraxaleid-cli`。三语言自检全部通过，输出与改名前一字节不差。
+- 文档全面对齐现状：安装包文件名、日志 tag、Android 存档路径（`Worlds` 与 `Players` 分开写清）、
+  界面语言与世界搜索的用法、横屏多列规则、三语言实现的分工与遗留项。
+
+### Notes
+
+- `versionCode 44`；功能与上一版一致，仅命名与文档变化。
 
 ## [0.1.0-rc.14] - 2026-11-27
 
@@ -526,8 +541,8 @@ Android 第一版可用形态：申请「所有文件访问权限」→ 列出�
   （`.map` 头部、1-based 调色板、64×64 区块 zlib 读写）、`players.py`（世界 GUID ⇄
   角色地图文件名）、`reveal.py`（CLI，默认全图覆盖点亮）、`deploy.py`（adb 推送）、
   `selftest.py`（合成样本 + 真实样本自检）。
-- **L1 核心（C#）**：`csharp/TerraMap.Core`（`net10.0`，零 NuGet）与
-  `csharp/TerraMap.SelfTest`；`--with-samples` 可对真实存档做字节级校验，
+- **L1 核心（C#）**：`csharp/TerraXaleid.Core`（`net10.0`，零 NuGet）与
+  `csharp/TerraXaleid.SelfTest`；`--with-samples` 可对真实存档做字节级校验，
   输出与 Python 黄金样本 SHA-256 完全一致。
 - **L1 核心（Kotlin）**：`kotlin/src/main/kotlin/io/terramap/core`，纯 JVM 实现，
   自检用普通 `main()`，不依赖测试框架。

@@ -6,13 +6,13 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
-    <RootNamespace>TerraMap.SelfTest</RootNamespace>
-    <AssemblyName>TerraMap.SelfTest</AssemblyName>
+    <RootNamespace>TerraXaleid.SelfTest</RootNamespace>
+    <AssemblyName>TerraXaleid.SelfTest</AssemblyName>
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TerraMap.Core\TerraMap.Core.csproj" />
+    <ProjectReference Include="..\TerraXaleid.Core\TerraXaleid.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.IO.Compression;
 
-namespace TerraMap.Core;
+namespace TerraXaleid.Core;
 
 /// <summary>
 /// Desktop (PC) map format, file version 326 — the layout 1.4.5 writes through

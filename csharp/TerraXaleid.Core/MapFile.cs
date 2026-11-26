@@ -5,7 +5,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 
-namespace TerraMap.Core;
+namespace TerraXaleid.Core;
 
 /// <summary>Decoded map payload: one 4-byte <c>MapTile</c> per cell, split into three arrays.</summary>
 public sealed class MapData

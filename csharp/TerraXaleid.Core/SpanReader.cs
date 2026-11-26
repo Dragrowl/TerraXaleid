@@ -4,7 +4,7 @@ using System;
 using System.Buffers.Binary;
 using System.Text;
 
-namespace TerraMap.Core;
+namespace TerraXaleid.Core;
 
 /// <summary>
 /// Little-endian cursor over a byte span, mirroring the Python reader one call at a time.

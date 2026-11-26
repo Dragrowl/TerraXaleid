@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace TerraMap.Core;
+namespace TerraXaleid.Core;
 
 /// <summary>
 /// The subset of a world header the in-game world list shows. Field order and decoding

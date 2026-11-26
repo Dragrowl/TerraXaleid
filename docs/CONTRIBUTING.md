@@ -21,7 +21,7 @@ PR 不要求完美，说清楚你想解决什么就够了，剩下的可以一�
 | `csharp/` | 同一套逻辑的 C# 实现（`net10.0`，零第三方依赖），Windows 端在用 |
 | `kotlin/` | 同一套逻辑的 Kotlin/JVM 实现，Android 模块直接引用 |
 | `android/` | Compose 界面；`app` 是界面与文件读写，`core` 只把 Kotlin 核心包一层 |
-| `windows/` | 命令行工具（`terramap-cli`）与存档定位 |
+| `windows/` | 命令行工具（`terraxaleid-cli`）与存档定位 |
 | `scripts/` | 校验、打包、发布辅助脚本 |
 | `docs/` | 开发者文档；`docs/assets/` 放项目标记与主题缩略图源图 |
 | `samples/` | 样本说明（**不放真实存档**） |

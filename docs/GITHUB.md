@@ -5,10 +5,10 @@
 ## 仓库名与描述
 
 - Repository name：`TerraXaleid`（原名 `terramap`，旧地址自动重定向）
-- Description（GitHub 仓库描述，一句话，建议 ≤ 120 字符）：
+- Description（仓库描述，中英双语，一行）：
 
 ```
-Terraria world map revealer: reads .wld, writes a valid .map so the in-game map is fully revealed — without touching a single tile.
+Terraria 地图点亮工具：读取 .wld，生成合法的 .map，进游戏即全图可见，不改动任何一个方块。 / Terraria world-map revealer: reads .wld, writes a valid .map so the in-game map is fully revealed without touching a single tile.
 ```
 
 - 中文描述（用于中文社区页面或 Issue 模板）：
@@ -40,13 +40,18 @@ gplv3
 
 ## 首次推送
 
-远程仓库还没有配置（本机无 `origin`）。在 GitHub 上建好空仓库后：
+仓库已存在，`origin` 指向 `https://github.com/Dragrowl/TerraXaleid.git`（本地目录名仍是 `terramap`，
+不影响推送）。换机器或重新克隆后：
 
 ```powershell
-cd G:\terramap   # 本地目录名沿用旧名，改不改都行
-git remote add origin https://github.com/<你的账号>/TerraXaleid.git
-git push -u origin main
-git push origin --tags
+git clone https://github.com/Dragrowl/TerraXaleid.git
+git push origin main --tags
+```
+
+推送需要能连上 GitHub；本机直连常常超时，走本地代理：
+
+```powershell
+git config --local http.proxy http://127.0.0.1:7890   # 不用时 --unset
 ```
 
 ## 发布（Release）正文模板
@@ -62,7 +67,7 @@ git push origin --tags
 - Material 3 界面，主题（跟随系统 / 浅色 / 深色 / OLED 全黑）切换带渐变
 - 液体（水 / 岩浆 / 蜂蜜 / 微光）按真实优先级上色，不再留黑区
 
-> Windows 桌面版（WinUI 3）绝赞开发中，本轮不提供。
+> 桌面端（命令行 `terraxaleid-cli` 可用）暂不提供图形界面。
 > 功能冻结，只修显示与稳定性问题。
 
 校验：`sha256 <构建产物算出来的值>`
@@ -77,3 +82,4 @@ git push origin --tags
 - [x] 无截图噪声：根目录与 `android/` 下的调试 `*.png` 已忽略（`docs/assets/` 与 `res/` 里的例外保留）
 - [x] 许可证与声明：`LICENSE`（GPL-3.0-or-later）、README 里三条声明、每个源文件带 SPDX 头
 - [x] 提交身份：`Dragr0wl <dragr0wl67@gmail.com>`
+- [x] 本地路线图（`*.local.md`）不入库

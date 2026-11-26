@@ -5,7 +5,7 @@ using System.Buffers.Binary;
 using System.IO;
 using System.IO.Compression;
 
-namespace TerraMap.Core;
+namespace TerraXaleid.Core;
 
 /// <summary>zlib (RFC 1950) helpers — the chunk payloads are zlib streams, not raw deflate.</summary>
 public static class Zlib

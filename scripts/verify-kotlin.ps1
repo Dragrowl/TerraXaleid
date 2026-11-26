@@ -64,10 +64,10 @@ $kotlinc = Get-Command kotlinc -ErrorAction SilentlyContinue
 if ($kotlinc) {
     Write-Host "toolchain: kotlinc ($($kotlinc.Source))"
     & $kotlinc.Source -version
-    & $kotlinc.Source -include-runtime -jvm-target 17 -d (Join-Path $kotlinDir '.verify\terramap.jar') $srcDir
+    & $kotlinc.Source -include-runtime -jvm-target 17 -d (Join-Path $kotlinDir '.verify\terraxaleid.jar') $srcDir
     if ($LASTEXITCODE -ne 0) { Write-Host "compile: FAILED ($LASTEXITCODE)"; exit 1 }
     Write-Host 'compile: ok'
-    & $java -jar (Join-Path $kotlinDir '.verify\terramap.jar') @sampleArgs
+    & $java -jar (Join-Path $kotlinDir '.verify\terraxaleid.jar') @sampleArgs
     exit $LASTEXITCODE
 }
 
@@ -77,7 +77,7 @@ $compilerJar = Get-ChildItem $toolsDir -Filter 'kotlin-compiler-embeddable-*.jar
 if ($compilerJar -and $java -and $stdlib) {
     Write-Host "toolchain: kotlin-compiler-embeddable ($($compilerJar.Name))"
     $classes = Join-Path $kotlinDir '.verify\classes'
-    $outJar = Join-Path $kotlinDir '.verify\terramap.jar'
+    $outJar = Join-Path $kotlinDir '.verify\terraxaleid.jar'
     Remove-Item $classes -Recurse -Force -ErrorAction SilentlyContinue
     New-Item -ItemType Directory -Force -Path $classes | Out-Null
 

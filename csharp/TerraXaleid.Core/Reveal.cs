@@ -2,7 +2,7 @@
 
 using System;
 
-namespace TerraMap.Core;
+namespace TerraXaleid.Core;
 
 /// <summary>
 /// Options for the reveal pass. The default is the only behaviour the product needs:

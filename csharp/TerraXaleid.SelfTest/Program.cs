@@ -4,9 +4,9 @@ using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
-using TerraMap.Core;
+using TerraXaleid.Core;
 
-namespace TerraMap.SelfTest;
+namespace TerraXaleid.SelfTest;
 
 /// <summary>
 /// Runnable check for the L1 core. Everything below works on synthetic bytes unless

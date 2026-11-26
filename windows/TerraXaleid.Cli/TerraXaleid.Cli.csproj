@@ -6,14 +6,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
-    <RootNamespace>TerraMap.Cli</RootNamespace>
-    <AssemblyName>terramap-cli</AssemblyName>
+    <RootNamespace>TerraXaleid.Cli</RootNamespace>
+    <AssemblyName>terraxaleid-cli</AssemblyName>
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\csharp\TerraMap.Core\TerraMap.Core.csproj" />
-    <ProjectReference Include="..\Terramap.Core.Win\Terramap.Core.Win.csproj" />
+    <ProjectReference Include="..\..\csharp\TerraXaleid.Core\TerraXaleid.Core.csproj" />
+    <ProjectReference Include="..\TerraXaleid.Core.Win\TerraXaleid.Core.Win.csproj" />
   </ItemGroup>
 
 </Project>

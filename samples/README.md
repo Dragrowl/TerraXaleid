@@ -22,7 +22,7 @@ powershell -File .\scripts\verify-kotlin.ps1 -WithSamples `
 
 不需要真实存档的部分（调色板算术、区块网格、难度派生、合成 70×70 round-trip、
 合成 3×3 重要帧跳过、大世界内存构建、角色名映射）都写在 `selftest.py` /
-`csharp/TerraMap.SelfTest/Program.cs` / `kotlin/.../SelfTest.kt` 里，
+`csharp/TerraXaleid.SelfTest/Program.cs` / `kotlin/.../SelfTest.kt` 里，
 目标是**不依赖任何外部文件**也能全绿。
 
 黄金样本（同一对输入下必须一致）见 [`../docs/L1-STATUS.md`](../docs/L1-STATUS.md)。

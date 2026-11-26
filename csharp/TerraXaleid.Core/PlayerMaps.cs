@@ -2,7 +2,7 @@
 
 using System;
 
-namespace TerraMap.Core;
+namespace TerraXaleid.Core;
 
 /// <summary>
 /// Naming rules for the per-character map files.

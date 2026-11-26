@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">terramap</string>
+    <string name="app_name">TerraXaleid</string>
     <string name="screen_title">Terraria maps</string>
     <string name="perm_title">All-files access is required</string>
     <string name="perm_body">This tool only touches save files: it reads Worlds/*.wld and rewrites Players/&lt;character&gt;/&lt;world&gt;.map.
@@ -65,7 +65,7 @@ Since Android 11 a normal app cannot list another app\'s Android/data folder - n
     <string name="about_check_ok">Core self-test passed</string>
     <string name="about_check_fail">Core self-test failed</string>
     <string name="shizuku_title">Read the game folder with Shizuku</string>
-    <string name="shizuku_body">Since Android 11 an app cannot list another app\'s Android/data folder, not even with all-files access. With Shizuku installed and running, granting it here lets terramap read the saves and write them back directly, with no copying to a portable folder.</string>
+    <string name="shizuku_body">Since Android 11 an app cannot list another app\'s Android/data folder, not even with all-files access. With Shizuku installed and running, granting it here lets TerraXaleid read the saves and write them back directly, with no copying to a portable folder.</string>
     <string name="shizuku_state_running">Shizuku is running; you can grant access.</string>
     <string name="shizuku_state_absent">No Shizuku service detected: install Shizuku and start it over adb or root first.</string>
     <string name="shizuku_button">Grant Shizuku</string>

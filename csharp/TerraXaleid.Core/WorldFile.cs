@@ -5,7 +5,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace TerraMap.Core;
+namespace TerraXaleid.Core;
 
 /// <summary>
 /// Reader for <c>.wld</c> files (format 326 / Terraria 1.4.5.x). Read-only by construction:

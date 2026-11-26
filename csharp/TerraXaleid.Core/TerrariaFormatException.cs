@@ -2,7 +2,7 @@
 
 using System;
 
-namespace TerraMap.Core;
+namespace TerraXaleid.Core;
 
 /// <summary>
 /// Thrown when a .wld / .map payload does not match the layout this library understands.

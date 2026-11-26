@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace TerraMap.Core;
+namespace TerraXaleid.Core;
 
 /// <summary>One candidate save root: the folder that contains <c>Worlds</c> and <c>Players</c>.</summary>
 public sealed record SaveFolder(string Label, string Root, string WorldsDir, string PlayersDir)

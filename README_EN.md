@@ -24,11 +24,9 @@ The core is pure data processing: bytes in, bytes out, never touching the game p
 | Platform | State | Notes |
 |---|---|---|
 | **Android** | ✅ available | Compose (Material 3) UI, reads and writes through Shizuku; install the APK from Releases |
-| **Windows** | 🚧 command line available | `terramap-cli` reads Steam saves and writes PC `.map` files (`--reveal-pc`), with `--auto-test` for an end-to-end check. No GUI yet |
+| **Windows** | 🚧 command line available | `terraxaleid-cli` reads Steam saves and writes PC `.map` files (`--reveal-pc`), with `--auto-test` for an end-to-end check. No GUI yet |
 | L1 core | ✅ done in three languages | Python / C# / Kotlin agree tile-for-tile (identical `decoded-grid sha256`); both UIs sit on it |
 
-
-> **Versioning**: `0.1.0-dev.N` while developing, `0.1.0-rc.N` for pre-releases (feature frozen, display and stability fixes only), then `0.1.0`. `versionCode` increments every round; no parallel series. `dist/` file names carry `versionName` only.
 
 ## Before you start
 
@@ -46,6 +44,8 @@ The core is pure data processing: bytes in, bytes out, never touching the game p
 | Undo | "撤销本次" on the result sheet, or restore `.map.bak` from "恢复与备份" |
 | Wipe the map back to fully unexplored | "恢复与备份" → select → delete map (all black) |
 | Change theme | Settings → Appearance: follow system / light / dark, plus standard dark or OLED black |
+| Change UI language | Settings → Language: follow system / 简体中文 / 繁體中文 / 日本語 / English, applied immediately, no restart |
+| Too many worlds to scan | Search box at the top of the world list filters by name fragment and highlights the match |
 | Batch on a PC (interim) | `python reveal.py … --players-dir` writes every character in one go |
 
 Maps are stored **per world × per character** (`Players/<character>/<world GUID>.map`), so a reveal has to be written for each character; the default writes one for every character on the machine.
@@ -64,21 +64,20 @@ Tile colours follow the real priority of `Terraria.Map.MapHelper.CreateMapTile`:
 - **Quit the world and close the game first**: the game writes the in-memory map back to disk on exit and would overwrite the result.
 - The original `.map` is copied to `.map.bak` before overwriting (older backups shift to `.bak.1`, `.bak.2`), and the result sheet can undo the run.
 - The ⋮ menu holds Settings / Backup & restore / Refresh; Back walks up one level, and on the world list it leaves the app (configurable to also kill the process).
+- On landscape or large screens the world and character cards lay out in 2–4 columns, chosen from the available width rather than hard-coded per device.
 
 Why Shizuku is required: since Android 11 an app cannot list another app's `Android/data` — not even with "All files access". Without Shizuku you can use the portable folders `Download/TerrariaSaves/` or `Documents/TerrariaSaves/`: drop `Worlds/` and `Players/` there, let the app work on them, then move them back with a file manager.
 
 ## On desktop
 
-The Windows side is a C# command line, `terramap-cli`: `--inspect` to look at a save, `--reveal-pc` to write a PC `.map`, `--auto-test` for an end-to-end check (read world → resolve the character → write the map → read it back).
+The Windows side is a C# command line, `terraxaleid-cli`: `--inspect` to look at a save, `--reveal-pc` to write a PC `.map`, `--auto-test` for an end-to-end check (read world → resolve the character → write the map → read it back).
 
 ```powershell
-dotnet run --project windows\Terramap.Cli -- --auto-test --world 111test --player koboshi
-dotnet run --project windows\Terramap.Cli -- --reveal-pc --world WORLD.wld --template TEMPLATE.map --out OUT.map
+dotnet run --project windows\TerraXaleid.Cli -- --auto-test --world 111test --player koboshi
+dotnet run --project windows\TerraXaleid.Cli -- --reveal-pc --world WORLD.wld --template TEMPLATE.map --out OUT.map
 ```
 
 PC maps are `fileVersion 326`, mobile maps are `33094`. The two are not interchangeable: write the format the target machine expects.
-
-Until then the only desktop path is the command line (which also drives the three-language cross-check):
 
 ### Requirements
 
@@ -104,7 +103,7 @@ python reveal.py "D:\...\MyWorld.wld" --players-dir "D:\...\Terraria\Players"
 | Platform | World `.wld` | Characters and `.map` |
 |---|---|---|
 | Windows / Steam | `%USERPROFILE%\Documents\My Games\Terraria\Worlds` | `%USERPROFILE%\Documents\My Games\Terraria\Players` |
-| Android (international) | `/sdcard/Android/data/com.and.games505.TerrariaPaid/files/` | `/sdcard/Android/data/com.and.games505.TerrariaPaid/Players` |
+| Android (international) | `/sdcard/Android/data/com.and.games505.TerrariaPaid/Worlds` | `/sdcard/Android/data/com.and.games505.TerrariaPaid/Players` |
 | MuMu emulator | same as above, via `adb` or a file manager | same; `deploy.py` fixes owner (`u0_a72:ext_data_rw`) and mode `660` |
 
 <details>
@@ -115,7 +114,7 @@ python reveal.py "D:\...\MyWorld.wld" --players-dir "D:\...\Terraria\Players"
 | Reveal only for named characters | `--player NAME` (repeatable) |
 | Single file mode | `python reveal.py WORLD.wld TEMPLATE.map -o OUT.map` |
 | Keep the tile type the game already explored | `--keep-explored-type` |
-| Push to emulator / phone | `python deploy.py OUT.map --serial 127.0.0.1:7555` |
+| Push to emulator / phone | `python deploy.py OUT.map --serial 127.0.0.1:16416` |
 
 </details>
 
@@ -170,7 +169,7 @@ Details and traps: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/L1-STA
 |---|---|
 | `*.py` | L1 reference implementation (`worldfmt` / `mapfmt` / `players` / `reveal` / `deploy`) plus self-test |
 | `csharp/` | C# L1 (`net10.0`, no NuGet) and its self-test |
-| `windows/` | Windows side: `Terramap.Core.Win` (save discovery) and `Terramap.Cli` (command line) |
+| `windows/` | Windows side: `TerraXaleid.Core.Win` (save discovery) and `TerraXaleid.Cli` (command line) |
 | `kotlin/` | Kotlin/JVM L1 and self-test (referenced by the Android module, not copied) |
 | `android/` | Compose shell (Material 3), `app` + `core` modules |
 | `scripts/` | three-language verification and packaging |

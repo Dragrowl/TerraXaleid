@@ -1,6 +1,6 @@
 # 架构
 
-当前版本 `当前版本`。本文描述**结构与接口契约**，不含打包产物。
+当前版本 `0.1.0-rc.15`。本文描述**结构与接口契约**，不含打包产物。
 
 ---
 
@@ -10,7 +10,7 @@
 |---|---|---|---|
 | L1 | 纯数据与字节解析（Zero UI / Zero OS） | `ByteArray` / `Span<byte>` / `InputStream`、内存缓冲 | 文件路径、权限、网络、UI、时钟、随机数 |
 | L2 | 文件与存储适配（各平台各写一份） | 路径发现、权限、读写、备份、校验 | 解析逻辑、调色板算术（一律调 L1） |
-| L3 | UI 壳（WinUI 3 / Compose） | 展示字段、收集用户意图、调 L2 | 字节操作 |
+| L3 | UI 壳（Android：Compose；桌面：计划中的 MaterialDesign 界面） | 展示字段、收集用户意图、调 L2 | 字节操作 |
 
 收益：L1 可以在没有游戏、没有存档、没有设备的情况下用内存字节做单元测试；改解析只可能改到纯函数；换平台时 L1 一行不改。
 
@@ -51,7 +51,7 @@ MapData                      // 解出来的地图缓存
     byte[]   Colors
 ```
 
-### 1.2 C#（`TerraMap.Core`，`net10.0`，零 NuGet）
+### 1.2 C#（`TerraXaleid.Core`，`net10.0`，零 NuGet）
 
 ```csharp
 WorldMeta WorldFile.ParseMeta(ReadOnlySpan<byte> worldBytes);   // 只走头部，约 2.4 KB
@@ -129,10 +129,13 @@ verify      回读 MapData.exploredCount() == W*H
 所有 shell 调用都打 `Log`，tag 固定 `terraxaleid`，形如
 `exec[cp -f ... && stat -c %s ...] -> 0 out=930790 err=`。
 
-### 2.2 Windows（未实现，计划）
+### 2.2 Windows（命令行已实现，图形界面未开始）
 
-路径发现顺序（命中即停，可手动覆盖）：`terramap.toml` 的 `saves_dir` → `%USERPROFILE%\Documents\My Games\Terraria\Worlds`
-→ OneDrive 文档重定向 → 注册表 `Shell Folders\Personal` → Steam 库 `libraryfolders.vdf`。
+`windows/TerraXaleid.Core.Win` 的 `SaveDiscovery` 依次尝试
+`%USERPROFILE%\Documents\My Games\Terraria` → `SpecialFolder.MyDocuments` → OneDrive 的 `Documents` / `文档`，
+命中即停；刻意不读注册表，换机器、换 OneDrive 配置都能自己找。
+
+图形界面那层（MaterialDesign）还没开始，计划把同一套 `SaveDiscovery` 与 `TerraXaleid.Core` 直接接过去。
 
 ### 2.3 角色与世界（三端一致）
 
@@ -149,7 +152,7 @@ verify      回读 MapData.exploredCount() == W*H
 | 名字不存在 | 报错并列出可用名字，避免「打错字看起来像成功」 |
 | 角色没有这个世界的 `.map` | 用**任意同世界角色**的 `.map` 当头部模板新建一份 |
 | 列表展示 | 只给角色名字 |
-| Android 识别 | 读 `Players/*` 目录名（目录名即角色名，不解析 `.plr`） |
+| Android 识别 | 列 `Players/*` 目录，再用同目录的 `<名字>.plr` 过滤：游戏删角色只删 `.plr`、目录与地图留着，不过滤就会列出已删除的角色；游戏目录下「一个 `.plr` 都没有」视为空，便携目录则保持旧行为（没有 `.plr` 就全列） |
 
 C# / Kotlin 各自有 `PlayerMaps`，两侧自测都用真实 GUID 对互验，避免两端各写一套格式。
 
@@ -160,32 +163,32 @@ C# / Kotlin 各自有 `PlayerMaps`，两侧自测都用真实 GUID 对互验，�
 ### 3.1 Android（Jetpack Compose，Material 3，已实现）
 
 ```
-AppRoot
- ├ PermissionScreen       「所有文件访问」+ Shizuku 授权（Binder 监听 + ON_RESUME 复查）
- └ MainFlow                三态：Stage.Worlds / Stage.Characters(entry) / Stage.Restore
-     ├ WorldsScreen        FilterChip 选根 + LazyColumn(WorldCard) + 底部汇总条
-     │   └ WorldCard       标题、可用性图标、可横向滚动的 Chip 行、复选框
-     ├ CharactersScreen    角色多选（默认全选）、模板来源、点亮按钮
-     └ RestoreScreen       每张地图一行：备份份数 / 当前大小 / 最新备份时间
-                          动作：恢复所选备份 / 删除所选备份 / 删除地图（全黑）
+AppRoot                     语言与主题在这里注入（LocalContext / LocalConfiguration + 配色）
+ └ MainFlow                 三态：Stage.Worlds / Stage.Characters(entry) / Stage.Restore
+     ├ WorldsScreen         FilterChip 选根 + 搜索横幅 + 卡片栅格 + 底部汇总条
+     │   ├ WorldCard        标题（命中搜索时高亮）、状态图标、横向 Chip 行、复选框
+     │   └ 授权卡片          没有 Shizuku / 没有全部文件权限时作为列表首项出现，
+     │                      不再把权限当成「进不去应用」的门槛
+     ├ CharactersScreen     角色多选（默认全选）、模板来源、点亮按钮
+     └ RestoreScreen        每张地图一行：备份份数 / 当前大小 / 最新备份时间
+                            动作：恢复所选备份 / 删除所选备份 / 删除地图（全黑）
 ```
+
+栅格：`<560dp` 一列、`≥560dp` 两列、`≥820dp` 三列、`≥1240dp` 四列。
 
 - 卡片里的 Chip 行：难度、尺寸、腐化|猩红、FTW、进度（三选一：困难模式之前 / 困难模式 / 已击败月亮领主，
   因为肉山后是月总的必要不充分条件，只显示一个）。
 - 页面切换：Material **shared axis X**，300 ms，进 `slideInHorizontally{w/8}` + `fadeIn`
   （emphasized decelerate `CubicBezierEasing(0.05, 0.7, 0.1, 1)`），出反向（emphasized accelerate
   `(0.3, 0, 0.8, 0.15)`）；方向由 `stageDepth` 决定。
-- 主题：`ui/Theme.kt` 三套配色（浅色 / 深色 / OLED），石墨灰，饱和度 2–4%；
-  选择来自配置文件，`ON_RESUME` 重读；**设置页与主题卡片尚未实现**（见 `INDEX.md`）。
+- 主题：`ui/Theme.kt` 三套配色（浅色 / 深色 / OLED），石墨灰；设置页的三张缩略图来自实机截图，切换带颜色渐变。
+- 语言：五套资源（`values` / `values-zh-rTW` / `values-ja` / `values-en`），切换时重建 Activity 的 locale，界面原地刷新、不跳回主页。
 - 返回：子页面 `BackHandler` 回世界列表；世界列表按返回退出应用。
 
-### 3.2 WinUI 3（未实现，计划）
+### 3.2 桌面端（未开始）
 
-```
-MainWindow
- ├ WorldListView   列表：名称 / 尺寸 / 腐化猩红 / 难度 / 困难模式 / 金框
- └ ActionPanel     「点亮地图」开关组：亮度、是否保留已探索格 + 进度与结果
-```
+计划用 MaterialDesign 系控件，与 Android 保持同一套视觉语言（前期评估过 WinUI 3，已放弃）。
+页面结构与 Android 对齐：世界列表（名称 / 尺寸 / 腐化猩红 / 难度 / 困难模式 / 金框）→ 角色多选 → 点亮与结果。
 
 失败原因一律显示 L1/L2 抛出的原始消息（如「区块 512 解压为 16383 字节，期望 16384」）。
 
@@ -241,8 +244,8 @@ int16 n2 ; n2 × uint16     // banner 可领取数（version >= 289）
 
 ## 5. 版本号与产物
 
-- `versionName` 一律 `0.1.0-dev.N`，`versionCode` 每轮 +1，不开平行序列；路线那一轮完成后切 `当前版本`。
-- `dist/` 文件名只带 `versionName`（`TerraXaleid-当前版本.apk`），不带 `-release` / `-shizuku` 之类的定语。
+- `versionName` 走 `0.1.0-dev.N` → `0.1.0-rc.N` → `0.1.0`，每轮 `versionCode` +1，不开平行序列。
+- `dist/` 文件名只带 `versionName`（`TerraXaleid-<versionName>.apk`），不带 `-release` / `-shizuku` 之类的定语。
   构建类型、签名状态、改动内容进提交信息、git tag 与 CHANGELOG。
 - Android 是**纯 Kotlin + Compose，没有 `lib/` 下的原生 `.so`**，所以一个通用 APK 同时适配
   `arm64-v8a` 与 `x86_64`，不需要 `abiFilters` 或 ABI 拆分。只有将来加入原生库才需要。

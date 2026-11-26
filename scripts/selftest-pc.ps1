@@ -4,7 +4,7 @@
     End-to-end smoke test for the desktop (326) writer.
 
 .DESCRIPTION
-    Runs terramap-cli --auto-test for one world / one character, which reads the .wld,
+    Runs terraxaleid-cli --auto-test for one world / one character, which reads the .wld,
     writes Players/<character>/<world guid>.map, reads it back and verifies the cell count.
     Prints PASS / FAIL and exits with the CLI's exit code so CI can use it directly.
 
@@ -22,8 +22,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-$project = Join-Path $root 'windows\Terramap.Cli\Terramap.Cli.csproj'
-$exe = Join-Path $root "windows\Terramap.Cli\bin\$Configuration\net10.0\terramap-cli.exe"
+$project = Join-Path $root 'windows\TerraXaleid.Cli\TerraXaleid.Cli.csproj'
+$exe = Join-Path $root "windows\TerraXaleid.Cli\bin\$Configuration\net10.0\terraxaleid-cli.exe"
 
 Write-Host "building  $project ($Configuration)"
 & dotnet build $project -c $Configuration -v q --nologo | Out-Null
@@ -35,7 +35,7 @@ if ($LASTEXITCODE -ne 0) {
 $cliArgs = @('--auto-test', '--world', $World, '--player', $Player)
 if ($DryRun) { $cliArgs += '--dry-run' }
 
-Write-Host "running   terramap-cli $($cliArgs -join ' ')"
+Write-Host "running   terraxaleid-cli $($cliArgs -join ' ')"
 & $exe @cliArgs
 $code = $LASTEXITCODE
 

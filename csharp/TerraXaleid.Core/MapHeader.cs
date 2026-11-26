@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Buffers.Binary;
 
-namespace TerraMap.Core;
+namespace TerraXaleid.Core;
 
 /// <summary>
 /// Header of a <c>.map</c> file plus the palette maths that turns raw tile/wall ids into the

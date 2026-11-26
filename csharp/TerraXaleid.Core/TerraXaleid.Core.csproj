@@ -5,8 +5,8 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
-    <RootNamespace>TerraMap.Core</RootNamespace>
-    <AssemblyName>TerraMap.Core</AssemblyName>
+    <RootNamespace>TerraXaleid.Core</RootNamespace>
+    <AssemblyName>TerraXaleid.Core</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <InvariantGlobalization>true</InvariantGlobalization>

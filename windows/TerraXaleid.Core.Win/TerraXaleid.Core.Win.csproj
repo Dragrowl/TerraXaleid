@@ -5,12 +5,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
-    <RootNamespace>TerraMap.Core</RootNamespace>
-    <AssemblyName>TerraMap.Core.Win</AssemblyName>
+    <RootNamespace>TerraXaleid.Core</RootNamespace>
+    <AssemblyName>TerraXaleid.Core.Win</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\csharp\TerraMap.Core\TerraMap.Core.csproj" />
+    <ProjectReference Include="..\..\csharp\TerraXaleid.Core\TerraXaleid.Core.csproj" />
   </ItemGroup>
 
 </Project>
