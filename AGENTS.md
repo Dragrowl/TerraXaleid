@@ -65,6 +65,7 @@ Terraria 存档地图读写工具：输入 `.wld` 字节、输出 `.map` 字节�
 
 - 分支 `main`；提交信息 `type(scope): summary`。
 - 一个提交表达一个完整改动；提交前 `git status` 与 `git diff --cached` 都要看过。
+- **Windows 端在维护者明确确认前不进 `rc` / `0.1.0`**：Windows 侧的改动一律留在 `dev` 线上，并入现有版本号一起发，不单独占一个 `rc` 或正式版号（m08694）。
 - 维护者负责推 `origin`（`https://github.com/Dragrowl/TerraXaleid.git`）；代理不自行 push，不改写历史。
 - 不加代理工具署名（`Generated with …` 之类）。
 
