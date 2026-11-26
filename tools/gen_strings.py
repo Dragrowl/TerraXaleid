@@ -401,9 +401,9 @@ EN = {
     "template_from_donor": "Map header of the same size (%1$s)",
     "template_unusable": "No usable map header: %1$s",
     "template_never_entered": "No character has entered this world yet. Enter it once with any character and quit so the game writes its map cache.",
-    "shizuku_open": "打开 Shizuku",
-    "worlds_search_hint": "搜索世界名称",
-    "worlds_search_none": "没有匹配的世界",
+    "shizuku_open": "Open Shizuku",
+    "worlds_search_hint": "Search world names",
+    "worlds_search_none": "No matching worlds",
 }
 
 JA = {

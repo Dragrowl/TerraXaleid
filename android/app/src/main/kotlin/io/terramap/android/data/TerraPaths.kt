@@ -83,10 +83,31 @@ object TerraPaths {
             ?.sortedBy { it.name.lowercase() }
             ?: emptyList()
 
-    /** Character folders, one per player that has ever entered this world. */
-    fun characterDirs(root: SaveRoot): List<File> =
-        root.playersDir.listFiles { f -> f.isDirectory }?.sortedBy { it.name.lowercase() }
+    /**
+     * Names of characters that still exist, lower-cased, or `null` when the tree has no `.plr` at all.
+     *
+     * The game deletes `Players/<name>.plr` when a character is deleted but routinely leaves the
+     * `Players/<name>/` folder (with its maps) behind. Listing every folder therefore offers
+     * characters that no longer exist, and writing a map into such a folder produces a file the game
+     * will never read. `null` means "cannot tell" - a portable copy that only carries the folders -
+     * and callers then keep every folder.
+     */
+    fun liveCharacters(playersDir: File): Set<String>? {
+        if (!playersDir.isDirectory) return emptySet()
+        val plrs = playersDir.listFiles { f -> f.isFile && f.name.endsWith(".plr", ignoreCase = true) }
+            ?: return emptySet()
+        if (plrs.isEmpty()) return null
+        return plrs.mapTo(HashSet()) { it.name.substringBeforeLast('.').lowercase() }
+    }
+
+    /** Character folders for characters that still exist (see [liveCharacters]). */
+    fun characterDirs(root: SaveRoot): List<File> {
+        val live = liveCharacters(root.playersDir)
+        return root.playersDir.listFiles { f -> f.isDirectory }
+            ?.filter { live == null || it.name.lowercase() in live }
+            ?.sortedBy { it.name.lowercase() }
             ?: emptyList()
+    }
 
     fun hexToBytes(hex: String): ByteArray {
         require(hex.length % 2 == 0) { "odd hex length: ${hex.length}" }

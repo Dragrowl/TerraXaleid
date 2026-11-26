@@ -111,7 +111,7 @@ object TerraMirror {
             val wlds = worlds.listFiles { file -> file.isFile && file.name.endsWith(".wld", true) }
             if (wlds.isNullOrEmpty()) continue
             return SaveRoot(
-                label = "娓告垙鐩綍 (Shizuku)",
+                label = "游戏目录 (Shizuku)",
                 worldsDir = worlds,
                 playersDir = players,
                 remoteBase = TERRARIA_BASE,

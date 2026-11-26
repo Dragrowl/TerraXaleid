@@ -180,9 +180,12 @@ object Backups {
 
     private fun listLocal(playersDir: File): List<Entry> {
         if (!playersDir.isDirectory) return emptyList()
+        // Deleted characters keep their folder; listing it would show maps the game will never load.
+        val live = TerraPaths.liveCharacters(playersDir)
         val out = ArrayList<Entry>()
         playersDir.listFiles()?.forEach { dir ->
             if (!dir.isDirectory) return@forEach
+            if (live != null && dir.name.lowercase() !in live) return@forEach
             dir.listFiles()?.forEach { file ->
                 if (!file.isFile) return@forEach
                 if (!file.name.contains(".map")) return@forEach
@@ -194,8 +197,15 @@ object Backups {
 
     /** One shell round-trip for the whole tree: paths, sizes and mtimes on separate lines. */
     private fun listRemote(remoteBase: String): List<Entry> {
-        val script = "find '$remoteBase/Players' -type f -name '*.map*' 2>/dev/null | " +
-            "while read -r f; do printf '%s\\t%s\\t%s\\n' \"\$f\" \"\$(stat -c %s \"\$f\")\" \"\$(stat -c %Y \"\$f\")\"; done"
+        // A character folder whose `<name>.plr` is gone belongs to a deleted character; skip it so the
+        // restore screen does not offer maps the game can no longer load. `anyplr` keeps trees that only
+        // carry folders (portable copies) working exactly as before.
+        val script = "root='$remoteBase/Players'; " +
+            "anyplr=\$(find \"\$root\" -maxdepth 1 -name '*.plr' 2>/dev/null | head -n1); " +
+            "find \"\$root\" -type f -name '*.map*' 2>/dev/null | " +
+            "while read -r f; do if [ -n \"\$anyplr\" ]; then d=\$(dirname \"\$f\"); " +
+            "[ -f \"\$d.plr\" ] || continue; fi; " +
+            "printf '%s\\t%s\\t%s\\n' \"\$f\" \"\$(stat -c %s \"\$f\")\" \"\$(stat -c %Y \"\$f\")\"; done"
         val result = ShizukuShell.exec(script) ?: return emptyList()
         if (!result.ok) {
             Log.w(TAG, "backup scan failed: code=${result.code} err=${result.err}")

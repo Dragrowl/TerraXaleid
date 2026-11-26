@@ -6,6 +6,7 @@ package io.terramap.android.ui
 
 import android.app.Activity
 import android.os.Process
+import android.util.Log
 import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -1215,7 +1216,14 @@ private fun rootText(raw: String): String = when (raw) {
     "Shizuku 暂存" -> stringResource(R.string.root_shizuku_cache)
     "游戏目录 (files)" -> stringResource(R.string.root_game_files)
     "游戏目录" -> stringResource(R.string.root_game)
-    else -> raw
+    "Download" -> "Download"
+    "Documents" -> "Documents"
+    // Any other label is a source string we have not localised yet; showing the generic root name is
+    // better than leaking an untranslated (or, as happened once, a re-encoded) literal into the chip.
+    else -> {
+        Log.w("terramap", "unmapped root label: $raw")
+        stringResource(R.string.root_game)
+    }
 }
 
 
