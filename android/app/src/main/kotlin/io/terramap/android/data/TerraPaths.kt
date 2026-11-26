@@ -12,6 +12,13 @@ data class SaveRoot(
     val playersDir: File,
     /** Non-null when the directories above are a staged copy of this device path (Shizuku mode). */
     val remoteBase: String? = null,
+    /**
+     * True for the game's own save tree (and its Shizuku mirror): a character there exists only while
+     * its `<name>.plr` does, so folders left behind by a deleted character must be hidden. Portable
+     * copies (`Download/`, `Documents/`) keep everything, because a hand-made copy often has maps
+     * without the matching `.plr`.
+     */
+    val authoritative: Boolean = false,
 ) {
     /** True when writes must be copied back to [remoteBase] instead of being local. */
     val staged: Boolean get() = remoteBase != null
@@ -56,11 +63,13 @@ object TerraPaths {
                 label = "游戏目录",
                 worldsDir = File(appDir, "Worlds"),
                 playersDir = File(appDir, "Players"),
+                authoritative = true,
             ),
             SaveRoot(
                 label = "游戏目录 (files)",
                 worldsDir = File(appDir, "files/Worlds"),
                 playersDir = File(appDir, "files/Players"),
+                authoritative = true,
             ),
             SaveRoot(
                 label = "我的文档",
@@ -92,17 +101,20 @@ object TerraPaths {
      * will never read. `null` means "cannot tell" - a portable copy that only carries the folders -
      * and callers then keep every folder.
      */
-    fun liveCharacters(playersDir: File): Set<String>? {
+    fun liveCharacters(playersDir: File, authoritative: Boolean): Set<String>? {
         if (!playersDir.isDirectory) return emptySet()
         val plrs = playersDir.listFiles { f -> f.isFile && f.name.endsWith(".plr", ignoreCase = true) }
             ?: return emptySet()
-        if (plrs.isEmpty()) return null
+        // In the game's own tree "no .plr anywhere" is the normal state after deleting every
+        // character, and the leftover folders must stay hidden; a portable copy without any .plr
+        // is just a copy, so keep listing it.
+        if (plrs.isEmpty()) return if (authoritative) emptySet() else null
         return plrs.mapTo(HashSet()) { it.name.substringBeforeLast('.').lowercase() }
     }
 
     /** Character folders for characters that still exist (see [liveCharacters]). */
     fun characterDirs(root: SaveRoot): List<File> {
-        val live = liveCharacters(root.playersDir)
+        val live = liveCharacters(root.playersDir, root.authoritative)
         return root.playersDir.listFiles { f -> f.isDirectory }
             ?.filter { live == null || it.name.lowercase() in live }
             ?.sortedBy { it.name.lowercase() }

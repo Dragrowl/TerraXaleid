@@ -127,4 +127,5 @@
     <string name="worlds_search_hint">搜尋世界名稱</string>
     <string name="worlds_search_none">沒有匹配的世界</string>
     <string name="shizuku_open">打開 Shizuku</string>
+    <string name="shizuku_missing">沒有找到 Shizuku，請確認已安裝</string>
 </resources>

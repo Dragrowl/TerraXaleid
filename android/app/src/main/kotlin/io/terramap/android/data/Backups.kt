@@ -87,7 +87,7 @@ object Backups {
     /** Scans one root and pairs every map with its backups. */
     suspend fun scan(root: SaveRoot, worlds: List<WorldEntry>): List<MapBackupRow> = withContext(Dispatchers.IO) {
         val remote = root.remoteBase
-        val entries = if (remote != null) listRemote(remote) else listLocal(root.playersDir)
+        val entries = if (remote != null) listRemote(remote) else listLocal(root.playersDir, root.authoritative)
         val byWorld = worlds.associateBy { it.mapFileName.lowercase() }
 
         entries
@@ -178,10 +178,10 @@ object Backups {
 
     private data class Entry(val name: String, val path: String, val size: Long, val modified: Long)
 
-    private fun listLocal(playersDir: File): List<Entry> {
+    private fun listLocal(playersDir: File, authoritative: Boolean): List<Entry> {
         if (!playersDir.isDirectory) return emptyList()
         // Deleted characters keep their folder; listing it would show maps the game will never load.
-        val live = TerraPaths.liveCharacters(playersDir)
+        val live = TerraPaths.liveCharacters(playersDir, authoritative)
         val out = ArrayList<Entry>()
         playersDir.listFiles()?.forEach { dir ->
             if (!dir.isDirectory) return@forEach
@@ -196,7 +196,7 @@ object Backups {
     }
 
     /** One shell round-trip for the whole tree: paths, sizes and mtimes on separate lines. */
-    private fun listRemote(remoteBase: String): List<Entry> {
+    private fun listRemote(remoteBase: String, authoritative: Boolean = true): List<Entry> {
         // A character folder whose `<name>.plr` is gone belongs to a deleted character; skip it so the
         // restore screen does not offer maps the game can no longer load. `anyplr` keeps trees that only
         // carry folders (portable copies) working exactly as before.

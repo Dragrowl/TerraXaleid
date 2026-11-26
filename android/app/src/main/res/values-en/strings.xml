@@ -134,4 +134,5 @@ Since Android 11 a normal app cannot list another app\'s Android/data folder - n
     <string name="worlds_search_hint">Search world names</string>
     <string name="worlds_search_none">No matching worlds</string>
     <string name="shizuku_open">Open Shizuku</string>
+    <string name="shizuku_missing">Shizuku is not installed</string>
 </resources>

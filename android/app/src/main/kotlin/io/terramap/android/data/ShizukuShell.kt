@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.Settings
 import android.util.Log
 import rikka.shizuku.Shizuku
 
@@ -60,16 +61,29 @@ object ShizukuShell {
     }
 
     /** Opens the Shizuku app so the service can be (re)started and the grant reviewed. */
-    fun openManager(context: Context) {
-        val direct = Intent(Intent.ACTION_MAIN)
-            .setClassName(MANAGER_PACKAGE, "$MANAGER_PACKAGE.ui.HomeActivity")
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        val byPackage = Intent(Intent.ACTION_VIEW)
+    /**
+     * Brings the Shizuku app to the front so the user can grant access there.
+     *
+     * Three attempts, in order: the launcher intent (works on every Shizuku build and needs the
+     * `<queries>` entry for the package), the app-info screen, and the Play/market page. Returns
+     * false when none of them could be launched so the caller can tell the user instead of leaving
+     * the tap looking dead.
+     */
+    fun openManager(context: Context): Boolean {
+        val pm = context.packageManager
+        pm.getLaunchIntentForPackage(MANAGER_PACKAGE)?.let { launch ->
+            launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            if (runCatching { context.startActivity(launch) }.isSuccess) return true
+        }
+        val details = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             .setData(Uri.parse("package:$MANAGER_PACKAGE"))
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        runCatching { context.startActivity(direct) }
-            .recoverCatching { context.startActivity(byPackage) }
-            .onFailure { Log.w(TAG, "cannot open Shizuku", it) }
+        if (runCatching { context.startActivity(details) }.isSuccess) return true
+        val market = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$MANAGER_PACKAGE"))
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        if (runCatching { context.startActivity(market) }.isSuccess) return true
+        Log.w(TAG, "cannot open Shizuku")
+        return false
     }
 
     /**

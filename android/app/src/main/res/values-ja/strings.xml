@@ -134,4 +134,5 @@ Android 11 以降、一般アプリは他のアプリの Android/data を一覧�
     <string name="worlds_search_hint">ワールド名を検索</string>
     <string name="worlds_search_none">一致するワールドがありません</string>
     <string name="shizuku_open">Shizuku を開く</string>
+    <string name="shizuku_missing">Shizuku が見つかりません</string>
 </resources>

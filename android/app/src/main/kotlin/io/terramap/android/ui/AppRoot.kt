@@ -6,6 +6,7 @@ package io.terramap.android.ui
 
 import android.app.Activity
 import android.os.Process
+import android.widget.Toast
 import android.util.Log
 import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
@@ -236,10 +237,16 @@ fun AppRoot() {
             ShizukuShell.requestPermission(context)
             scope.launch {
                 delay(1800)
-                if (!ShizukuShell.hasPermission()) ShizukuShell.openManager(context)
+                if (!ShizukuShell.hasPermission() && !ShizukuShell.openManager(context)) {
+                    Toast.makeText(context, R.string.shizuku_missing, Toast.LENGTH_SHORT).show()
+                }
             }
         },
-        onOpenShizuku = { ShizukuShell.openManager(context) },
+        onOpenShizuku = {
+            if (!ShizukuShell.openManager(context)) {
+                Toast.makeText(context, R.string.shizuku_missing, Toast.LENGTH_SHORT).show()
+            }
+        },
         onRecheck = {
             access = StorageAccess.hasAccess(context)
             shizukuAlive = ShizukuShell.isBinderAlive()

@@ -78,6 +78,12 @@ object TerraMirror {
             append("mkdir -p '$worlds' '$players' && ")
             append("cp -f '$TERRARIA_BASE/Worlds/'*.wld '$worlds'/ && ")
             append("cp -rf '$TERRARIA_BASE/Players/.' '$players'/ && ")
+            // Drop mirror entries the game no longer has, otherwise a world or character deleted in
+            // game keeps showing up from the last mirror.
+            append("for f in '$worlds'/*.wld; do [ -e \"\$f\" ] || continue; ")
+            append("b=\$(basename \"\$f\"); [ -e '$TERRARIA_BASE/Worlds/'\"\$b\" ] || rm -f \"\$f\"; done; ")
+            append("for d in '$players'/*; do [ -d \"\$d\" ] || continue; ")
+            append("n=\$(basename \"\$d\"); [ -d '$TERRARIA_BASE/Players/'\"\$n\" ] || rm -rf \"\$d\"; done; ")
             append("ls '$worlds'/*.wld | wc -l")
         }
         val result = ShizukuShell.exec(script) ?: return null
@@ -93,6 +99,7 @@ object TerraMirror {
             worldsDir = File(worlds),
             playersDir = File(players),
             remoteBase = TERRARIA_BASE,
+            authoritative = true,
         )
     }
 
@@ -103,6 +110,9 @@ object TerraMirror {
      * half-reported run still leaves the app usable — the write-back path is the same.
      */
     fun adoptStaging(context: android.content.Context): SaveRoot? {
+        // With a working Shizuku the caller should build a fresh mirror instead: adopting a leftover
+        // tree would show worlds and characters the game has already deleted.
+        if (isAvailable()) return null
         // New location first; the Download tree is what builds before this one produced.
         for (base in listOf(workDir(context), File(LEGACY_WORK_DIR))) {
             val worlds = File(base, "Worlds")
@@ -115,6 +125,7 @@ object TerraMirror {
                 worldsDir = worlds,
                 playersDir = players,
                 remoteBase = TERRARIA_BASE,
+            authoritative = true,
             )
         }
         return null
