@@ -24,10 +24,9 @@ The core is pure data processing: bytes in, bytes out, never touching the game p
 | Platform | State | Notes |
 |---|---|---|
 | **Android** | ✅ available | Compose (Material 3) UI, reads and writes through Shizuku; install the APK from Releases |
-| **Windows** | 🚧 core works, no GUI yet | The C# `terramap-cli` already discovers Steam saves, writes PC `.map` files (`--reveal-pc`) and self-tests end to end (`--auto-test`). The GUI has not started and will use MaterialDesign instead of WinUI 3 |
+| **Windows** | 🚧 command line available | `terramap-cli` reads Steam saves and writes PC `.map` files (`--reveal-pc`), with `--auto-test` for an end-to-end check. No GUI yet |
 | L1 core | ✅ done in three languages | Python / C# / Kotlin agree tile-for-tile (identical `decoded-grid sha256`); both UIs sit on it |
 
-> Packaging for Windows is settled too: a self-contained single-file exe cannot start (the Windows App SDK manifest registers `SessionHandleIPCProxyStub.dll` twice), so the plan is a setup installer; the version joins the same `0.1.0` line and moves to beta after a manual check.
 
 > **Versioning**: `0.1.0-dev.N` while developing, `0.1.0-rc.N` for pre-releases (feature frozen, display and stability fixes only), then `0.1.0`. `versionCode` increments every round; no parallel series. `dist/` file names carry `versionName` only.
 
@@ -70,14 +69,14 @@ Why Shizuku is required: since Android 11 an app cannot list another app's `Andr
 
 ## On desktop
 
-The Windows side is currently a C# command line, `terramap-cli`: `--inspect` to look at a save, `--reveal-pc` to write a PC `.map`, `--auto-test` for an end-to-end check (read world → resolve the character → write the map → read it back). The GUI has not started; MaterialDesign was chosen over WinUI 3, and packaging will be revisited once the UI exists.
+The Windows side is a C# command line, `terramap-cli`: `--inspect` to look at a save, `--reveal-pc` to write a PC `.map`, `--auto-test` for an end-to-end check (read world → resolve the character → write the map → read it back).
 
 ```powershell
 dotnet run --project windows\Terramap.Cli -- --auto-test --world 111test --player koboshi
 dotnet run --project windows\Terramap.Cli -- --reveal-pc --world WORLD.wld --template TEMPLATE.map --out OUT.map
 ```
 
-PC maps are `fileVersion 326` (one raw deflate stream, row-major); mobile maps are `33094` (64×64 chunks, zlib). Both encoders live in this repo and are not interchangeable.
+PC maps are `fileVersion 326`, mobile maps are `33094`. The two are not interchangeable: write the format the target machine expects.
 
 Until then the only desktop path is the command line (which also drives the three-language cross-check):
 
@@ -184,7 +183,7 @@ Details and traps: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/L1-STA
 <details>
 <summary>Known limits</summary>
 
-- Steam/PC `.map` files are `fileVersion 326` (older: 318/316/315), mobile is `33094`. Both encoders exist, but the formats are not interchangeable: a PC map dropped into a phone (or the reverse) is rejected by the game. Converting between them is not exposed in any UI yet.
+- Steam/PC `.map` files (`fileVersion 326`) and mobile ones (`33094`) are not interchangeable: a PC map dropped into a phone (or the reverse) will not show up, and nothing converts between them.
 - The Chinese "心动" (XD) release is not supported: different package name and save layout.
 - Only the map cache is touched. World files stay read-only; changing difficulty is out of scope.
 - On Android every read and write goes through a Shizuku shell; without it only the portable folders work.
@@ -215,7 +214,3 @@ GPL-3.0-or-later, see [LICENSE](LICENSE). Every source file carries an `SPDX-Lic
 - [Endfield Font](https://github.com/lhclbt/Endfield_Font) — used only to render the three theme thumbnails; the font file is not in the repository
 - [simple-icons](https://github.com/simple-icons/simple-icons) — GitHub / Bilibili icon outlines
 - The public write-ups of the Terraria save formats (wiki.gg World File Format and map format pages)
-
-## Renamed
-
-The project used to be called `terramap`, which collides with a few online map services. It is now **TerraXaleid** (terra + kaleidoscope: piecing the world back into one picture). The GitHub repo was renamed and the old URL redirects; the Android package id (`io.terramap.android`) and the config file name (`terramap.json`) migrate together with the package name in the next release, which means uninstall + reinstall — the CHANGELOG will spell it out.
