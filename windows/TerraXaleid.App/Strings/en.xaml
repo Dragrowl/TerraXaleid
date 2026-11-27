@@ -60,4 +60,5 @@
     <sys:String x:Key="Settings.About.Previews">Theme thumbnails are rendered by the app itself (--render-previews), not pasted screenshots.</sys:String>
     <sys:String x:Key="Worlds.NoMatch">No matching worlds · try another keyword</sys:String>
     <sys:String x:Key="Chars.Selected">{0} character(s) selected</sys:String>
+    <sys:String x:Key="Worlds.BatchHint">Reveal {0} worlds · press Ctrl+B</sys:String>
 </ResourceDictionary>

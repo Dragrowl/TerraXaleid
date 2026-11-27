@@ -60,4 +60,5 @@
     <sys:String x:Key="Settings.About.Previews">テーマのサムネイルは本アプリが自前で描画します（--render-previews）。</sys:String>
     <sys:String x:Key="Worlds.NoMatch">一致するワールドがありません · 別のキーワードで試してください</sys:String>
     <sys:String x:Key="Chars.Selected">{0} 人のキャラクターを選択</sys:String>
+    <sys:String x:Key="Worlds.BatchHint">{0} ワールドをまとめて点灯 · Ctrl+B</sys:String>
 </ResourceDictionary>

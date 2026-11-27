@@ -364,7 +364,7 @@ public partial class MainWindow : Window
         // the batch action runs on Ctrl+B; the status line keeps it discoverable
         StatusText.Text = _selectedWorlds.Count == 0
             ? (_folder is null ? string.Empty : string.Format(Str("Worlds.Count"), _folder.Root, _all.Count))
-            : string.Format(Str("Worlds.BatchPick"), _selectedWorlds.Count);
+            : string.Format(Str("Worlds.BatchHint"), _selectedWorlds.Count);
         e.Handled = true;
     }
 

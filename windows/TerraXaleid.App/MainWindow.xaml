@@ -130,6 +130,9 @@
                                                     <DataTrigger Binding="{Binding Selected}" Value="True">
                                                         <Setter Property="BorderBrush" Value="{DynamicResource App.Accent}" />
                                                     </DataTrigger>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource App.Chip}" />
+                                                    </Trigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
@@ -229,6 +232,9 @@
                                                     <DataTrigger Binding="{Binding Selected}" Value="True">
                                                         <Setter Property="BorderBrush" Value="{DynamicResource App.Accent}" />
                                                     </DataTrigger>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource App.Chip}" />
+                                                    </Trigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
@@ -239,11 +245,14 @@
                                                 </Grid.ColumnDefinitions>
                                                 <StackPanel Grid.Column="0">
                                                     <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"
-                                                               Foreground="{DynamicResource App.Text}" TextWrapping="Wrap" />
+                                                               Foreground="{DynamicResource App.Text}" TextWrapping="NoWrap"
+                                                               TextTrimming="CharacterEllipsis" />
                                                     <TextBlock Text="{Binding Detail}" FontSize="12" Margin="0,6,0,0"
-                                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                                    <TextBlock Text="{Binding Guid}" FontSize="11" Margin="0,4,0,0"
-                                                               Foreground="{DynamicResource App.TextSoft}" TextTrimming="CharacterEllipsis" />
+                                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="NoWrap"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{Binding Guid}" FontSize="11" Margin="0,4,0,0" Opacity="0.6"
+                                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="NoWrap"
+                                                               TextTrimming="CharacterEllipsis" />
                                                 </StackPanel>
                                                 <TextBlock Grid.Column="1" Text="&#x2713;" FontSize="14"
                                                            VerticalAlignment="Top" Margin="8,2,0,0"

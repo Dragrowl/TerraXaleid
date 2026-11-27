@@ -60,4 +60,5 @@
     <sys:String x:Key="Settings.About.Previews">主题缩略图由本程序自行渲染（--render-previews），不是截图拼贴。</sys:String>
     <sys:String x:Key="Worlds.NoMatch">没有匹配的世界 · 换个关键字试试</sys:String>
     <sys:String x:Key="Chars.Selected">已选 {0} 个角色</sys:String>
+    <sys:String x:Key="Worlds.BatchHint">批量点亮 {0} 个世界 · 按 Ctrl+B</sys:String>
 </ResourceDictionary>
