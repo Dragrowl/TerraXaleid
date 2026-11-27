@@ -26,8 +26,51 @@ public partial class MainWindow : Window
     private const string BilibiliUrl = "https://space.bilibili.com/3461573882415902";
     private const string GithubUrl = "https://github.com/Dragrowl/TerraXaleid";
 
-    private sealed record WorldRow(
-        string Name, string Difficulty, string Size, string Evil, string Progress, string Guid, string MapGuid);
+    private sealed class WorldRow : INotifyPropertyChanged
+    {
+        private bool _selected;
+
+        public WorldRow(string name, string difficulty, string size, string evil, string progress, string guid, string mapGuid)
+        {
+            Name = name;
+            Difficulty = difficulty;
+            Size = size;
+            Evil = evil;
+            Progress = progress;
+            Guid = guid;
+            MapGuid = mapGuid;
+        }
+
+        public string Name { get; }
+
+        public string Difficulty { get; }
+
+        public string Size { get; }
+
+        public string Evil { get; }
+
+        public string Progress { get; }
+
+        public string Guid { get; }
+
+        public string MapGuid { get; }
+
+        public bool Selected
+        {
+            get => _selected;
+            set
+            {
+                if (_selected == value) return;
+                _selected = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Selected)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TickVisibility)));
+            }
+        }
+
+        public Visibility TickVisibility => _selected ? Visibility.Visible : Visibility.Hidden;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+    }
 
     private sealed class CharacterRow : INotifyPropertyChanged
     {
@@ -69,6 +112,12 @@ public partial class MainWindow : Window
     private readonly Dictionary<string, string> _worldByGuid = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly HashSet<string> _picked = new();
+
+    /// <summary>What the last reveal wrote, so the user can take it back in one click.</summary>
+    private readonly List<string> _lastTargets = new();
+
+    /// <summary>Worlds ticked for a batch reveal (Android has the same multi-select).</summary>
+    private readonly HashSet<WorldRow> _selectedWorlds = new();
     private WorldRow? _world;
     private List<WorldRow> _all = new();
     private SaveFolder? _folder;
@@ -93,13 +142,14 @@ public partial class MainWindow : Window
         Reload();
         ShowPage(0);
 
-        // A WindowStyle=None window otherwise maximises over the taskbar, which pushes the
-        // rail's bottom button off screen. Clamping to the work area keeps it reachable.
+        // A WindowStyle=None window otherwise maximises over the taskbar, which pushes both the
+        // rail's bottom button and the page footers off screen. Clamp to the work area exactly:
+        // any positive slack puts the last row where hit testing can no longer reach it.
         Loaded += (_, _) =>
         {
             Rect work = SystemParameters.WorkArea;
-            MaxHeight = work.Height + 8;
-            MaxWidth = work.Width + 8;
+            MaxHeight = work.Height;
+            MaxWidth = work.Width;
         };
 
         StateChanged += (_, _) => UpdateMaximizeGlyph();
@@ -151,6 +201,10 @@ public partial class MainWindow : Window
             case Key.D3:
             case Key.NumPad3:
                 ShowPage(3);
+                e.Handled = true;
+                break;
+            case Key.B:
+                OnBatchPickClick(this, new RoutedEventArgs());
                 e.Handled = true;
                 break;
         }
@@ -290,6 +344,94 @@ public partial class MainWindow : Window
             : _all.Where(w => w.Name.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
     }
 
+    private void OnWorldTickClick(object sender, MouseButtonEventArgs e)
+    {
+        // ticking means "include in the batch"; the card itself still navigates on a plain click
+        if (sender is not FrameworkElement element || element.DataContext is not WorldRow row) return;
+
+        row.Selected = !row.Selected;
+        if (row.Selected)
+        {
+            _selectedWorlds.Add(row);
+        }
+        else
+        {
+            _selectedWorlds.Remove(row);
+        }
+
+        // the batch action runs on Ctrl+B; the status line keeps it discoverable
+        StatusText.Text = _selectedWorlds.Count == 0
+            ? (_folder is null ? string.Empty : string.Format(Str("Worlds.Count"), _folder.Root, _all.Count))
+            : string.Format(Str("Worlds.BatchPick"), _selectedWorlds.Count);
+        e.Handled = true;
+    }
+
+    private void OnBatchPickClick(object sender, RoutedEventArgs e)
+    {
+        if (_selectedWorlds.Count == 0) return;
+
+        _lastTargets.Clear();
+        int worlds = 0, written = 0, failed = 0;
+        string? firstError = null;
+        string? summary = null;
+
+        try
+        {
+            try
+            {
+            foreach (WorldRow row in _selectedWorlds.ToList())
+            {
+                byte[]? image = BuildRevealedMap(row, out string? error);
+                if (image is null)
+                {
+                    failed++;
+                    firstError ??= error;
+                    continue;
+                }
+
+                worlds++;
+                foreach (string characterDir in Directory.GetDirectories(_folder!.PlayersDir))
+                {
+                    string target = Path.Combine(characterDir, row.MapGuid + ".map");
+                    // only refresh maps that already exist: a batch should never invent new ones
+                    if (!File.Exists(target)) continue;
+
+                    try
+                    {
+                        RotateBackups(target);
+                        string temp = target + ".tmp";
+                        File.WriteAllBytes(temp, image);
+                        File.Move(temp, target, overwrite: true);
+                        _lastTargets.Add(target);
+                        written++;
+                    }
+                    catch (Exception ex)
+                    {
+                        failed++;
+                        firstError ??= ex.Message;
+                    }
+                }
+            }
+
+            summary = string.Format(Str("Worlds.BatchDone"), worlds, written, failed)
+                + (firstError is null ? string.Empty : $"（{firstError}）");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.ToString(), "batch diag", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+        finally
+        {
+            foreach (WorldRow row in _selectedWorlds) row.Selected = false;
+            _selectedWorlds.Clear();
+            UndoButton.Visibility = _lastTargets.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            ApplyFilter();
+            // ApplyFilter rewrites the status line, so show the batch result last
+            if (summary is not null) StatusText.Text = summary;
+        }
+    }
+
     private void OnWorldCardClick(object sender, MouseButtonEventArgs e)
     {
         if ((sender as FrameworkElement)?.DataContext is not WorldRow world)
@@ -426,6 +568,93 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             BackupStatus.Text = $"删除失败：{ex.Message}";
+        }
+    }
+
+    /// <summary>Takes back the last reveal: the pre-reveal map comes back out of .bak.</summary>
+    private void OnUndoClick(object sender, RoutedEventArgs e)
+    {
+        if (_lastTargets.Count == 0)
+        {
+            return;
+        }
+
+        int restored = 0;
+        try
+        {
+            foreach (string target in _lastTargets)
+            {
+                UnrotateBackups(target);
+                restored++;
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = $"撤销失败：{ex.Message}";
+            return;
+        }
+        finally
+        {
+            _lastTargets.Clear();
+            UndoButton.Visibility = Visibility.Collapsed;
+        }
+
+        StatusText.Text = string.Format(Str("Chars.Undone"), restored);
+        if (_world is not null)
+        {
+            ShowCharacters(_world);
+        }
+    }
+
+    /// <summary>Inverse of <see cref="RotateBackups"/>; deletes the map when it was the first write.</summary>
+    private static void UnrotateBackups(string mapPath)
+    {
+        string bak = mapPath + ".bak";
+        string bak1 = bak + ".1";
+        string bak2 = bak + ".2";
+
+        if (File.Exists(mapPath))
+        {
+            File.Delete(mapPath);
+        }
+
+        if (File.Exists(bak))
+        {
+            File.Move(bak, mapPath);
+        }
+
+        if (File.Exists(bak1))
+        {
+            File.Move(bak1, bak);
+        }
+
+        if (File.Exists(bak2))
+        {
+            File.Move(bak2, bak1);
+        }
+    }
+
+    /// <summary>Drops the map file itself so the game regenerates a fully unexplored one.</summary>
+    private void OnDeleteMap(object sender, RoutedEventArgs e)
+    {
+        if ((sender as Button)?.Tag is not BackupRow row)
+        {
+            return;
+        }
+
+        try
+        {
+            if (File.Exists(row.Target))
+            {
+                File.Delete(row.Target);
+            }
+
+            BackupStatus.Text = string.Format(Str("Backups.MapDeleted"), Path.GetFileName(row.Target));
+            ReloadBackups();
+        }
+        catch (Exception ex)
+        {
+            BackupStatus.Text = $"删除地图失败：{ex.Message}";
         }
     }
 
@@ -677,27 +906,15 @@ public partial class MainWindow : Window
 
         try
         {
-            string worldPath = Path.Combine(_folder.WorldsDir, _world.Guid + ".wld");
-            byte[] bytes = File.ReadAllBytes(worldPath);
-            WorldMeta meta = WorldFile.ParseMeta(bytes);
-            World world = WorldFile.Load(bytes);
-            string mapName = PlayerMaps.MapFileNameForWorld(Convert.FromHexString(meta.GuidHex));
-
-            TileOptions options = TileOptions.FromFirstReadable(
-                    Directory.GetFiles(_folder.PlayersDir, "*.map", SearchOption.AllDirectories), out _)
-                ?? new TileOptions(new int[754], new int[367]);
-
-            using var buffer = new MemoryStream();
-            PcMapFormat.Write(buffer, options, world.Name, world.WorldId, world.Width, world.Height, 754, 367,
-                world.Tiles, world.Walls, world.LiquidAmounts, world.LiquidKinds,
-                (float)world.Surface, (float)world.RockLayer, world.UnderworldLayer);
-            byte[] image = buffer.ToArray();
-
-            if (!PcMapFormat.TryVerify(image, world.Width, world.Height, out _, out string? error))
+            byte[]? image = BuildRevealedMap(_world, out string? buildError);
+            if (image is null)
             {
-                MessageBox.Show(this, error ?? "verify failed", "TerraXaleid", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(this, buildError ?? "verify failed", "TerraXaleid", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
+            string mapName = _world.MapGuid + ".map";
+            _lastTargets.Clear();
 
             foreach (string character in _picked)
             {
@@ -710,6 +927,7 @@ public partial class MainWindow : Window
                     string tmp = target + ".tmp";
                     File.WriteAllBytes(tmp, image);
                     File.Move(tmp, target, overwrite: true);
+                    _lastTargets.Add(target);
                     written++;
                 }
                 catch (Exception ex)
@@ -728,9 +946,44 @@ public partial class MainWindow : Window
         var current = _world;
         _picked.Clear();
         ShowCharacters(current);
+        UndoButton.Visibility = _lastTargets.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         StatusText.Text = failed == 0
             ? string.Format(Str("Chars.Written"), written)
             : string.Format(Str("Chars.WrittenFailed"), written, failed) + (firstError is null ? string.Empty : " · " + firstError);
+    }
+    /// <summary>Encodes one world into a fresh PC map image, or null with a reason.</summary>
+    private byte[]? BuildRevealedMap(WorldRow row, out string? error)
+    {
+        error = null;
+        try
+        {
+            string worldPath = Path.Combine(_folder!.WorldsDir, row.Guid + ".wld");
+            byte[] bytes = File.ReadAllBytes(worldPath);
+            WorldMeta meta = WorldFile.ParseMeta(bytes);
+            World world = WorldFile.Load(bytes);
+            TileOptions options = TileOptions.FromFirstReadable(
+                    Directory.GetFiles(_folder.PlayersDir, "*.map", SearchOption.AllDirectories), out _)
+                ?? new TileOptions(new int[754], new int[367]);
+
+            using var buffer = new MemoryStream();
+            PcMapFormat.Write(buffer, options, world.Name, world.WorldId, world.Width, world.Height, 754, 367,
+                world.Tiles, world.Walls, world.LiquidAmounts, world.LiquidKinds,
+                (float)world.Surface, (float)world.RockLayer, world.UnderworldLayer);
+            byte[] image = buffer.ToArray();
+
+            if (!PcMapFormat.TryVerify(image, world.Width, world.Height, out _, out string? verifyError))
+            {
+                error = verifyError ?? "verify failed";
+                return null;
+            }
+
+            return image;
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+            return null;
+        }
     }
 }
 /// <summary>Tiny json config in %APPDATA%\TerraXaleid\config.json (theme, dark variant, language).</summary>

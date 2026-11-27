@@ -99,11 +99,14 @@
                     <TextBlock Grid.Row="0" Text="{DynamicResource Worlds.Title}" FontSize="28" FontWeight="SemiBold"
                                HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
 
-                    <Grid Grid.Row="1" Margin="0,14,0,16" HorizontalAlignment="Center" Width="460">
-                        <TextBox x:Name="SearchBox" Style="{StaticResource SearchField}" TextChanged="OnSearchChanged" />
-                        <TextBlock x:Name="SearchHint" Text="{DynamicResource Worlds.Search}" Margin="20,0"
-                                   IsHitTestVisible="False" VerticalAlignment="Center" FontSize="14"
-                                   Foreground="{DynamicResource App.TextSoft}" />
+                    <Grid Grid.Row="1" Margin="0,14,0,16">
+                        <Grid HorizontalAlignment="Center" Width="460">
+                            <TextBox x:Name="SearchBox" Style="{StaticResource SearchField}" TextChanged="OnSearchChanged" />
+                            <TextBlock x:Name="SearchHint" Text="{DynamicResource Worlds.Search}" Margin="20,0"
+                                       IsHitTestVisible="False" VerticalAlignment="Center" FontSize="14"
+                                       Foreground="{DynamicResource App.TextSoft}" />
+                        </Grid>
+
                     </Grid>
 
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
@@ -115,9 +118,23 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource CardBorder}" Width="320" Margin="0,0,12,12"
+                                    <Border Width="320" Margin="0,0,12,12"
                                             MouseLeftButtonUp="OnWorldCardClick" Cursor="Hand">
-                                        <StackPanel>
+                                        <Border.Style>
+                                            <Style TargetType="Border" BasedOn="{StaticResource CardBorder}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Selected}" Value="True">
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource App.Accent}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
                                             <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource App.Text}" TextWrapping="Wrap" />
                                             <WrapPanel Margin="0,10,0,0">
@@ -133,15 +150,36 @@
                                             </WrapPanel>
                                             <TextBlock Text="{Binding Progress}" FontSize="12" Margin="0,2,0,0"
                                                        Foreground="{DynamicResource App.TextSoft}" />
-                                        </StackPanel>
+                                            </StackPanel>
+                                            <Button Grid.Column="1" Width="26" Height="26" Margin="10,0,0,0"
+                                                    VerticalAlignment="Top" Padding="0" Background="Transparent"
+                                                    BorderThickness="0" Cursor="Hand" Focusable="False"
+                                                    ToolTip="{DynamicResource Worlds.BatchPick}"
+                                                    PreviewMouseLeftButtonUp="OnWorldTickClick">
+                                                <materialDesign:PackIcon Kind="Check" Width="16" Height="16">
+                                                    <materialDesign:PackIcon.Style>
+                                                        <Style TargetType="materialDesign:PackIcon">
+                                                            <Setter Property="Foreground" Value="{DynamicResource App.TextSoft}" />
+                                                            <Setter Property="Opacity" Value="0.45" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Selected}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource App.Accent}" />
+                                                                    <Setter Property="Opacity" Value="1" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </materialDesign:PackIcon.Style>
+                                                </materialDesign:PackIcon>
+                                            </Button>
+                                        </Grid>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
 
-                    <TextBlock x:Name="StatusText" Grid.Row="3" Margin="0,10,0,0" FontSize="12"
-                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="StatusText" Grid.Row="3" Margin="0,10,0,0" FontSize="12" TextWrapping="Wrap"
+                               VerticalAlignment="Center" Foreground="{DynamicResource App.TextSoft}" />
                 </Grid>
 
                 <!-- level 2: characters of one world -->
@@ -214,9 +252,11 @@
                     </ScrollViewer>
 
                     <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,0,0">
-                        <Button x:Name="PickButton" Content="{DynamicResource Chars.Pick}" Height="34" Padding="18,0"
-                                Click="OnPickClick" IsEnabled="False"
-                                Style="{DynamicResource MaterialDesignOutlinedButton}" />
+                        <Button x:Name="UndoButton" Content="{DynamicResource Chars.Undo}" Margin="0,0,8,0"
+                                Style="{StaticResource PillButtonOutline}" Click="OnUndoClick"
+                                Visibility="Collapsed" />
+                        <Button x:Name="PickButton" Content="{DynamicResource Chars.Pick}"
+                                Style="{StaticResource PillButton}" Click="OnPickClick" IsEnabled="False" />
                     </StackPanel>
                 </Grid>
 
@@ -254,9 +294,12 @@
                                                 <Button Margin="0,0,8,0" Tag="{Binding}"
                                                         Content="{DynamicResource Backups.Restore}"
                                                         Style="{StaticResource PillButton}" Click="OnRestoreBackup" />
-                                                <Button Tag="{Binding}"
+                                                <Button Margin="0,0,8,0" Tag="{Binding}"
                                                         Content="{DynamicResource Backups.Delete}"
                                                         Style="{StaticResource PillButtonOutline}" Click="OnDeleteBackup" />
+                                                <Button Tag="{Binding}"
+                                                        Content="{DynamicResource Backups.DeleteMap}"
+                                                        Style="{StaticResource PillButtonOutline}" Click="OnDeleteMap" />
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -349,7 +392,9 @@
                                 <StackPanel>
                                     <TextBlock Text="{DynamicResource Settings.About}" FontSize="16" FontWeight="SemiBold"
                                                Foreground="{DynamicResource App.Text}" />
-                                    <TextBlock Text="{DynamicResource Settings.About.Body}" FontSize="12" Margin="0,6,0,12"
+                                    <TextBlock Text="{DynamicResource Settings.About.Body}" FontSize="12" Margin="0,6,0,0"
+                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{DynamicResource Settings.About.Previews}" FontSize="12" Margin="0,4,0,12"
                                                Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock>

@@ -51,4 +51,11 @@
     <sys:String x:Key="Settings.DarkVariant.Hint">僅在深色下生效。</sys:String>
     <sys:String x:Key="Settings.DarkStandard">標準深色</sys:String>
     <sys:String x:Key="Settings.DarkOled">OLED 全黑</sys:String>
+    <sys:String x:Key="Chars.Undo">復原本次</sys:String>
+    <sys:String x:Key="Chars.Undone">已復原 {0} 份改動（地圖回到點亮前狀態）</sys:String>
+    <sys:String x:Key="Backups.DeleteMap">刪除地圖（全黑）</sys:String>
+    <sys:String x:Key="Backups.MapDeleted">已刪除 {0}，遊戲會重新產生全黑地圖</sys:String>
+    <sys:String x:Key="Worlds.BatchPick">批次點亮 {0} 個世界</sys:String>
+    <sys:String x:Key="Worlds.BatchDone">已刷新 {0} 個世界、{1} 份地圖，失敗 {2}</sys:String>
+    <sys:String x:Key="Settings.About.Previews">主題縮圖由本程式自行算繪（--render-previews），不是截圖拼貼。</sys:String>
 </ResourceDictionary>

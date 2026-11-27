@@ -51,4 +51,11 @@
     <sys:String x:Key="Settings.DarkVariant.Hint">ダーク選択時のみ有効。</sys:String>
     <sys:String x:Key="Settings.DarkStandard">標準ダーク</sys:String>
     <sys:String x:Key="Settings.DarkOled">OLED 漆黒</sys:String>
+    <sys:String x:Key="Chars.Undo">今回を元に戻す</sys:String>
+    <sys:String x:Key="Chars.Undone">{0} 件を元に戻しました（点灯前の地図に戻ります）</sys:String>
+    <sys:String x:Key="Backups.DeleteMap">マップを削除（真っ黒）</sys:String>
+    <sys:String x:Key="Backups.MapDeleted">{0} を削除しました。ゲーム側で真っ黒なマップが作り直されます</sys:String>
+    <sys:String x:Key="Worlds.BatchPick">{0} ワールドをまとめて点灯</sys:String>
+    <sys:String x:Key="Worlds.BatchDone">{0} ワールド / {1} マップを更新、失敗 {2}</sys:String>
+    <sys:String x:Key="Settings.About.Previews">テーマのサムネイルは本アプリが自前で描画します（--render-previews）。</sys:String>
 </ResourceDictionary>
