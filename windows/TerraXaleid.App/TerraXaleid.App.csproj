@@ -17,4 +17,8 @@
     <ProjectReference Include="..\TerraXaleid.Core.Win\TerraXaleid.Core.Win.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="Assets\*.png" />
+  </ItemGroup>
+
 </Project>

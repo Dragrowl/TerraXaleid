@@ -2,25 +2,32 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using TerraXaleid.Core;
 
 namespace TerraXaleid.App;
 
 /// <summary>
-/// Windows shell. It reads the save folder, lists worlds, and carries the same three actions the
-/// phone keeps in its overflow menu (refresh / backups / settings) on a left icon rail.
-/// The map writer stays in <see cref="TerraXaleid.Core"/>; this window only drives files.
+/// Windows shell. Worlds on the left rail, backups and settings behind it, and a character page
+/// that mirrors the phone's two-level flow. The map writer stays in <see cref="TerraXaleid.Core"/>;
+/// this window only drives files.
 /// </summary>
 public partial class MainWindow : Window
 {
-    private sealed record WorldRow(string Name, string Difficulty, string Size, string Evil, string Progress, string Guid);
+    private const string BilibiliUrl = "https://space.bilibili.com/3461573882415902";
+    private const string GithubUrl = "https://github.com/Dragrowl/TerraXaleid";
+
+    private sealed record WorldRow(
+        string Name, string Difficulty, string Size, string Evil, string Progress, string Guid, string MapGuid);
+
+    private sealed record CharacterRow(string Name, string Detail, string Guid);
 
     private sealed record BackupRow(string Title, string Detail, string Path, string Target);
 
@@ -29,17 +36,51 @@ public partial class MainWindow : Window
 
     private List<WorldRow> _all = new();
     private SaveFolder? _folder;
+    private string _theme = "system";
+    private string _language = "sc";
 
     public MainWindow()
     {
         InitializeComponent();
-        ApplyTheme(DesktopConfig.Load().Theme, save: false);
-        AboutText.Text = $"版本 0.1.0-dev · GPL-3.0-or-later\n三语言核心：Python / C# / Kotlin，读取 .wld 后生成合法的 .map。";
+
+        DesktopConfig config = DesktopConfig.Load();
+        _theme = config.Theme;
+        _language = config.Language;
+
+        ApplyLanguage(_language, save: false);
+        ApplyTheme(_theme, save: false);
+        SelectLanguageItem(_language);
         Reload();
         ShowPage(0);
+
+        StateChanged += (_, _) => UpdateMaximizeGlyph();
+        UpdateMaximizeGlyph();
+    }
+
+    // ── window chrome ─────────────────────────────────────────────────────────
+
+    private void OnMinimize(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+
+    private void OnMaximize(object sender, RoutedEventArgs e)
+    {
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+    }
+
+    private void OnClose(object sender, RoutedEventArgs e) => Close();
+
+    private void UpdateMaximizeGlyph()
+    {
+        bool maximized = WindowState == WindowState.Maximized;
+        BtnMaximize.ToolTip = new ToolTip
+        {
+            Style = (Style)FindResource("RailTip"),
+            Content = FindResource(maximized ? "Win.Restore" : "Win.Maximize"),
+        };
     }
 
     // ── navigation ────────────────────────────────────────────────────────────
+
+    private int _page;
 
     private void OnNavWorlds(object sender, RoutedEventArgs e) => ShowPage(0);
 
@@ -53,18 +94,25 @@ public partial class MainWindow : Window
 
     private void ShowPage(int index)
     {
+        // 1 is the character page: it is only reachable from a world card.
+        _page = index;
         PageWorlds.Visibility = index == 0 ? Visibility.Visible : Visibility.Collapsed;
-        PageBackups.Visibility = index == 1 ? Visibility.Visible : Visibility.Collapsed;
-        PageSettings.Visibility = index == 2 ? Visibility.Visible : Visibility.Collapsed;
+        PageCharacters.Visibility = index == 1 ? Visibility.Visible : Visibility.Collapsed;
+        PageBackups.Visibility = index == 2 ? Visibility.Visible : Visibility.Collapsed;
+        PageSettings.Visibility = index == 3 ? Visibility.Visible : Visibility.Collapsed;
 
         var active = (Style)FindResource("RailButtonActive");
         var idle = (Style)FindResource("RailButton");
-        NavWorlds.Style = index == 0 ? active : idle;
-        NavBackups.Style = index == 1 ? active : idle;
-        NavSettings.Style = index == 2 ? active : idle;
+        NavWorlds.Style = index == 0 || index == 1 ? active : idle;
+        NavBackups.Style = index == 2 ? active : idle;
+        NavSettings.Style = index == 3 ? active : idle;
     }
 
+    private void OnBackToWorlds(object sender, RoutedEventArgs e) => ShowPage(0);
+
     // ── worlds ────────────────────────────────────────────────────────────────
+
+    private void OnRefreshCommand(object sender, ExecutedRoutedEventArgs e) => OnRefresh(sender, e);
 
     private void OnRefresh(object sender, RoutedEventArgs e)
     {
@@ -78,17 +126,22 @@ public partial class MainWindow : Window
     private void OnSearchChanged(object sender, TextChangedEventArgs e)
     {
         SearchHint.Visibility = string.IsNullOrEmpty(SearchBox.Text) ? Visibility.Visible : Visibility.Collapsed;
-        ApplyFilter();
+        if (PageWorlds.Visibility == Visibility.Visible)
+        {
+            ApplyFilter();
+        }
     }
 
     private void Reload()
     {
         _all = new List<WorldRow>();
+        _worldNames.Clear();
+        _worldByGuid.Clear();
         _folder = SaveDiscovery.Locate();
 
         if (_folder is null)
         {
-            StatusText.Text = @"找不到存档目录（%USERPROFILE%\Documents\My Games\Terraria）。";
+            StatusText.Text = Str("Worlds.Missing");
             WorldList.ItemsSource = null;
             return;
         }
@@ -100,13 +153,16 @@ public partial class MainWindow : Window
             {
                 WorldMeta meta = WorldFile.ParseMeta(File.ReadAllBytes(file));
                 string progress = meta.HardMode
-                    ? meta.DefeatedMoonLord ? "已击败月亮领主" : "困难模式"
-                    : "困难模式之前";
+                    ? meta.DefeatedMoonLord ? Str("Worlds.MoonLord") : Str("Worlds.HardMode")
+                    : Str("Worlds.PreHardMode");
 
                 string guid = Path.GetFileNameWithoutExtension(file);
                 _worldNames[guid] = meta.Name;
                 _worldByGuid[meta.GuidHex] = meta.Name;
-                _all.Add(new WorldRow(meta.Name, meta.Difficulty, meta.Size, meta.Evil, progress, guid));
+                // Map files are named after the world's internal GUID (dashed form), which is
+                // usually different from the .wld file name.
+                string mapGuid = new Guid(Convert.FromHexString(meta.GuidHex)).ToString();
+                _all.Add(new WorldRow(meta.Name, meta.Difficulty, meta.Size, meta.Evil, progress, guid, mapGuid));
             }
             catch (Exception ex)
             {
@@ -114,7 +170,15 @@ public partial class MainWindow : Window
             }
         }
 
-        StatusText.Text = lastError ?? $"存档目录：{_folder.Root} · 世界 {_all.Count} 个";
+        if (_all.Count == 0)
+        {
+            StatusText.Text = Str("Worlds.Empty");
+        }
+        else
+        {
+            StatusText.Text = lastError ?? string.Format(Str("Worlds.Count"), _folder.Root, _all.Count);
+        }
+
         ApplyFilter();
     }
 
@@ -126,6 +190,41 @@ public partial class MainWindow : Window
             : _all.Where(w => w.Name.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
     }
 
+    private void OnWorldCardClick(object sender, MouseButtonEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not WorldRow world)
+        {
+            return;
+        }
+
+        ShowCharacters(world);
+    }
+
+    // ── level 2: characters carrying a map for this world ─────────────────────
+
+    private void ShowCharacters(WorldRow world)
+    {
+        CharacterWorldName.Text = world.Name;
+        var rows = new List<CharacterRow>();
+
+        if (_folder is not null && Directory.Exists(_folder.PlayersDir))
+        {
+            foreach (string plr in Directory.EnumerateFiles(_folder.PlayersDir, "*.plr").OrderBy(f => f))
+            {
+                string character = Path.GetFileNameWithoutExtension(plr);
+                string map = Path.Combine(_folder.PlayersDir, character, world.MapGuid + ".map");
+                bool exists = File.Exists(map);
+                string state = exists
+                    ? string.Format(Str("Chars.WithMap"), new FileInfo(map).Length / 1024.0)
+                    : Str("Chars.NoMap");
+                rows.Add(new CharacterRow(character, state, world.MapGuid + ".map"));
+            }
+        }
+
+        CharacterList.ItemsSource = rows;
+        ShowPage(1);
+    }
+
     // ── backups ───────────────────────────────────────────────────────────────
 
     private void ReloadBackups()
@@ -135,7 +234,7 @@ public partial class MainWindow : Window
 
         if (_folder is null)
         {
-            BackupStatus.Text = "找不到存档目录。";
+            BackupStatus.Text = Str("Worlds.Missing");
             BackupList.ItemsSource = null;
             return;
         }
@@ -145,7 +244,8 @@ public partial class MainWindow : Window
             foreach (string characterDir in Directory.EnumerateDirectories(_folder.PlayersDir))
             {
                 string character = Path.GetFileName(characterDir);
-                foreach (string file in Directory.EnumerateFiles(characterDir, "*.map.bak*").OrderByDescending(File.GetLastWriteTime))
+                foreach (string file in Directory.EnumerateFiles(characterDir, "*.map.bak*")
+                             .OrderByDescending(File.GetLastWriteTime))
                 {
                     string mapName = Path.GetFileName(file);
                     string guid = mapName.Split('.')[0];
@@ -163,7 +263,9 @@ public partial class MainWindow : Window
                     }
 
                     var info = new FileInfo(file);
-                    string kind = mapName.EndsWith(".bak", StringComparison.OrdinalIgnoreCase) ? "最新备份" : mapName[(mapName.LastIndexOf(".bak", StringComparison.OrdinalIgnoreCase) + 4)..];
+                    string kind = mapName.EndsWith(".bak", StringComparison.OrdinalIgnoreCase)
+                        ? Str("Backups.Latest")
+                        : mapName[(mapName.LastIndexOf(".bak", StringComparison.OrdinalIgnoreCase) + 4)..];
                     rows.Add(new BackupRow(
                         $"{world} · {character}",
                         $"{kind} · {info.Length / 1024.0:F0} KB · {info.LastWriteTime:yyyy-MM-dd HH:mm}",
@@ -178,9 +280,7 @@ public partial class MainWindow : Window
         }
 
         BackupList.ItemsSource = rows;
-        BackupStatus.Text = rows.Count == 0
-            ? "还没有任何备份。用桌面版点亮地图时，覆盖前会自动留一份 .map.bak。"
-            : $"共 {rows.Count} 份备份";
+        BackupStatus.Text = rows.Count == 0 ? Str("Backups.Empty") : string.Format(Str("Backups.Count"), rows.Count);
     }
 
     private void OnRestoreBackup(object sender, RoutedEventArgs e)
@@ -265,6 +365,7 @@ public partial class MainWindow : Window
 
     private void ApplyTheme(string theme, bool save)
     {
+        _theme = theme;
         bool dark = theme switch
         {
             "dark" => true,
@@ -272,8 +373,7 @@ public partial class MainWindow : Window
             _ => IsSystemDark(),
         };
 
-        var palette = dark ? DarkPalette : LightPalette;
-        foreach ((string key, string colour) in palette)
+        foreach ((string key, string colour) in dark ? DarkPalette : LightPalette)
         {
             var colourValue = (Color)ColorConverter.ConvertFromString(colour);
             Application.Current.Resources[key] = new SolidColorBrush(colourValue);
@@ -281,14 +381,89 @@ public partial class MainWindow : Window
 
         if (save)
         {
-            DesktopConfig.Save(theme);
+            SaveConfig();
         }
 
-        var active = (Style)FindResource("MaterialDesignOutlinedButton");
-        _ = active;
-        ThemeSystem.FontWeight = theme == "system" ? FontWeights.SemiBold : FontWeights.Normal;
-        ThemeLight.FontWeight = theme == "light" ? FontWeights.SemiBold : FontWeights.Normal;
-        ThemeDark.FontWeight = theme == "dark" ? FontWeights.SemiBold : FontWeights.Normal;
+        var active = (Style)FindResource("ThemeChoiceActive");
+        var idle = (Style)FindResource("ThemeChoice");
+        ThemeSystem.Style = theme == "system" ? active : idle;
+        ThemeLight.Style = theme == "light" ? active : idle;
+        ThemeDark.Style = theme == "dark" ? active : idle;
+    }
+
+    private void OnLanguageChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if ((LanguageBox.SelectedItem as ComboBoxItem)?.Tag is not string code || code == _language)
+        {
+            return;
+        }
+
+        ApplyLanguage(code, save: true);
+    }
+
+    private void ApplyLanguage(string code, bool save)
+    {
+        _language = code;
+
+        var dictionary = new ResourceDictionary
+        {
+            Source = new Uri($"Strings/{code}.xaml", UriKind.Relative),
+        };
+
+        // Replace the previous language dictionary instead of stacking them: WPF keeps the
+        // *last* merged dictionary first, so stale entries would win otherwise.
+        for (int i = Application.Current.Resources.MergedDictionaries.Count - 1; i >= 0; i--)
+        {
+            Uri? source = Application.Current.Resources.MergedDictionaries[i].Source;
+            if (source is not null && source.OriginalString.Contains("Strings/", StringComparison.OrdinalIgnoreCase))
+            {
+                Application.Current.Resources.MergedDictionaries.RemoveAt(i);
+            }
+        }
+
+        Application.Current.Resources.MergedDictionaries.Add(dictionary);
+
+        if (save)
+        {
+            SaveConfig();
+        }
+
+        UpdateMaximizeGlyph();
+    }
+
+    private void SelectLanguageItem(string code)
+    {
+        foreach (object item in LanguageBox.Items)
+        {
+            if (item is ComboBoxItem combo && (combo.Tag as string) == code)
+            {
+                LanguageBox.SelectedItem = combo;
+                return;
+            }
+        }
+
+        LanguageBox.SelectedIndex = 0;
+    }
+
+    private void SaveConfig() => DesktopConfig.Save(_theme, _language);
+
+    private static string Str(string key)
+        => Application.Current.TryFindResource(key) as string ?? key;
+
+    private void OnOpenGithub(object sender, RoutedEventArgs e) => Open(GithubUrl);
+
+    private void OnOpenBilibili(object sender, RoutedEventArgs e) => Open(BilibiliUrl);
+
+    private void Open(string url)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "TerraXaleid");
+        }
     }
 
     private static bool IsSystemDark()
@@ -332,8 +507,8 @@ public partial class MainWindow : Window
     };
 }
 
-/// <summary>Tiny json config in %APPDATA%\TerraXaleid\config.json (theme only for now).</summary>
-internal sealed record DesktopConfig(string Theme)
+/// <summary>Tiny json config in %APPDATA%\TerraXaleid\config.json (theme + language).</summary>
+internal sealed record DesktopConfig(string Theme, string Language)
 {
     private static string FilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TerraXaleid", "config.json");
@@ -345,10 +520,9 @@ internal sealed record DesktopConfig(string Theme)
             if (File.Exists(FilePath))
             {
                 using var doc = JsonDocument.Parse(File.ReadAllText(FilePath));
-                if (doc.RootElement.TryGetProperty("theme", out JsonElement theme) && theme.ValueKind == JsonValueKind.String)
-                {
-                    return new DesktopConfig(theme.GetString() ?? "system");
-                }
+                string theme = Read(doc.RootElement, "theme") ?? "system";
+                string language = Read(doc.RootElement, "language") ?? "sc";
+                return new DesktopConfig(theme, language);
             }
         }
         catch
@@ -356,10 +530,15 @@ internal sealed record DesktopConfig(string Theme)
             // A broken config must never stop the app from starting.
         }
 
-        return new DesktopConfig("system");
+        return new DesktopConfig("system", "sc");
     }
 
-    public static void Save(string theme)
+    private static string? Read(JsonElement root, string name)
+        => root.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String
+            ? value.GetString()
+            : null;
+
+    public static void Save(string theme, string language)
     {
         try
         {
@@ -369,12 +548,13 @@ internal sealed record DesktopConfig(string Theme)
                 Directory.CreateDirectory(dir);
             }
 
-            File.WriteAllText(FilePath, JsonSerializer.Serialize(new Dictionary<string, string> { ["theme"] = theme },
-                new JsonSerializerOptions { WriteIndented = true }));
+            var payload = new Dictionary<string, string> { ["theme"] = theme, ["language"] = language };
+            File.WriteAllText(FilePath,
+                JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }));
         }
         catch
         {
-            // Ignore: the theme simply will not persist.
+            // Ignore: the settings simply will not persist.
         }
     }
 }

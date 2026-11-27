@@ -3,199 +3,330 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Background="{DynamicResource App.Background}"
         FontFamily="Microsoft YaHei UI"
-        Title="TerraXaleid" Height="760" Width="1120"
-        WindowStartupLocation="CenterScreen">
-    <!-- Layout mirrors the Android build: a left icon rail carries everything the phone keeps in
-         its overflow menu (refresh / backups / settings), the right side is the page area. -->
+        Title="TerraXaleid"
+        Height="760" Width="1120" MinHeight="560" MinWidth="880"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" ResizeMode="CanResize" UseLayoutRounding="True">
+    <!-- Native chrome is suppressed on purpose: the app draws its own 44 px title bar, and
+         WindowChrome keeps the resize borders + snap behaviour working. -->
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="44" ResizeBorderThickness="6" GlassFrameThickness="0"
+                            CornerRadius="0" UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
+
+    <Window.InputBindings>
+        <KeyBinding Key="F5" Command="{x:Static NavigationCommands.Refresh}" />
+    </Window.InputBindings>
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static NavigationCommands.Refresh}" Executed="OnRefreshCommand" />
+    </Window.CommandBindings>
+
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="44" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-        <!-- ── rail ─────────────────────────────────────────────────────── -->
-        <Border Grid.Column="0" Background="{DynamicResource App.Rail}" Padding="10,16">
-            <DockPanel LastChildFill="False">
-                <StackPanel DockPanel.Dock="Top">
-                    <Button x:Name="NavWorlds" Style="{StaticResource RailButton}" Click="OnNavWorlds">
-                        <Button.ToolTip>
-                            <ToolTip Style="{StaticResource RailTip}" Content="世界列表" />
-                        </Button.ToolTip>
-                        <materialDesign:PackIcon Kind="Earth" Width="22" Height="22"
-                                                 Foreground="{DynamicResource App.Text}" />
-                    </Button>
+        <!-- ── title bar ─────────────────────────────────────────────── -->
+        <Grid Grid.Row="0" Background="{DynamicResource App.Surface}">
+            <TextBlock Text="{DynamicResource App.Title}" Margin="18,0,0,0" VerticalAlignment="Center"
+                       FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource App.Text}" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                <Button x:Name="BtnMinimize" Style="{StaticResource CaptionButton}" Click="OnMinimize">
+                    <Button.ToolTip><ToolTip Style="{StaticResource RailTip}" Content="{DynamicResource Win.Minimize}" /></Button.ToolTip>
+                    <Path Data="M0,0 H10" Stroke="{DynamicResource App.Text}" StrokeThickness="1.2" VerticalAlignment="Center" />
+                </Button>
+                <Button x:Name="BtnMaximize" Style="{StaticResource CaptionButton}" Click="OnMaximize">
+                    <Button.ToolTip><ToolTip Style="{StaticResource RailTip}" Content="{DynamicResource Win.Maximize}" /></Button.ToolTip>
+                    <Rectangle Width="9" Height="9" Stroke="{DynamicResource App.Text}" StrokeThickness="1.2" />
+                </Button>
+                <Button x:Name="BtnClose" Style="{StaticResource CaptionButton}" Click="OnClose">
+                    <Button.ToolTip><ToolTip Style="{StaticResource RailTip}" Content="{DynamicResource Win.Close}" /></Button.ToolTip>
+                    <Path Data="M0,0 L9,9 M9,0 L0,9" Stroke="{DynamicResource App.Text}" StrokeThickness="1.2" />
+                </Button>
+            </StackPanel>
+        </Grid>
 
-                    <Button x:Name="NavBackups" Style="{StaticResource RailButton}" Click="OnNavBackups">
-                        <Button.ToolTip>
-                            <ToolTip Style="{StaticResource RailTip}" Content="恢复与备份" />
-                        </Button.ToolTip>
-                        <materialDesign:PackIcon Kind="BackupRestore" Width="22" Height="22"
-                                                 Foreground="{DynamicResource App.Text}" />
-                    </Button>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-                    <Button x:Name="NavSettings" Style="{StaticResource RailButton}" Click="OnNavSettings">
-                        <Button.ToolTip>
-                            <ToolTip Style="{StaticResource RailTip}" Content="设置" />
-                        </Button.ToolTip>
-                        <materialDesign:PackIcon Kind="Cog" Width="22" Height="22"
-                                                 Foreground="{DynamicResource App.Text}" />
-                    </Button>
-                </StackPanel>
+            <!-- ── rail: worlds / backups / refresh on top, settings at the bottom ── -->
+            <Border Grid.Column="0" Background="{DynamicResource App.Rail}" Padding="10,14,10,14">
+                <DockPanel LastChildFill="False">
+                    <StackPanel DockPanel.Dock="Top">
+                        <Button x:Name="NavWorlds" Style="{StaticResource RailButton}" Click="OnNavWorlds">
+                            <Button.ToolTip><ToolTip Style="{StaticResource RailTip}" Content="{DynamicResource Nav.Worlds}" /></Button.ToolTip>
+                            <materialDesign:PackIcon Kind="Earth" Width="22" Height="22" Foreground="{DynamicResource App.Text}" />
+                        </Button>
+                        <Button x:Name="NavBackups" Style="{StaticResource RailButton}" Click="OnNavBackups">
+                            <Button.ToolTip><ToolTip Style="{StaticResource RailTip}" Content="{DynamicResource Nav.Backups}" /></Button.ToolTip>
+                            <materialDesign:PackIcon Kind="BackupRestore" Width="22" Height="22" Foreground="{DynamicResource App.Text}" />
+                        </Button>
+                        <Button x:Name="NavRefresh" Style="{StaticResource RailButton}" Click="OnRefresh">
+                            <Button.ToolTip><ToolTip Style="{StaticResource RailTip}" Content="{DynamicResource Nav.Refresh}" /></Button.ToolTip>
+                            <materialDesign:PackIcon Kind="Refresh" Width="22" Height="22" Foreground="{DynamicResource App.Text}" />
+                        </Button>
+                    </StackPanel>
 
-                <StackPanel DockPanel.Dock="Bottom">
-                    <Button x:Name="RailRefresh" Style="{StaticResource RailButton}" Click="OnRefresh">
-                        <Button.ToolTip>
-                            <ToolTip Style="{StaticResource RailTip}" Content="刷新" />
-                        </Button.ToolTip>
-                        <materialDesign:PackIcon Kind="Refresh" Width="22" Height="22"
-                                                 Foreground="{DynamicResource App.Text}" />
-                    </Button>
-                </StackPanel>
-            </DockPanel>
-        </Border>
+                    <StackPanel DockPanel.Dock="Bottom">
+                        <Button x:Name="NavSettings" Style="{StaticResource RailButton}" Click="OnNavSettings">
+                            <Button.ToolTip><ToolTip Style="{StaticResource RailTip}" Content="{DynamicResource Nav.Settings}" /></Button.ToolTip>
+                            <materialDesign:PackIcon Kind="Cog" Width="22" Height="22" Foreground="{DynamicResource App.Text}" />
+                        </Button>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
 
-        <!-- ── pages ────────────────────────────────────────────────────── -->
-        <Grid Grid.Column="1" Margin="28,20,28,16">
+            <!-- ── pages ────────────────────────────────────────────────── -->
+            <Grid Grid.Column="1">
 
-            <!-- worlds -->
-            <Grid x:Name="PageWorlds">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+                <!-- level 1: worlds -->
+                <Grid x:Name="PageWorlds" Margin="24,18,24,14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Text="选择世界" FontSize="30" FontWeight="SemiBold"
-                           Foreground="{DynamicResource App.Text}" />
+                    <TextBlock Grid.Row="0" Text="{DynamicResource Worlds.Title}" FontSize="28" FontWeight="SemiBold"
+                               HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
 
-                <Grid Grid.Row="1" Margin="0,14,0,16">
-                    <TextBox x:Name="SearchBox" Style="{StaticResource SearchField}" TextChanged="OnSearchChanged" />
-                    <TextBlock x:Name="SearchHint" Text="搜索世界名称" Margin="16,0" IsHitTestVisible="False"
-                               VerticalAlignment="Center" FontSize="14"
-                               Foreground="{DynamicResource App.TextSoft}" />
+                    <Grid Grid.Row="1" Margin="0,14,0,16" HorizontalAlignment="Center" Width="460">
+                        <TextBox x:Name="SearchBox" Style="{StaticResource SearchField}" TextChanged="OnSearchChanged" />
+                        <TextBlock x:Name="SearchHint" Text="{DynamicResource Worlds.Search}" Margin="20,0"
+                                   IsHitTestVisible="False" VerticalAlignment="Center" FontSize="14"
+                                   Foreground="{DynamicResource App.TextSoft}" />
+                    </Grid>
+
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl x:Name="WorldList">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource CardBorder}" Width="320" Margin="0,0,12,12"
+                                            MouseLeftButtonUp="OnWorldCardClick" Cursor="Hand">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource App.Text}" TextWrapping="Wrap" />
+                                            <WrapPanel Margin="0,10,0,0">
+                                                <Border Background="{DynamicResource App.Chip}" CornerRadius="9" Padding="9,3" Margin="0,0,8,6">
+                                                    <TextBlock Text="{Binding Difficulty}" FontSize="12" Foreground="{DynamicResource App.Text}" />
+                                                </Border>
+                                                <Border Background="{DynamicResource App.Chip}" CornerRadius="9" Padding="9,3" Margin="0,0,8,6">
+                                                    <TextBlock Text="{Binding Size}" FontSize="12" Foreground="{DynamicResource App.Text}" />
+                                                </Border>
+                                                <Border Background="{DynamicResource App.Chip}" CornerRadius="9" Padding="9,3" Margin="0,0,8,6">
+                                                    <TextBlock Text="{Binding Evil}" FontSize="12" Foreground="{DynamicResource App.Text}" />
+                                                </Border>
+                                            </WrapPanel>
+                                            <TextBlock Text="{Binding Progress}" FontSize="12" Margin="0,2,0,0"
+                                                       Foreground="{DynamicResource App.TextSoft}" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <TextBlock x:Name="StatusText" Grid.Row="3" Margin="0,10,0,0" FontSize="12"
+                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
                 </Grid>
 
-                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <ItemsControl x:Name="WorldList">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Style="{StaticResource CardBorder}">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Name}" FontSize="17" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource App.Text}" TextWrapping="Wrap" />
-                                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                            <Border Background="{DynamicResource App.Chip}" CornerRadius="9" Padding="9,3" Margin="0,0,8,0">
-                                                <TextBlock Text="{Binding Difficulty}" FontSize="12" Foreground="{DynamicResource App.Text}" />
-                                            </Border>
-                                            <Border Background="{DynamicResource App.Chip}" CornerRadius="9" Padding="9,3" Margin="0,0,8,0">
-                                                <TextBlock Text="{Binding Size}" FontSize="12" Foreground="{DynamicResource App.Text}" />
-                                            </Border>
-                                            <Border Background="{DynamicResource App.Chip}" CornerRadius="9" Padding="9,3" Margin="0,0,8,0">
-                                                <TextBlock Text="{Binding Evil}" FontSize="12" Foreground="{DynamicResource App.Text}" />
-                                            </Border>
-                                            <TextBlock Text="{Binding Progress}" FontSize="12"
-                                                       Foreground="{DynamicResource App.TextSoft}" VerticalAlignment="Center" />
+                <!-- level 2: characters of one world -->
+                <Grid x:Name="PageCharacters" Margin="24,18,24,14" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <Button Click="OnBackToWorlds" Style="{StaticResource RailButton}" Margin="0,0,10,0">
+                            <Button.ToolTip><ToolTip Style="{StaticResource RailTip}" Content="{DynamicResource Common.Back}" /></Button.ToolTip>
+                            <materialDesign:PackIcon Kind="ArrowLeft" Width="22" Height="22" Foreground="{DynamicResource App.Text}" />
+                        </Button>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Chars.Title}" FontSize="24" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource App.Text}" />
+                            <TextBlock x:Name="CharacterWorldName" FontSize="13" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource App.TextSoft}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="1" Text="{DynamicResource Chars.Hint}" FontSize="12" Margin="0,12,0,12"
+                               Foreground="{DynamicResource App.TextSoft}" />
+
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl x:Name="CharacterList">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource CardBorder}" Width="320" Margin="0,0,12,12">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource App.Text}" TextWrapping="Wrap" />
+                                            <TextBlock Text="{Binding Detail}" FontSize="12" Margin="0,6,0,0"
+                                                       Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                                            <TextBlock Text="{Binding Guid}" FontSize="11" Margin="0,4,0,0"
+                                                       Foreground="{DynamicResource App.TextSoft}" TextTrimming="CharacterEllipsis" />
                                         </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                        <TextBlock Text="{DynamicResource Chars.Next}" FontSize="12" VerticalAlignment="Center"
+                                   Margin="0,0,12,0" Foreground="{DynamicResource App.TextSoft}" />
+                        <Button Content="{DynamicResource Chars.Pick}" Height="34" Padding="18,0" IsEnabled="False"
+                                Style="{DynamicResource MaterialDesignOutlinedButton}" />
+                    </StackPanel>
+                </Grid>
+
+                <!-- backups -->
+                <Grid x:Name="PageBackups" Margin="24,18,24,14" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="{DynamicResource Backups.Title}" FontSize="28" FontWeight="SemiBold"
+                               Foreground="{DynamicResource App.Text}" />
+                    <TextBlock Grid.Row="1" Text="{DynamicResource Backups.Hint}" FontSize="12" Margin="0,8,0,14"
+                               TextWrapping="Wrap" Foreground="{DynamicResource App.TextSoft}" />
+
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl x:Name="BackupList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource CardBorder}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap"
+                                                           Foreground="{DynamicResource App.Text}" Text="{Binding Title}" />
+                                                <TextBlock FontSize="12" Margin="0,6,0,0"
+                                                           Foreground="{DynamicResource App.TextSoft}" Text="{Binding Detail}" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Button Height="32" Padding="14,0" Margin="0,0,8,0" Tag="{Binding}"
+                                                        Content="{DynamicResource Backups.Restore}"
+                                                        Style="{DynamicResource MaterialDesignOutlinedButton}" Click="OnRestoreBackup" />
+                                                <Button Height="32" Padding="14,0" Tag="{Binding}"
+                                                        Content="{DynamicResource Backups.Delete}"
+                                                        Style="{DynamicResource MaterialDesignOutlinedButton}" Click="OnDeleteBackup" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <TextBlock x:Name="BackupStatus" Grid.Row="3" Margin="0,10,0,0" FontSize="12"
+                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                </Grid>
+
+                <!-- settings: cards wrap when the window is narrow -->
+                <ScrollViewer x:Name="PageSettings" Margin="24,18,24,14" Visibility="Collapsed"
+                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.Title}" FontSize="28" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource App.Text}" />
+
+                        <WrapPanel Margin="0,14,0,0">
+                            <!-- appearance: Sarkaz-language previews, same three as the phone -->
+                            <Border Style="{StaticResource CardBorder}" Width="360" Margin="0,0,14,14">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Settings.Appearance}" FontSize="16" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource App.Text}" />
+                                    <TextBlock Text="{DynamicResource Settings.Appearance.Hint}" FontSize="12" Margin="0,6,0,12"
+                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="ThemeSystem" Tag="system" Click="OnThemeClick" Style="{StaticResource ThemeChoice}">
+                                            <StackPanel>
+                                                <Image Source="Assets/theme_preview_auto.png" Width="96" Height="96" />
+                                                <TextBlock Text="{DynamicResource Settings.Theme.System}" FontSize="12" Margin="0,6,0,0"
+                                                           HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
+                                            </StackPanel>
+                                        </Button>
+                                        <Button x:Name="ThemeLight" Tag="light" Click="OnThemeClick" Style="{StaticResource ThemeChoice}">
+                                            <StackPanel>
+                                                <Image Source="Assets/theme_preview_light.png" Width="96" Height="96" />
+                                                <TextBlock Text="{DynamicResource Settings.Theme.Light}" FontSize="12" Margin="0,6,0,0"
+                                                           HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
+                                            </StackPanel>
+                                        </Button>
+                                        <Button x:Name="ThemeDark" Tag="dark" Click="OnThemeClick" Style="{StaticResource ThemeChoice}">
+                                            <StackPanel>
+                                                <Image Source="Assets/theme_preview_dark.png" Width="96" Height="96" />
+                                                <TextBlock Text="{DynamicResource Settings.Theme.Dark}" FontSize="12" Margin="0,6,0,0"
+                                                           HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
+                                            </StackPanel>
+                                        </Button>
                                     </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                        <ItemsControl.ItemContainerStyle>
-                            <Style TargetType="ContentPresenter">
-                                <Setter Property="Margin" Value="0" />
-                            </Style>
-                        </ItemsControl.ItemContainerStyle>
-                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- language -->
+                            <Border Style="{StaticResource CardBorder}" Width="300" Margin="0,0,14,14">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Settings.Language}" FontSize="16" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource App.Text}" />
+                                    <TextBlock Text="{DynamicResource Settings.Language.Hint}" FontSize="12" Margin="0,6,0,12"
+                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                                    <ComboBox x:Name="LanguageBox" Height="34" SelectionChanged="OnLanguageChanged">
+                                        <ComboBoxItem Tag="sc" Content="简体中文" />
+                                        <ComboBoxItem Tag="tc" Content="繁體中文" />
+                                        <ComboBoxItem Tag="ja" Content="日本語" />
+                                        <ComboBoxItem Tag="en" Content="English" />
+                                    </ComboBox>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- about -->
+                            <Border Style="{StaticResource CardBorder}" Width="360" Margin="0,0,14,14">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Settings.About}" FontSize="16" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource App.Text}" />
+                                    <TextBlock Text="{DynamicResource Settings.About.Body}" FontSize="12" Margin="0,6,0,12"
+                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock>
+                                            <Hyperlink Click="OnOpenGithub"><Run Text="GitHub" /></Hyperlink>
+                                        </TextBlock>
+                                        <TextBlock Margin="14,0,0,0">
+                                            <Hyperlink Click="OnOpenBilibili"><Run Text="哔哩哔哩" /></Hyperlink>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </WrapPanel>
+                    </StackPanel>
                 </ScrollViewer>
-
-                <TextBlock x:Name="StatusText" Grid.Row="3" Margin="0,12,0,0" FontSize="12"
-                           Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
             </Grid>
-
-            <!-- backups -->
-            <Grid x:Name="PageBackups" Visibility="Collapsed">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <TextBlock Grid.Row="0" Text="恢复与备份" FontSize="30" FontWeight="SemiBold" Margin="0,0,0,4"
-                           Foreground="{DynamicResource App.Text}" />
-
-                <TextBlock Grid.Row="1" Margin="0,10,0,16" FontSize="13" TextWrapping="Wrap"
-                           Foreground="{DynamicResource App.TextSoft}"
-                           Text="覆盖地图前都会留一份 .map.bak（旧备份依次编号 .bak.1、.bak.2）。恢复会把备份写回该角色的地图文件。" />
-
-                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <ItemsControl x:Name="BackupList">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Style="{StaticResource CardBorder}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap"
-                                                       Foreground="{DynamicResource App.Text}" Text="{Binding Title}" />
-                                            <TextBlock FontSize="12" Margin="0,6,0,0"
-                                                       Foreground="{DynamicResource App.TextSoft}" Text="{Binding Detail}" />
-                                        </StackPanel>
-                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Button Content="恢复" Height="32" Padding="14,0" Margin="0,0,8,0"
-                                                    Style="{DynamicResource MaterialDesignOutlinedButton}"
-                                                    Tag="{Binding}" Click="OnRestoreBackup" />
-                                            <Button Content="删除" Height="32" Padding="14,0"
-                                                    Style="{DynamicResource MaterialDesignOutlinedButton}"
-                                                    Tag="{Binding}" Click="OnDeleteBackup" />
-                                        </StackPanel>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-
-                <TextBlock x:Name="BackupStatus" Grid.Row="3" Margin="0,12,0,0" FontSize="12"
-                           Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-            </Grid>
-
-            <!-- settings -->
-            <ScrollViewer x:Name="PageSettings" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
-                <StackPanel>
-                    <TextBlock Text="设置" FontSize="30" FontWeight="SemiBold" Foreground="{DynamicResource App.Text}" />
-
-                    <Border Style="{StaticResource CardBorder}" Margin="0,16,0,10">
-                        <StackPanel>
-                            <TextBlock Text="外观" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource App.Text}" />
-                            <TextBlock Text="选择配色，切换立即生效。" FontSize="12" Margin="0,6,0,12"
-                                       Foreground="{DynamicResource App.TextSoft}" />
-                            <StackPanel Orientation="Horizontal">
-                                <Button x:Name="ThemeSystem" Content="跟随系统" Height="34" Padding="16,0" Margin="0,0,8,0"
-                                        Style="{DynamicResource MaterialDesignOutlinedButton}" Tag="system" Click="OnThemeClick" />
-                                <Button x:Name="ThemeLight" Content="浅色" Height="34" Padding="16,0" Margin="0,0,8,0"
-                                        Style="{DynamicResource MaterialDesignOutlinedButton}" Tag="light" Click="OnThemeClick" />
-                                <Button x:Name="ThemeDark" Content="深色" Height="34" Padding="16,0"
-                                        Style="{DynamicResource MaterialDesignOutlinedButton}" Tag="dark" Click="OnThemeClick" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Style="{StaticResource CardBorder}">
-                        <StackPanel>
-                            <TextBlock Text="关于" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource App.Text}" />
-                            <TextBlock x:Name="AboutText" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap"
-                                       Foreground="{DynamicResource App.TextSoft}" />
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </ScrollViewer>
         </Grid>
     </Grid>
 </Window>
