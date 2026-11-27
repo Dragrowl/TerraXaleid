@@ -58,4 +58,5 @@
     <sys:String x:Key="Worlds.BatchPick">批量点亮 {0} 个世界</sys:String>
     <sys:String x:Key="Worlds.BatchDone">已刷新 {0} 个世界、{1} 份地图，失败 {2}</sys:String>
     <sys:String x:Key="Settings.About.Previews">主题缩略图由本程序自行渲染（--render-previews），不是截图拼贴。</sys:String>
+    <sys:String x:Key="Worlds.NoMatch">没有匹配的世界 · 换个关键字试试</sys:String>
 </ResourceDictionary>

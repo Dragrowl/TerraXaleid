@@ -58,4 +58,5 @@
     <sys:String x:Key="Worlds.BatchPick">{0} ワールドをまとめて点灯</sys:String>
     <sys:String x:Key="Worlds.BatchDone">{0} ワールド / {1} マップを更新、失敗 {2}</sys:String>
     <sys:String x:Key="Settings.About.Previews">テーマのサムネイルは本アプリが自前で描画します（--render-previews）。</sys:String>
+    <sys:String x:Key="Worlds.NoMatch">一致するワールドがありません · 別のキーワードで試してください</sys:String>
 </ResourceDictionary>

@@ -339,9 +339,11 @@ public partial class MainWindow : Window
     private void ApplyFilter()
     {
         string query = SearchBox.Text?.Trim() ?? string.Empty;
-        WorldList.ItemsSource = query.Length == 0
+        List<WorldRow> rows = query.Length == 0
             ? _all
             : _all.Where(w => w.Name.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
+        WorldList.ItemsSource = rows;
+        WorldEmpty.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void OnWorldTickClick(object sender, MouseButtonEventArgs e)

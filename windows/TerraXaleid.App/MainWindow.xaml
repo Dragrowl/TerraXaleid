@@ -109,6 +109,10 @@
 
                     </Grid>
 
+                    <TextBlock x:Name="WorldEmpty" Text="{DynamicResource Worlds.NoMatch}"
+                               HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,48,0,0"
+                               FontSize="13" Foreground="{DynamicResource App.TextSoft}"
+                               Visibility="Collapsed" />
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <ItemsControl x:Name="WorldList">
                             <ItemsControl.ItemsPanel>
