@@ -243,6 +243,11 @@
                                 <DataTemplate>
                                     <Border Width="320" Margin="0,0,12,12" Cursor="Hand"
                                             PreviewMouseLeftButtonUp="OnCharacterCardClick">
+                                        <Border.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="{DynamicResource Chars.Undo}" Click="OnCharacterMenuUndo" Tag="{Binding}" />
+                                            </ContextMenu>
+                                        </Border.ContextMenu>
                                         <Border.Style>
                                             <Style TargetType="Border" BasedOn="{StaticResource CardBorder}">
                                                 <Style.Triggers>
@@ -313,7 +318,16 @@
                         <ItemsControl x:Name="BackupList">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource CardBorder}">
+                                    <Border>
+                                        <Border.Style>
+                                            <Style TargetType="Border" BasedOn="{StaticResource CardBorder}">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource App.Chip}" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />

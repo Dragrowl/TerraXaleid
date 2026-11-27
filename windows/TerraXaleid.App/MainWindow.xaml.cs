@@ -82,12 +82,15 @@ public partial class MainWindow : Window
     {
         private bool _selected;
 
-        public CharacterRow(string name, string detail, string guid)
+        public CharacterRow(string name, string detail, string guid, string? mapPath = null)
         {
             Name = name;
             Detail = detail;
             Guid = guid;
+            MapPath = mapPath;
         }
+
+        public string? MapPath { get; }
 
         public string Name { get; }
 
@@ -554,7 +557,7 @@ public partial class MainWindow : Window
                 string state = exists
                     ? string.Format(Str("Chars.WithMap"), new FileInfo(map).Length / 1024.0)
                     : Str("Chars.NoMap");
-                rows.Add(new CharacterRow(character, state, world.MapGuid + ".map"));
+                rows.Add(new CharacterRow(character, state, world.MapGuid + ".map", exists ? map : null));
             }
         }
 
@@ -676,6 +679,27 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Takes back the last reveal: the pre-reveal map comes back out of .bak.</summary>
+    private void OnCharacterMenuUndo(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.Tag is not CharacterRow row || _world is null) return;
+        if (row.MapPath is null || !File.Exists(row.MapPath))
+        {
+            StatusText.Text = Str("Chars.NoMap");
+            return;
+        }
+
+        try
+        {
+            UnrotateBackups(row.MapPath);
+            StatusText.Text = string.Format(Str("Chars.Undone"), 1);
+            ShowCharacters(_world);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, ex.Message, Str("Chars.Undo"), MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
     private void OnUndoClick(object sender, RoutedEventArgs e)
     {
         if (_lastTargets.Count == 0)
