@@ -888,8 +888,10 @@ public partial class MainWindow : Window
 
         var filled = (Style)FindResource("PillButton");
         var outlined = (Style)FindResource("PillButtonOutline");
-        DarkStandard.Style = _darkVariant == "standard" ? filled : outlined;
-        DarkOled.Style = _darkVariant == "oled" ? filled : outlined;
+        // in light theme the variant switch is inert: keep both buttons as outlines so
+        // the disabled pair reads as a single muted control instead of a dead filled pill.
+        DarkStandard.Style = dark && _darkVariant == "standard" ? filled : outlined;
+        DarkOled.Style = dark && _darkVariant == "oled" ? filled : outlined;
         DarkStandard.IsEnabled = dark;
         DarkOled.IsEnabled = dark;
     }
