@@ -185,7 +185,7 @@
                                                     <materialDesign:PackIcon.Style>
                                                         <Style TargetType="materialDesign:PackIcon">
                                                             <Setter Property="Foreground" Value="{DynamicResource App.TextSoft}" />
-                                                            <Setter Property="Opacity" Value="0.25" />
+                                                            <Setter Property="Opacity" Value="0.45" />
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding Selected}" Value="True">
                                                                     <Setter Property="Foreground" Value="{DynamicResource App.Accent}" />

@@ -981,7 +981,7 @@ public partial class MainWindow : Window
         ("App.Background", "#F7F7F5"),
         ("App.Surface", "#FFFFFF"),
         ("App.Rail", "#F1F1EC"),
-        ("App.Border", "#E4E4DF"),
+        ("App.Border", "#DCDCD6"),
         ("App.Chip", "#EFEFEA"),
         ("App.Text", "#1B1B1B"),
         ("App.TextSoft", "#6A6A64"),
