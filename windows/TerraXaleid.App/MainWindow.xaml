@@ -322,7 +322,7 @@
 
                         <WrapPanel Margin="0,14,0,0">
                             <!-- appearance: thumbnails are rendered by the app itself, see PreviewRenderer -->
-                            <Border Style="{StaticResource CardBorder}" Width="360" Margin="0,0,14,14">
+                            <Border Style="{StaticResource CardBorder}" Width="408" Margin="0,0,14,14">
                                 <StackPanel>
                                     <TextBlock Text="{DynamicResource Settings.Appearance}" FontSize="16" FontWeight="SemiBold"
                                                Foreground="{DynamicResource App.Text}" />
@@ -379,7 +379,10 @@
                                                Foreground="{DynamicResource App.Text}" />
                                     <TextBlock Text="{DynamicResource Settings.Language.Hint}" FontSize="12" Margin="0,6,0,12"
                                                Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                    <ComboBox x:Name="LanguageBox" Height="34" SelectionChanged="OnLanguageChanged">
+                                    <ComboBox x:Name="LanguageBox" Height="34" SelectionChanged="OnLanguageChanged"
+                                              Background="{DynamicResource App.Surface}"
+                                              Foreground="{DynamicResource App.Text}"
+                                              BorderBrush="{DynamicResource App.Border}">
                                         <ComboBoxItem Tag="sc" Content="简体中文" />
                                         <ComboBoxItem Tag="tc" Content="繁體中文" />
                                         <ComboBoxItem Tag="ja" Content="日本語" />
