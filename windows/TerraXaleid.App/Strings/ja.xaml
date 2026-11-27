@@ -55,7 +55,7 @@
     <sys:String x:Key="Chars.Undone">{0} 件を元に戻しました（点灯前の地図に戻ります）</sys:String>
     <sys:String x:Key="Backups.DeleteMap">マップを削除（真っ黒）</sys:String>
     <sys:String x:Key="Backups.MapDeleted">{0} を削除しました。ゲーム側で真っ黒なマップが作り直されます</sys:String>
-    <sys:String x:Key="Worlds.BatchPick">{0} ワールドをまとめて点灯</sys:String>
+    <sys:String x:Key="Worlds.BatchPick">このワールドを選択（Ctrl+B で一括点灯）</sys:String>
     <sys:String x:Key="Worlds.BatchDone">{0} ワールド / {1} マップを更新、失敗 {2}</sys:String>
     <sys:String x:Key="Settings.About.Previews">テーマのサムネイルは本アプリが自前で描画します（--render-previews）。</sys:String>
     <sys:String x:Key="Worlds.NoMatch">一致するワールドがありません · 別のキーワードで試してください</sys:String>
@@ -95,4 +95,5 @@ F5　再読み込み
     <sys:String x:Key="Settings.Update.Failed">更新の確認に失敗しました: {0}</sys:String>
     <sys:String x:Key="Settings.Update.Checking">確認中…</sys:String>
     <sys:String x:Key="Settings.Update.NoRelease">GitHub に公開されたリリースはまだありません。</sys:String>
+    <sys:String x:Key="Worlds.Refreshed">更新しました · {0}</sys:String>
 </ResourceDictionary>

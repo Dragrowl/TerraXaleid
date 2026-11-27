@@ -313,6 +313,9 @@ public partial class MainWindow : Window
         {
             ReloadBackups();
         }
+
+        ShowPage(_page);
+        StatusText.Text = string.Format(Str("Worlds.Refreshed"), DateTime.Now.ToString("HH:mm:ss"));
     }
 
     private void OnSearchChanged(object sender, TextChangedEventArgs e)
@@ -406,6 +409,11 @@ public partial class MainWindow : Window
             StatusText.Text = query.Length == 0
                 ? string.Format(Str("Worlds.Count"), _folder.Root, _all.Count)
                 : string.Format(Str("Worlds.Match"), rows.Count, _all.Count);
+        }
+
+        if (IsLoaded)
+        {
+            UpdateBatchHint();
         }
     }
 

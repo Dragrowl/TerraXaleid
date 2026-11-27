@@ -55,7 +55,7 @@
     <sys:String x:Key="Chars.Undone">Reverted {0} map(s) to their pre-reveal state</sys:String>
     <sys:String x:Key="Backups.DeleteMap">Delete map (all black)</sys:String>
     <sys:String x:Key="Backups.MapDeleted">Deleted {0}; the game will rebuild a fully unexplored map</sys:String>
-    <sys:String x:Key="Worlds.BatchPick">Reveal {0} worlds</sys:String>
+    <sys:String x:Key="Worlds.BatchPick">Select this world (Ctrl+B picks all)</sys:String>
     <sys:String x:Key="Worlds.BatchDone">Refreshed {0} world(s), {1} map(s), {2} failed</sys:String>
     <sys:String x:Key="Settings.About.Previews">Theme thumbnails are rendered by the app itself (--render-previews), not pasted screenshots.</sys:String>
     <sys:String x:Key="Worlds.NoMatch">No matching worlds · try another keyword</sys:String>
@@ -95,4 +95,5 @@ Right-click character　undo</sys:String>
     <sys:String x:Key="Settings.Update.Failed">Update check failed: {0}</sys:String>
     <sys:String x:Key="Settings.Update.Checking">Checking…</sys:String>
     <sys:String x:Key="Settings.Update.NoRelease">No published release on GitHub yet.</sys:String>
+    <sys:String x:Key="Worlds.Refreshed">Refreshed · {0}</sys:String>
 </ResourceDictionary>
