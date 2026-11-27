@@ -13,11 +13,14 @@ import java.time.ZoneId
  */
 object WorldFile {
 
-    const val FORMAT = 326
+    /** 1.4.5.x writes 326, 1.4.6 writes 329; the header layout is the same. */
+    const val FORMAT = 329
+    const val FORMAT_145 = 326
+    val SUPPORTED_FORMATS = intArrayOf(FORMAT, FORMAT_145)
 
     fun parseMeta(data: ByteArray): WorldMeta {
         val format = leadInt(data, 0)
-        if (format != FORMAT) throw TerrariaFormatException("not a Terraria world file (format=$format)")
+        if (format !in SUPPORTED_FORMATS) throw TerrariaFormatException("not a Terraria world file (format=$format)")
         if (!matchesMagic(data)) throw TerrariaFormatException("not a Terraria world file (magic mismatch)")
 
         val sectionCount = leadShort(data, 24)
@@ -128,7 +131,7 @@ object WorldFile {
     /** Decodes the full tile grid so [Reveal] can rebuild the map palette from real blocks. */
     fun load(data: ByteArray): World {
         val format = leadInt(data, 0)
-        if (format != FORMAT) throw TerrariaFormatException("not a Terraria world file (format=$format)")
+        if (format !in SUPPORTED_FORMATS) throw TerrariaFormatException("not a Terraria world file (format=$format)")
         if (!matchesMagic(data)) throw TerrariaFormatException("not a Terraria world file (magic mismatch)")
 
         val sectionCount = leadShort(data, 24)

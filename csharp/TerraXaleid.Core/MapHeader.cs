@@ -25,8 +25,11 @@ namespace TerraXaleid.Core;
 /// </summary>
 public sealed class MapHeader
 {
-    /// <summary>Version written by the mobile build (1.4.5.x).</summary>
-    public const int FileVersion = 33094;
+    /// <summary>Version written by the mobile build (1.4.6).</summary>
+    public const int FileVersion = 33097;
+
+    /// <summary>Version written by the mobile build of 1.4.5.x, whose layout is identical.</summary>
+    public const int MobileFileVersion145 = 33094;
 
     /// <summary>Version written by the desktop build (1.4.5.8 writes 318).</summary>
     public const int DesktopFileVersion = 318;
@@ -34,9 +37,13 @@ public sealed class MapHeader
     /// <summary>Version written by the desktop build of 1.4.5 proper (what <c>SaveMap</c> hardcodes).</summary>
     public const int DesktopFileVersion145 = 326;
 
-    /// <summary>Every version whose header layout we can parse.</summary>
+    /// <summary>Version written by the desktop build of 1.4.6.</summary>
+    public const int DesktopFileVersion146 = 329;
+
+    /// <summary>Every version whose header layout we can parse — the layout never changed, only the number.</summary>
     public static bool IsSupportedVersion(int version) =>
-        version == FileVersion || version == DesktopFileVersion || version == DesktopFileVersion145;
+        version == FileVersion || version == MobileFileVersion145 || version == DesktopFileVersion ||
+        version == DesktopFileVersion145 || version == DesktopFileVersion146;
 
     public const int FileType = 1;
 
@@ -105,7 +112,7 @@ public sealed class MapHeader
 
     public uint Revision { get; }
 
-    /// <summary>Container version this header was parsed from (318 desktop, 33094 mobile).</summary>
+    /// <summary>Container version this header was parsed from (318 / 326 / 329 desktop, 33094 / 33097 mobile).</summary>
     public int Version { get; }
 
     public int TileBase => 1;
@@ -146,7 +153,7 @@ public sealed class MapHeader
         int version = r.Int32();
         if (!IsSupportedVersion(version))
             throw new TerrariaFormatException(
-                $"unsupported map file version {version} (expected {DesktopFileVersion}, {DesktopFileVersion145} or {FileVersion})");
+                $"unsupported map file version {version} (expected {DesktopFileVersion}, {DesktopFileVersion145}, {DesktopFileVersion146}, {MobileFileVersion145} or {FileVersion})");
 
         if (!r.Take(7).SequenceEqual("relogic"u8))
             throw new TerrariaFormatException("not a Terraria map file (magic mismatch)");

@@ -77,7 +77,7 @@ dotnet run --project windows\TerraXaleid.Cli -- --auto-test --world 111test --pl
 dotnet run --project windows\TerraXaleid.Cli -- --reveal-pc --world WORLD.wld --template TEMPLATE.map --out OUT.map
 ```
 
-PC maps are `fileVersion 326`, mobile maps are `33094`. The two are not interchangeable: write the format the target machine expects.
+PC maps are `fileVersion 329` (326 on 1.4.5 and earlier), mobile maps are `33097` (33094 on 1.4.5.8 and earlier). The two are not interchangeable: write the format the target machine expects.
 
 ### Requirements
 
@@ -182,7 +182,7 @@ Details and traps: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/L1-STA
 <details>
 <summary>Known limits</summary>
 
-- Steam/PC `.map` files (`fileVersion 326`) and mobile ones (`33094`) are not interchangeable: a PC map dropped into a phone (or the reverse) will not show up, and nothing converts between them.
+- Steam/PC `.map` files (`fileVersion 329`, `326` before that) and mobile ones (`33097`, `33094` before that) are not interchangeable: a PC map dropped into a phone (or the reverse) will not show up, and nothing converts between them.
 - The Chinese "心动" (XD) release is not supported: different package name and save layout.
 - Only the map cache is touched. World files stay read-only; changing difficulty is out of scope.
 - On Android every read and write goes through a Shizuku shell; without it only the portable folders work.

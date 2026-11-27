@@ -53,7 +53,10 @@ class MapHeader(
     }
 
     companion object {
-        const val FILE_VERSION = 33094
+        /** 1.4.6 writes 33097; 1.4.5.8 wrote 33094. The layout is identical. */
+        const val FILE_VERSION = 33097
+        const val FILE_VERSION_145 = 33094
+        val SUPPORTED_VERSIONS = intArrayOf(FILE_VERSION, FILE_VERSION_145)
         const val FILE_TYPE = 1
 
         /** Cell grid, 64x64 per chunk, rounded up on both axes. */
@@ -64,8 +67,10 @@ class MapHeader(
             val r = SpanReader(data)
 
             val version = r.i32()
-            if (version != FILE_VERSION) {
-                throw TerrariaFormatException("unsupported map file version $version (expected $FILE_VERSION)")
+            if (version !in SUPPORTED_VERSIONS) {
+                throw TerrariaFormatException(
+                    "unsupported map file version $version (expected one of ${SUPPORTED_VERSIONS.joinToString()})"
+                )
             }
 
             val magic = r.take(7)

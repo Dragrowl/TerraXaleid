@@ -209,6 +209,18 @@ def difficulty_label(game_mode: int, for_the_worthy: bool) -> str:
     return DIFFICULTY_LABELS.get(game_mode, f"未知({game_mode})")
 
 
+WORLD_FORMATS = (326, 329)      # 1.4.5.x, 1.4.6.x
+
+
+def seed_flag_count(fmt: int) -> int:
+    """Nine seed flags follow gameMode in every format we support (326 and 329).
+
+    1.4.6 added `noSpidersSeed` later in the flags block (after the boss flags), so
+    worldSurface / rockLayer sit at the same offset in 1.4.5 and 1.4.6 worlds.
+    """
+    return 9
+
+
 def read_meta(path: str) -> dict:
     """Parse the world header only -> the fields the in-game world list displays."""
     with open(path, "rb") as fh:
@@ -217,6 +229,8 @@ def read_meta(path: str) -> dict:
     fmt = struct.unpack_from("<i", d, 0)[0]
     if d[4:11] != b"relogic":
         raise ValueError("not a Terraria world file")
+    if fmt not in WORLD_FORMATS:
+        raise ValueError(f"unsupported world format {fmt} (expected one of {WORLD_FORMATS})")
     nsec = struct.unpack_from("<h", d, 24)[0]
     offsets = struct.unpack_from(f"<{nsec}i", d, 26)
 
@@ -238,8 +252,9 @@ def read_meta(path: str) -> dict:
         p += n
         return out
 
-    seed_flags = booleans(9)      # drunk, getGood, tenthAnniv, dontStarve, notTheBees,
-                                  # remix, noTraps, zenith, skyblock
+    seed_flags = booleans(seed_flag_count(fmt))
+                                  # drunk, getGood, tenthAnniv, dontStarve, notTheBees,
+                                  # remix, noTraps, zenith, skyblock[, noSpiders]
     creation = struct.unpack_from("<q", d, p)[0]; p += 8
     p += 8                        # saved-at timestamp
     moon_type = d[p]; p += 1

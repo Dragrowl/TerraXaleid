@@ -21,7 +21,10 @@ namespace TerraXaleid.Core;
 /// </summary>
 public static class PcMapFormat
 {
-    public const int FileVersion = 326;
+    public const int FileVersion = 329;
+
+    /// <summary>What 1.4.5 wrote; identical layout, so both are accepted on read.</summary>
+    public const int LegacyFileVersion = 326;
     public const byte FileType = 1;
 
     public const int LiquidCount = 4;
@@ -208,9 +211,9 @@ public static class PcMapFormat
             using var reader = new BinaryReader(stream, System.Text.Encoding.UTF8, leaveOpen: true);
 
             int version = reader.ReadInt32();
-            if (version != FileVersion)
+            if (version != FileVersion && version != LegacyFileVersion)
             {
-                error = $"header version {version}, expected {FileVersion}";
+                error = $"header version {version}, expected {FileVersion} or {LegacyFileVersion}";
                 return false;
             }
 

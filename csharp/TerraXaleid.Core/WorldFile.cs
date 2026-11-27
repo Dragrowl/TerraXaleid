@@ -8,12 +8,18 @@ using System.Globalization;
 namespace TerraXaleid.Core;
 
 /// <summary>
-/// Reader for <c>.wld</c> files (format 326 / Terraria 1.4.5.x). Read-only by construction:
+/// Reader for <c>.wld</c> files (format 326 = 1.4.5.x, 329 = 1.4.6.x). Read-only by construction:
 /// every entry point takes bytes and returns objects, nothing here can touch a file.
 /// </summary>
 public static class WorldFile
 {
     public const int KnownFormatLow = 200;
+
+    /// <summary>1.4.6 added a tenth world seed (no spiders), so the flag block grew by one byte.</summary>
+    // The nine seed booleans right after gameMode never changed: 1.4.6 added its extra seeds
+    // (dualDungeons / moreLightning / noLightning / noSpiders) later in the flags block, after the
+    // boss flags, so the offset of worldSurface / rockLayer is identical in 326 and 329.
+    public static int SeedFlagCount(int format) => 9;
 
     private static readonly byte[] Magic = "relogic"u8.ToArray();
 
@@ -47,7 +53,7 @@ public static class WorldFile
         int width = h.Int32();
         int gameMode = h.Int32();
 
-        bool[] seedFlags = ReadBooleans(ref h, 9);
+        bool[] seedFlags = ReadBooleans(ref h, SeedFlagCount(format));
         long creation = h.Int64();
         h.Skip(8);                          // last played (int64)
         h.Skip(1);                          // moon type (byte)
@@ -325,6 +331,7 @@ public static class WorldFile
     /// </summary>
     public static (double Surface, double RockLayer) ReadLayers(ReadOnlySpan<byte> data, int section1)
     {
+        int format = BinaryPrimitives.ReadInt32LittleEndian(data);
         var h = new SpanReader(data);
         h.Skip(section1);
         h.String7();                        // name
@@ -336,7 +343,7 @@ public static class WorldFile
         h.Skip(4);                          // maxTilesY
         h.Skip(4);                          // maxTilesX
         h.Skip(4);                          // gameMode
-        h.Skip(9);                          // seed flags
+        h.Skip(SeedFlagCount(format));      // seed flags (9 before 1.4.6, 10 after)
         h.Skip(8);                          // creation time
         h.Skip(8);                          // last played
         h.Skip(1);                          // moon type

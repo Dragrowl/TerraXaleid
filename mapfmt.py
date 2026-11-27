@@ -57,7 +57,8 @@ from dataclasses import dataclass, field
 import numpy as np
 
 REVISION = 68
-FILE_VERSION = 33094
+FILE_VERSION = 33097          # 1.4.6
+FILE_VERSIONS = (33094, 33097)  # 1.4.5.x, 1.4.6.x
 
 
 @dataclass
@@ -148,8 +149,8 @@ def _read_string7(buf: bytes, pos: int) -> tuple[str, int]:
 def read_header(data: bytes) -> tuple[MapHeader, int]:
     pos = 0
     version = struct.unpack_from("<i", data, pos)[0]; pos += 4
-    if version != FILE_VERSION:
-        raise ValueError(f"unsupported map file version {version} (expected {FILE_VERSION})")
+    if version not in FILE_VERSIONS:
+        raise ValueError(f"unsupported map file version {version} (expected one of {FILE_VERSIONS})")
     if data[pos:pos + 7] != b"relogic":
         raise ValueError("not a Terraria map file")
     pos += 7

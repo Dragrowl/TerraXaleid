@@ -80,7 +80,7 @@ dotnet run --project windows\TerraXaleid.Cli -- --auto-test --world 111test --pl
 dotnet run --project windows\TerraXaleid.Cli -- --reveal-pc --world WORLD.wld --template TEMPLATE.map --out OUT.map
 ```
 
-PC 版地图是 `fileVersion 326`，移动版是 `33094`，两种格式不能混用：给哪台机器写图，就得用那台机器的编码器。
+PC 版地图是 `fileVersion 329`（1.4.5 及更早为 `326`），移动版是 `33097`（1.4.5.8 及更早为 `33094`），两种格式不能混用：给哪台机器写图，就得用那台机器的编码器。
 
 Python 的参考实现继续用来做三语言交叉验证：
 
@@ -188,7 +188,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
 <details>
 <summary>已知限制</summary>
 
-- PC/Steam 的 `.map`（`fileVersion 326`）与移动端（`33094`）格式不同，**不能互相通用**：把 PC 的图放进手机（或反过来），游戏不会显示，也没有自动转换。
+- PC/Steam 的 `.map`（`fileVersion 329`，旧版 `326`）与移动端（`33097`，旧版 `33094`）格式不同，**不能互相通用**：把 PC 的图放进手机（或反过来），游戏不会显示，也没有自动转换。
 - 不兼容心动代理的国服 Terraria（包名与存档布局都不同）。
 - 只处理地图缓存。世界文件本身只读不改；改难度那种事不在本工具范围内。
 - Android 端一切读写走 Shizuku shell；没有 Shizuku 就只能用便携目录。
