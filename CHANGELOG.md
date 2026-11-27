@@ -15,6 +15,7 @@
 
 ### Added
 
+- Windows 安装包：Inno Setup 定义在 `windows/installer/TerraXaleid.iss`（逐用户安装，含简中/英/日三语向导），产物 `dist/TerraXaleid-0.1.0-dev-win-x64-setup.exe`（约 4.1 MB），带开始菜单项、可选桌面图标与卸载入口。
 - Windows 图形界面（WPF，`windows/TerraXaleid.App`）：世界列表 → 角色列表 → 点亮，直接读写
   `%USERPROFILE%\Documents\My Games\Terraria`，不需要 adb 或 Shizuku。
 - 批量点亮：卡片右上角勾号把世界加入批量，`Ctrl+B` 执行；只重写已经存在该世界地图的角色，
