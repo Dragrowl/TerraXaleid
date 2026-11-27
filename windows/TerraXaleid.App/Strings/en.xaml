@@ -61,4 +61,7 @@
     <sys:String x:Key="Worlds.NoMatch">No matching worlds · try another keyword</sys:String>
     <sys:String x:Key="Chars.Selected">{0} character(s) selected</sys:String>
     <sys:String x:Key="Worlds.BatchHint">Reveal {0} worlds · press Ctrl+B</sys:String>
+    <sys:String x:Key="Worlds.NoMaps">No maps</sys:String>
+    <sys:String x:Key="Worlds.Maps">{0} character(s)</sys:String>
+    <sys:String x:Key="Settings.About.Changelog">Changelog</sys:String>
 </ResourceDictionary>

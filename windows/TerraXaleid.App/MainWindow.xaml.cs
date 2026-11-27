@@ -30,7 +30,7 @@ public partial class MainWindow : Window
     {
         private bool _selected;
 
-        public WorldRow(string name, string difficulty, string size, string evil, string progress, string guid, string mapGuid)
+        public WorldRow(string name, string difficulty, string size, string evil, string progress, string guid, string mapGuid, int maps)
         {
             Name = name;
             Difficulty = difficulty;
@@ -39,6 +39,7 @@ public partial class MainWindow : Window
             Progress = progress;
             Guid = guid;
             MapGuid = mapGuid;
+            Maps = maps;
         }
 
         public string Name { get; }
@@ -54,6 +55,11 @@ public partial class MainWindow : Window
         public string Guid { get; }
 
         public string MapGuid { get; }
+
+        /// <summary>How many characters already carry a revealed map for this world.</summary>
+        public int Maps { get; }
+
+        public string MapsText => Maps == 0 ? Str("Worlds.NoMaps") : string.Format(Str("Worlds.Maps"), Maps);
 
         public bool Selected
         {
@@ -316,7 +322,16 @@ public partial class MainWindow : Window
                 // Map files are named after the world's internal GUID (dashed form), which is
                 // usually different from the .wld file name.
                 string mapGuid = new Guid(Convert.FromHexString(meta.GuidHex)).ToString();
-                _all.Add(new WorldRow(meta.Name, meta.Difficulty, meta.Size, meta.Evil, progress, guid, mapGuid));
+                int maps = 0;
+                foreach (string characterDir in Directory.GetDirectories(_folder.PlayersDir))
+                {
+                    if (File.Exists(Path.Combine(characterDir, mapGuid + ".map")))
+                    {
+                        maps++;
+                    }
+                }
+
+                _all.Add(new WorldRow(meta.Name, meta.Difficulty, meta.Size, meta.Evil, progress, guid, mapGuid, maps));
             }
             catch (Exception ex)
             {
@@ -826,6 +841,11 @@ public partial class MainWindow : Window
         => Application.Current.TryFindResource(key) as string ?? key;
 
     private void OnOpenGithub(object sender, RoutedEventArgs e) => Open(GithubUrl);
+
+    private void OnOpenChangelog(object sender, RoutedEventArgs e)
+    {
+        Open("https://github.com/Dragrowl/TerraXaleid/blob/main/CHANGELOG.md");
+    }
 
     private void OnOpenBilibili(object sender, RoutedEventArgs e) => Open(BilibiliUrl);
 

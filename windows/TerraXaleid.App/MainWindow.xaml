@@ -156,8 +156,14 @@
                                                     <TextBlock Text="{Binding Evil}" FontSize="12" Foreground="{DynamicResource App.Text}" />
                                                 </Border>
                                             </WrapPanel>
-                                            <TextBlock Text="{Binding Progress}" FontSize="12" Margin="0,2,0,0"
-                                                       Foreground="{DynamicResource App.TextSoft}" />
+                                            <Grid Margin="0,2,0,0">
+                                                <TextBlock Text="{Binding Progress}" FontSize="12"
+                                                           TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
+                                                           Foreground="{DynamicResource App.TextSoft}" />
+                                                <TextBlock Text="{Binding MapsText}" FontSize="12" HorizontalAlignment="Right"
+                                                           TextWrapping="NoWrap" Opacity="0.75"
+                                                           Foreground="{DynamicResource App.TextSoft}" />
+                                            </Grid>
                                             </StackPanel>
                                             <Button Grid.Column="1" Width="26" Height="26" Margin="10,0,0,0"
                                                     VerticalAlignment="Top" Padding="0" Background="Transparent"
@@ -423,6 +429,9 @@
                                         </TextBlock>
                                         <TextBlock Margin="14,0,0,0">
                                             <Hyperlink Click="OnOpenBilibili"><Run Text="哔哩哔哩" /></Hyperlink>
+                                        </TextBlock>
+                                        <TextBlock Margin="14,0,0,0">
+                                            <Hyperlink Click="OnOpenChangelog"><Run Text="{DynamicResource Settings.About.Changelog}" /></Hyperlink>
                                         </TextBlock>
                                     </StackPanel>
                                 </StackPanel>
