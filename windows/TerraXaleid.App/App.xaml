@@ -12,6 +12,108 @@
                 <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="Grey" SecondaryColor="LightGreen" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- App colours live here as DynamicResource keys so the theme switcher only has to
+                 replace brushes, not rebuild the visual tree. -->
+            <SolidColorBrush x:Key="App.Background" Color="#F7F7F5" />
+            <SolidColorBrush x:Key="App.Surface" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="App.Rail" Color="#F1F1EC" />
+            <SolidColorBrush x:Key="App.Border" Color="#E4E4DF" />
+            <SolidColorBrush x:Key="App.Chip" Color="#EFEFEA" />
+            <SolidColorBrush x:Key="App.Text" Color="#1B1B1B" />
+            <SolidColorBrush x:Key="App.TextSoft" Color="#6A6A64" />
+            <SolidColorBrush x:Key="App.Accent" Color="#3F5B45" />
+            <SolidColorBrush x:Key="App.AccentSoft" Color="#E3E7DD" />
+
+            <!-- Rail button: transparent at rest, tinted on hover/active, tooltip to the right
+                 the way QQ NT does its side rail. -->
+            <Style x:Key="RailButton" TargetType="Button">
+                <Setter Property="Width" Value="46" />
+                <Setter Property="Height" Value="46" />
+                <Setter Property="Margin" Value="0,3" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="ToolTipService.Placement" Value="Right" />
+                <Setter Property="ToolTipService.InitialShowDelay" Value="250" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Chrome" Background="{TemplateBinding Background}" CornerRadius="10">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource App.Border}" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource App.AccentSoft}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="RailButtonActive" TargetType="Button" BasedOn="{StaticResource RailButton}">
+                <Setter Property="Background" Value="{DynamicResource App.AccentSoft}" />
+            </Style>
+
+            <Style x:Key="RailTip" TargetType="ToolTip">
+                <Setter Property="Background" Value="{DynamicResource App.Text}" />
+                <Setter Property="Foreground" Value="{DynamicResource App.Surface}" />
+                <Setter Property="Padding" Value="10,6" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="HasDropShadow" Value="True" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ToolTip">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- The MDIX text field paints its own border/text colours from the light theme, which
+                 goes invisible on our dark palette, so the search box is drawn here instead. -->
+            <Style x:Key="SearchField" TargetType="TextBox">
+                <Setter Property="Height" Value="46" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Foreground" Value="{DynamicResource App.Text}" />
+                <Setter Property="CaretBrush" Value="{DynamicResource App.Text}" />
+                <Setter Property="Padding" Value="14,0" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TextBox">
+                            <Border x:Name="Chrome" Background="{DynamicResource App.Surface}"
+                                    BorderBrush="{DynamicResource App.Border}" BorderThickness="1" CornerRadius="10">
+                                <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="Center" Focusable="False"
+                                              HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource App.Accent}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="CardBorder" TargetType="Border">
+                <Setter Property="Background" Value="{DynamicResource App.Surface}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource App.Border}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="Padding" Value="16" />
+                <Setter Property="Margin" Value="0,0,0,10" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
