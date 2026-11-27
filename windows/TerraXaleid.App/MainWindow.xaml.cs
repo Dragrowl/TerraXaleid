@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using TerraXaleid.Core;
 
 namespace TerraXaleid.App;
@@ -88,6 +89,15 @@ public partial class MainWindow : Window
         Reload();
         ShowPage(0);
 
+        // A WindowStyle=None window otherwise maximises over the taskbar, which pushes the
+        // rail's bottom button off screen. Clamping to the work area keeps it reachable.
+        Loaded += (_, _) =>
+        {
+            Rect work = SystemParameters.WorkArea;
+            MaxHeight = work.Height + 8;
+            MaxWidth = work.Width + 8;
+        };
+
         StateChanged += (_, _) => UpdateMaximizeGlyph();
         UpdateMaximizeGlyph();
     }
@@ -117,15 +127,40 @@ public partial class MainWindow : Window
 
     private int _page;
 
+    /// <summary>Ctrl+1..4 jumps between the four sections, the way desktop apps do it.</summary>
+    private void OnWindowKeyDown(object sender, KeyEventArgs e)
+    {
+        if (Keyboard.Modifiers != ModifierKeys.Control) return;
+        switch (e.Key)
+        {
+            case Key.D1:
+            case Key.NumPad1:
+                ShowPage(0);
+                e.Handled = true;
+                break;
+            case Key.D2:
+            case Key.NumPad2:
+                ShowPage(2);
+                ReloadBackups();
+                e.Handled = true;
+                break;
+            case Key.D3:
+            case Key.NumPad3:
+                ShowPage(3);
+                e.Handled = true;
+                break;
+        }
+    }
+
     private void OnNavWorlds(object sender, RoutedEventArgs e) => ShowPage(0);
 
     private void OnNavBackups(object sender, RoutedEventArgs e)
     {
-        ShowPage(1);
+        ShowPage(2);
         ReloadBackups();
     }
 
-    private void OnNavSettings(object sender, RoutedEventArgs e) => ShowPage(2);
+    private void OnNavSettings(object sender, RoutedEventArgs e) => ShowPage(3);
 
     private void ShowPage(int index)
     {
@@ -141,6 +176,32 @@ public partial class MainWindow : Window
         NavWorlds.Style = index == 0 || index == 1 ? active : idle;
         NavBackups.Style = index == 2 ? active : idle;
         NavSettings.Style = index == 3 ? active : idle;
+
+        FrameworkElement page = index switch
+        {
+            1 => PageCharacters,
+            2 => PageBackups,
+            3 => PageSettings,
+            _ => PageWorlds,
+        };
+        FadeInPage(page);
+    }
+
+    /// <summary>Material style page change: a short fade plus a 10 px slide from the right.</summary>
+    private static void FadeInPage(FrameworkElement page)
+    {
+        var slide = page.RenderTransform as TranslateTransform;
+        if (slide is null)
+        {
+            slide = new TranslateTransform();
+            page.RenderTransform = slide;
+        }
+
+        var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+        var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(160)) { EasingFunction = ease };
+        var move = new DoubleAnimation(10, 0, TimeSpan.FromMilliseconds(190)) { EasingFunction = ease };
+        page.BeginAnimation(OpacityProperty, fade);
+        slide.BeginAnimation(TranslateTransform.XProperty, move);
     }
 
     private void OnBackToWorlds(object sender, RoutedEventArgs e) => ShowPage(0);
@@ -404,6 +465,12 @@ public partial class MainWindow : Window
         ApplyTheme(theme, save: true);
     }
 
+    /// <summary>Applied by <see cref="PreviewRenderer"/> when the preview tiles are rendered.</summary>
+    public void SetPreviewTheme(string theme)
+    {
+        ApplyTheme(theme, save: false);
+    }
+
     private void ApplyTheme(string theme, bool save)
     {
         _theme = theme;
@@ -532,6 +599,8 @@ public partial class MainWindow : Window
         ("App.TextSoft", "#6A6A64"),
         ("App.Accent", "#3F5B45"),
         ("App.AccentSoft", "#E3E7DD"),
+        ("App.DangerSoft", "#FDE8E6"),
+        ("App.ScrollThumb", "#CFCFC7"),
     };
 
     private static readonly (string Key, string Colour)[] DarkPalette =
@@ -545,6 +614,8 @@ public partial class MainWindow : Window
         ("App.TextSoft", "#A2A29C"),
         ("App.Accent", "#A9C3A9"),
         ("App.AccentSoft", "#2C3A2E"),
+        ("App.DangerSoft", "#3A1D1D"),
+        ("App.ScrollThumb", "#3A3A38"),
     };
 
     private void OnCharacterCardClick(object sender, MouseButtonEventArgs e)

@@ -79,3 +79,7 @@ desktop.ini
 # build output
 bin/
 obj/
+# Third-party display font used only to render theme previews; not distributed.
+.local-fonts/
+# theme thumbnails are runtime resources, not build output
+!windows/TerraXaleid.App/Assets/*.png

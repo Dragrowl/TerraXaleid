@@ -9,6 +9,7 @@
         Title="TerraXaleid"
         Height="760" Width="1120" MinHeight="560" MinWidth="880"
         WindowStartupLocation="CenterScreen"
+        PreviewKeyDown="OnWindowKeyDown"
         WindowStyle="None" ResizeMode="CanResize" UseLayoutRounding="True">
     <!-- Native chrome is suppressed on purpose: the app draws its own 44 px title bar, and
          WindowChrome keeps the resize borders + snap behaviour working. -->
@@ -43,7 +44,7 @@
                     <Button.ToolTip><ToolTip Style="{StaticResource RailTip}" Content="{DynamicResource Win.Maximize}" /></Button.ToolTip>
                     <Rectangle Width="9" Height="9" Stroke="{DynamicResource App.Text}" StrokeThickness="1.2" />
                 </Button>
-                <Button x:Name="BtnClose" Style="{StaticResource CaptionButton}" Click="OnClose">
+                <Button x:Name="BtnClose" Style="{StaticResource CaptionClose}" Click="OnClose">
                     <Button.ToolTip><ToolTip Style="{StaticResource RailTip}" Content="{DynamicResource Win.Close}" /></Button.ToolTip>
                     <Path Data="M0,0 L9,9 M9,0 L0,9" Stroke="{DynamicResource App.Text}" StrokeThickness="1.2" />
                 </Button>
@@ -250,12 +251,12 @@
                                                            Foreground="{DynamicResource App.TextSoft}" Text="{Binding Detail}" />
                                             </StackPanel>
                                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                                <Button Height="32" Padding="14,0" Margin="0,0,8,0" Tag="{Binding}"
+                                                <Button Margin="0,0,8,0" Tag="{Binding}"
                                                         Content="{DynamicResource Backups.Restore}"
-                                                        Style="{DynamicResource MaterialDesignOutlinedButton}" Click="OnRestoreBackup" />
-                                                <Button Height="32" Padding="14,0" Tag="{Binding}"
+                                                        Style="{StaticResource PillButton}" Click="OnRestoreBackup" />
+                                                <Button Tag="{Binding}"
                                                         Content="{DynamicResource Backups.Delete}"
-                                                        Style="{DynamicResource MaterialDesignOutlinedButton}" Click="OnDeleteBackup" />
+                                                        Style="{StaticResource PillButtonOutline}" Click="OnDeleteBackup" />
                                             </StackPanel>
                                         </Grid>
                                     </Border>
