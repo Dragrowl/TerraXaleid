@@ -469,7 +469,17 @@ public partial class MainWindow : Window
         _picked.Clear();
         CharacterList.ItemsSource = rows;
         PickButton.IsEnabled = false;
+        UpdateCharacterSelection();
         ShowPage(1);
+    }
+
+
+    /// <summary>Selection counter in the character footer; also drives the pick button.</summary>
+    private void UpdateCharacterSelection()
+    {
+        CharacterSelection.Text = _picked.Count == 0
+            ? string.Empty
+            : string.Format(Str("Chars.Selected"), _picked.Count);
     }
 
     // ── backups ───────────────────────────────────────────────────────────────
@@ -857,6 +867,7 @@ public partial class MainWindow : Window
         ("App.Accent", "#3F5B45"),
         ("App.AccentSoft", "#E3E7DD"),
         ("App.DangerSoft", "#FDE8E6"),
+        ("App.Danger", "#B3261E"),
         ("App.ScrollThumb", "#CFCFC7"),
     };
 
@@ -872,6 +883,7 @@ public partial class MainWindow : Window
         ("App.Accent", "#A9C3A9"),
         ("App.AccentSoft", "#2C3A2E"),
         ("App.DangerSoft", "#3A1D1D"),
+        ("App.Danger", "#F2B8B5"),
         ("App.ScrollThumb", "#3A3A38"),
     };
 
@@ -888,6 +900,7 @@ public partial class MainWindow : Window
         ("App.Accent", "#A9C3A9"),
         ("App.AccentSoft", "#1C2A1E"),
         ("App.DangerSoft", "#2A1414"),
+        ("App.Danger", "#F2B8B5"),
         ("App.ScrollThumb", "#2A2A28"),
     };
 
@@ -898,6 +911,7 @@ public partial class MainWindow : Window
         if (row.Selected) _picked.Add(row.Name);
         else _picked.Remove(row.Name);
         PickButton.IsEnabled = _picked.Count > 0;
+        UpdateCharacterSelection();
     }
 
     private void OnPickClick(object sender, RoutedEventArgs e)
