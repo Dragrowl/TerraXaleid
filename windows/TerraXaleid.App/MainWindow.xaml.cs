@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -27,13 +28,47 @@ public partial class MainWindow : Window
     private sealed record WorldRow(
         string Name, string Difficulty, string Size, string Evil, string Progress, string Guid, string MapGuid);
 
-    private sealed record CharacterRow(string Name, string Detail, string Guid);
+    private sealed class CharacterRow : INotifyPropertyChanged
+    {
+        private bool _selected;
+
+        public CharacterRow(string name, string detail, string guid)
+        {
+            Name = name;
+            Detail = detail;
+            Guid = guid;
+        }
+
+        public string Name { get; }
+
+        public string Detail { get; }
+
+        public string Guid { get; }
+
+        public bool Selected
+        {
+            get => _selected;
+            set
+            {
+                if (_selected == value) return;
+                _selected = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Selected)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TickVisibility)));
+            }
+        }
+
+        public Visibility TickVisibility => _selected ? Visibility.Visible : Visibility.Hidden;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+    }
 
     private sealed record BackupRow(string Title, string Detail, string Path, string Target);
 
     private readonly Dictionary<string, string> _worldNames = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, string> _worldByGuid = new(StringComparer.OrdinalIgnoreCase);
 
+    private readonly HashSet<string> _picked = new();
+    private WorldRow? _world;
     private List<WorldRow> _all = new();
     private SaveFolder? _folder;
     private string _theme = "system";
@@ -204,6 +239,7 @@ public partial class MainWindow : Window
 
     private void ShowCharacters(WorldRow world)
     {
+        _world = world;
         CharacterWorldName.Text = world.Name;
         var rows = new List<CharacterRow>();
 
@@ -221,7 +257,9 @@ public partial class MainWindow : Window
             }
         }
 
+        _picked.Clear();
         CharacterList.ItemsSource = rows;
+        PickButton.IsEnabled = false;
         ShowPage(1);
     }
 
@@ -348,7 +386,10 @@ public partial class MainWindow : Window
             File.Move(bak, bak1);
         }
 
-        File.Move(mapPath, bak);
+        if (File.Exists(mapPath))
+        {
+            File.Move(mapPath, bak);
+        }
     }
 
     // ── settings ──────────────────────────────────────────────────────────────
@@ -505,8 +546,80 @@ public partial class MainWindow : Window
         ("App.Accent", "#A9C3A9"),
         ("App.AccentSoft", "#2C3A2E"),
     };
-}
 
+    private void OnCharacterCardClick(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: CharacterRow row }) return;
+        row.Selected = !row.Selected;
+        if (row.Selected) _picked.Add(row.Name);
+        else _picked.Remove(row.Name);
+        PickButton.IsEnabled = _picked.Count > 0;
+    }
+
+    private void OnPickClick(object sender, RoutedEventArgs e)
+    {
+        if (_world is null || _folder is null || _picked.Count == 0) return;
+        int written = 0, failed = 0;
+        string? firstError = null;
+
+        try
+        {
+            string worldPath = Path.Combine(_folder.WorldsDir, _world.Guid + ".wld");
+            byte[] bytes = File.ReadAllBytes(worldPath);
+            WorldMeta meta = WorldFile.ParseMeta(bytes);
+            World world = WorldFile.Load(bytes);
+            string mapName = PlayerMaps.MapFileNameForWorld(Convert.FromHexString(meta.GuidHex));
+
+            TileOptions options = TileOptions.FromFirstReadable(
+                    Directory.GetFiles(_folder.PlayersDir, "*.map", SearchOption.AllDirectories), out _)
+                ?? new TileOptions(new int[754], new int[367]);
+
+            using var buffer = new MemoryStream();
+            PcMapFormat.Write(buffer, options, world.Name, world.WorldId, world.Width, world.Height, 754, 367,
+                world.Tiles, world.Walls, world.LiquidAmounts, world.LiquidKinds,
+                (float)world.Surface, (float)world.RockLayer, world.UnderworldLayer);
+            byte[] image = buffer.ToArray();
+
+            if (!PcMapFormat.TryVerify(image, world.Width, world.Height, out _, out string? error))
+            {
+                MessageBox.Show(this, error ?? "verify failed", "TerraXaleid", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            foreach (string character in _picked)
+            {
+                try
+                {
+                    string dir = Path.Combine(_folder.PlayersDir, character);
+                    Directory.CreateDirectory(dir);
+                    string target = Path.Combine(dir, mapName);
+                    RotateBackups(target);
+                    string tmp = target + ".tmp";
+                    File.WriteAllBytes(tmp, image);
+                    File.Move(tmp, target, overwrite: true);
+                    written++;
+                }
+                catch (Exception ex)
+                {
+                    failed++;
+                    firstError ??= ex.Message;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, ex.Message, "TerraXaleid", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        var current = _world;
+        _picked.Clear();
+        ShowCharacters(current);
+        StatusText.Text = failed == 0
+            ? string.Format(Str("Chars.Written"), written)
+            : string.Format(Str("Chars.WrittenFailed"), written, failed) + (firstError is null ? string.Empty : " · " + firstError);
+    }
+}
 /// <summary>Tiny json config in %APPDATA%\TerraXaleid\config.json (theme + language).</summary>
 internal sealed record DesktopConfig(string Theme, string Language)
 {

@@ -45,4 +45,6 @@
     <sys:String x:Key="Chars.NoMap">暫無地圖</sys:String>
     <sys:String x:Key="Backups.Latest">最新備份</sys:String>
     <sys:String x:Key="Chars.WithMap">已有點亮的地圖 · {0:F0} KB</sys:String>
+    <sys:String x:Key="Chars.Written">已點亮 {0} 個角色</sys:String>
+    <sys:String x:Key="Chars.WrittenFailed">已點亮 {0} 個，失敗 {1} 個</sys:String>
 </ResourceDictionary>

@@ -148,8 +148,8 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
@@ -177,25 +177,44 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource CardBorder}" Width="320" Margin="0,0,12,12">
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource App.Text}" TextWrapping="Wrap" />
-                                            <TextBlock Text="{Binding Detail}" FontSize="12" Margin="0,6,0,0"
-                                                       Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                            <TextBlock Text="{Binding Guid}" FontSize="11" Margin="0,4,0,0"
-                                                       Foreground="{DynamicResource App.TextSoft}" TextTrimming="CharacterEllipsis" />
-                                        </StackPanel>
+                                    <Border Width="320" Margin="0,0,12,12" Cursor="Hand"
+                                            PreviewMouseLeftButtonUp="OnCharacterCardClick">
+                                        <Border.Style>
+                                            <Style TargetType="Border" BasedOn="{StaticResource CardBorder}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Selected}" Value="True">
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource App.Accent}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource App.Text}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="{Binding Detail}" FontSize="12" Margin="0,6,0,0"
+                                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="{Binding Guid}" FontSize="11" Margin="0,4,0,0"
+                                                               Foreground="{DynamicResource App.TextSoft}" TextTrimming="CharacterEllipsis" />
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="1" Text="&#x2713;" FontSize="14"
+                                                           VerticalAlignment="Top" Margin="8,2,0,0"
+                                                           Visibility="{Binding TickVisibility}"
+                                                           Foreground="{DynamicResource App.Accent}" />
+                                            </Grid>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
 
-                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
-                        <TextBlock Text="{DynamicResource Chars.Next}" FontSize="12" VerticalAlignment="Center"
-                                   Margin="0,0,12,0" Foreground="{DynamicResource App.TextSoft}" />
-                        <Button Content="{DynamicResource Chars.Pick}" Height="34" Padding="18,0" IsEnabled="False"
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,0,0">
+                        <Button x:Name="PickButton" Content="{DynamicResource Chars.Pick}" Height="34" Padding="18,0"
+                                Click="OnPickClick" IsEnabled="False"
                                 Style="{DynamicResource MaterialDesignOutlinedButton}" />
                     </StackPanel>
                 </Grid>

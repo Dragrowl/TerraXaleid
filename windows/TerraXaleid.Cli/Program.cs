@@ -162,6 +162,14 @@ internal static class Program
             options = TileOptions.FromFile(template);
             Console.WriteLine($"options     from {template}");
         }
+        else if (Value(args, "--options-dir") is { } optionsDir)
+        {
+            var found = Directory.Exists(optionsDir)
+                ? Directory.GetFiles(optionsDir, "*.map", SearchOption.AllDirectories)
+                : Array.Empty<string>();
+            options = TileOptions.FromFirstReadable(found, out string? picked) ?? new TileOptions(new int[maxTileId], new int[maxWallId]);
+            Console.WriteLine($"options     from {picked ?? "<none readable>"} ({found.Length} candidates)");
+        }
         else
         {
             string dir = Path.GetDirectoryName(Path.GetFullPath(outPath)) ?? ".";

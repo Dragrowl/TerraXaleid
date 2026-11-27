@@ -45,4 +45,6 @@
     <sys:String x:Key="Chars.NoMap">No map yet</sys:String>
     <sys:String x:Key="Backups.Latest">Latest</sys:String>
     <sys:String x:Key="Chars.WithMap">Revealed map · {0:F0} KB</sys:String>
+    <sys:String x:Key="Chars.Written">Revealed {0} character(s)</sys:String>
+    <sys:String x:Key="Chars.WrittenFailed">Revealed {0}, failed {1}</sys:String>
 </ResourceDictionary>
