@@ -94,4 +94,5 @@ F5　再読み込み
     <sys:String x:Key="Settings.Update.Latest">最新バージョンです（{0}）</sys:String>
     <sys:String x:Key="Settings.Update.Failed">更新の確認に失敗しました: {0}</sys:String>
     <sys:String x:Key="Settings.Update.Checking">確認中…</sys:String>
+    <sys:String x:Key="Settings.Update.NoRelease">GitHub に公開されたリリースはまだありません。</sys:String>
 </ResourceDictionary>

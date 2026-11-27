@@ -94,4 +94,5 @@ Right-click character　undo</sys:String>
     <sys:String x:Key="Settings.Update.Latest">You are on the latest version ({0})</sys:String>
     <sys:String x:Key="Settings.Update.Failed">Update check failed: {0}</sys:String>
     <sys:String x:Key="Settings.Update.Checking">Checking…</sys:String>
+    <sys:String x:Key="Settings.Update.NoRelease">No published release on GitHub yet.</sys:String>
 </ResourceDictionary>

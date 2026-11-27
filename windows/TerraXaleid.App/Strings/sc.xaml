@@ -94,4 +94,5 @@ F5　重新扫描
     <sys:String x:Key="Settings.Update.Latest">当前已是最新版本（{0}）</sys:String>
     <sys:String x:Key="Settings.Update.Failed">检查更新失败：{0}</sys:String>
     <sys:String x:Key="Settings.Update.Checking">检查中…</sys:String>
+    <sys:String x:Key="Settings.Update.NoRelease">GitHub 上还没有可用的发行版本。</sys:String>
 </ResourceDictionary>

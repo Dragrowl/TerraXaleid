@@ -1144,8 +1144,18 @@ public partial class MainWindow : Window
             http.DefaultRequestHeaders.UserAgent.ParseAdd("TerraXaleid");
             http.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
 
-            string json = await http.GetStringAsync(
-                "https://api.github.com/repos/Dragrowl/TerraXaleid/releases/latest");
+            string json;
+            try
+            {
+                json = await http.GetStringAsync(
+                    "https://api.github.com/repos/Dragrowl/TerraXaleid/releases/latest");
+            }
+            catch (HttpRequestException notFound) when (notFound.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                MessageBox.Show(this, Str("Settings.Update.NoRelease"),
+                    Str("Settings.Update"), MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
             using JsonDocument document = JsonDocument.Parse(json);
             string tag = document.RootElement.TryGetProperty("tag_name", out JsonElement node)
                 ? node.GetString() ?? string.Empty
