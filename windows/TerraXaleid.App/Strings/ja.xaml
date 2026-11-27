@@ -47,4 +47,8 @@
     <sys:String x:Key="Chars.WithMap">点灯済みマップ · {0:F0} KB</sys:String>
     <sys:String x:Key="Chars.Written">{0} 人分のマップを生成しました</sys:String>
     <sys:String x:Key="Chars.WrittenFailed">{0} 人成功、{1} 人失敗</sys:String>
+    <sys:String x:Key="Settings.DarkVariant">ダークの種類</sys:String>
+    <sys:String x:Key="Settings.DarkVariant.Hint">ダーク選択時のみ有効。</sys:String>
+    <sys:String x:Key="Settings.DarkStandard">標準ダーク</sys:String>
+    <sys:String x:Key="Settings.DarkOled">OLED 漆黒</sys:String>
 </ResourceDictionary>

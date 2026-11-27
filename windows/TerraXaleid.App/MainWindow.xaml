@@ -277,7 +277,7 @@
                                    Foreground="{DynamicResource App.Text}" />
 
                         <WrapPanel Margin="0,14,0,0">
-                            <!-- appearance: Sarkaz-language previews, same three as the phone -->
+                            <!-- appearance: thumbnails are rendered by the app itself, see PreviewRenderer -->
                             <Border Style="{StaticResource CardBorder}" Width="360" Margin="0,0,14,14">
                                 <StackPanel>
                                     <TextBlock Text="{DynamicResource Settings.Appearance}" FontSize="16" FontWeight="SemiBold"
@@ -287,25 +287,43 @@
                                     <StackPanel Orientation="Horizontal">
                                         <Button x:Name="ThemeSystem" Tag="system" Click="OnThemeClick" Style="{StaticResource ThemeChoice}">
                                             <StackPanel>
-                                                <Image Source="Assets/theme_preview_auto.png" Width="96" Height="96" />
+                                                <Image Source="Assets/theme_preview_auto.png" Width="120" Height="80" Stretch="UniformToFill" />
                                                 <TextBlock Text="{DynamicResource Settings.Theme.System}" FontSize="12" Margin="0,6,0,0"
                                                            HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
                                             </StackPanel>
                                         </Button>
                                         <Button x:Name="ThemeLight" Tag="light" Click="OnThemeClick" Style="{StaticResource ThemeChoice}">
                                             <StackPanel>
-                                                <Image Source="Assets/theme_preview_light.png" Width="96" Height="96" />
+                                                <Image Source="Assets/theme_preview_light.png" Width="120" Height="80" Stretch="UniformToFill" />
                                                 <TextBlock Text="{DynamicResource Settings.Theme.Light}" FontSize="12" Margin="0,6,0,0"
                                                            HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
                                             </StackPanel>
                                         </Button>
                                         <Button x:Name="ThemeDark" Tag="dark" Click="OnThemeClick" Style="{StaticResource ThemeChoice}">
                                             <StackPanel>
-                                                <Image Source="Assets/theme_preview_dark.png" Width="96" Height="96" />
+                                                <Image Source="Assets/theme_preview_dark.png" Width="120" Height="80" Stretch="UniformToFill" />
                                                 <TextBlock Text="{DynamicResource Settings.Theme.Dark}" FontSize="12" Margin="0,6,0,0"
                                                            HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
                                             </StackPanel>
                                         </Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- dark variant: standard charcoal or true black -->
+                            <Border Style="{StaticResource CardBorder}" Width="240" Margin="0,0,14,14">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Settings.DarkVariant}" FontSize="16" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource App.Text}" />
+                                    <TextBlock Text="{DynamicResource Settings.DarkVariant.Hint}" FontSize="12" Margin="0,6,0,12"
+                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="DarkStandard" Tag="standard" Click="OnDarkVariantClick"
+                                                Style="{StaticResource PillButtonOutline}" Margin="0,0,8,0"
+                                                Content="{DynamicResource Settings.DarkStandard}" />
+                                        <Button x:Name="DarkOled" Tag="oled" Click="OnDarkVariantClick"
+                                                Style="{StaticResource PillButtonOutline}"
+                                                Content="{DynamicResource Settings.DarkOled}" />
                                     </StackPanel>
                                 </StackPanel>
                             </Border>

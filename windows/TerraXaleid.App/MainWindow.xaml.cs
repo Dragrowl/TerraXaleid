@@ -73,6 +73,9 @@ public partial class MainWindow : Window
     private List<WorldRow> _all = new();
     private SaveFolder? _folder;
     private string _theme = "system";
+
+    /// <summary>Dark look: "standard" charcoal or "oled" true black (phone parity).</summary>
+    private string _darkVariant = "standard";
     private string _language = "sc";
 
     public MainWindow()
@@ -81,6 +84,7 @@ public partial class MainWindow : Window
 
         DesktopConfig config = DesktopConfig.Load();
         _theme = config.Theme;
+        _darkVariant = config.DarkVariant;
         _language = config.Language;
 
         ApplyLanguage(_language, save: false);
@@ -481,7 +485,11 @@ public partial class MainWindow : Window
             _ => IsSystemDark(),
         };
 
-        foreach ((string key, string colour) in dark ? DarkPalette : LightPalette)
+        var palette = dark
+            ? (_darkVariant == "oled" ? OledPalette : DarkPalette)
+            : LightPalette;
+
+        foreach ((string key, string colour) in palette)
         {
             var colourValue = (Color)ColorConverter.ConvertFromString(colour);
             Application.Current.Resources[key] = new SolidColorBrush(colourValue);
@@ -497,6 +505,24 @@ public partial class MainWindow : Window
         ThemeSystem.Style = theme == "system" ? active : idle;
         ThemeLight.Style = theme == "light" ? active : idle;
         ThemeDark.Style = theme == "dark" ? active : idle;
+
+        var filled = (Style)FindResource("PillButton");
+        var outlined = (Style)FindResource("PillButtonOutline");
+        DarkStandard.Style = _darkVariant == "standard" ? filled : outlined;
+        DarkOled.Style = _darkVariant == "oled" ? filled : outlined;
+        DarkStandard.IsEnabled = dark;
+        DarkOled.IsEnabled = dark;
+    }
+
+    private void OnDarkVariantClick(object sender, RoutedEventArgs e)
+    {
+        if ((sender as Button)?.Tag is not string variant || variant == _darkVariant)
+        {
+            return;
+        }
+
+        _darkVariant = variant;
+        ApplyTheme(_theme, save: true);
     }
 
     private void OnLanguageChanged(object sender, SelectionChangedEventArgs e)
@@ -553,7 +579,7 @@ public partial class MainWindow : Window
         LanguageBox.SelectedIndex = 0;
     }
 
-    private void SaveConfig() => DesktopConfig.Save(_theme, _language);
+    private void SaveConfig() => DesktopConfig.Save(_theme, _darkVariant, _language);
 
     private static string Str(string key)
         => Application.Current.TryFindResource(key) as string ?? key;
@@ -616,6 +642,22 @@ public partial class MainWindow : Window
         ("App.AccentSoft", "#2C3A2E"),
         ("App.DangerSoft", "#3A1D1D"),
         ("App.ScrollThumb", "#3A3A38"),
+    };
+
+    /// <summary>True black so OLED panels switch pixels off; surfaces lift just enough to read.</summary>
+    private static readonly (string Key, string Colour)[] OledPalette =
+    {
+        ("App.Background", "#000000"),
+        ("App.Surface", "#0B0B0B"),
+        ("App.Rail", "#050505"),
+        ("App.Border", "#1A1A1A"),
+        ("App.Chip", "#141414"),
+        ("App.Text", "#E8E8E6"),
+        ("App.TextSoft", "#9A9A95"),
+        ("App.Accent", "#A9C3A9"),
+        ("App.AccentSoft", "#1C2A1E"),
+        ("App.DangerSoft", "#2A1414"),
+        ("App.ScrollThumb", "#2A2A28"),
     };
 
     private void OnCharacterCardClick(object sender, MouseButtonEventArgs e)
@@ -691,8 +733,8 @@ public partial class MainWindow : Window
             : string.Format(Str("Chars.WrittenFailed"), written, failed) + (firstError is null ? string.Empty : " · " + firstError);
     }
 }
-/// <summary>Tiny json config in %APPDATA%\TerraXaleid\config.json (theme + language).</summary>
-internal sealed record DesktopConfig(string Theme, string Language)
+/// <summary>Tiny json config in %APPDATA%\TerraXaleid\config.json (theme, dark variant, language).</summary>
+internal sealed record DesktopConfig(string Theme, string DarkVariant, string Language)
 {
     private static string FilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TerraXaleid", "config.json");
@@ -705,8 +747,9 @@ internal sealed record DesktopConfig(string Theme, string Language)
             {
                 using var doc = JsonDocument.Parse(File.ReadAllText(FilePath));
                 string theme = Read(doc.RootElement, "theme") ?? "system";
+                string darkVariant = Read(doc.RootElement, "darkVariant") ?? "standard";
                 string language = Read(doc.RootElement, "language") ?? "sc";
-                return new DesktopConfig(theme, language);
+                return new DesktopConfig(theme, darkVariant, language);
             }
         }
         catch
@@ -714,7 +757,7 @@ internal sealed record DesktopConfig(string Theme, string Language)
             // A broken config must never stop the app from starting.
         }
 
-        return new DesktopConfig("system", "sc");
+        return new DesktopConfig("system", "standard", "sc");
     }
 
     private static string? Read(JsonElement root, string name)
@@ -722,7 +765,7 @@ internal sealed record DesktopConfig(string Theme, string Language)
             ? value.GetString()
             : null;
 
-    public static void Save(string theme, string language)
+    public static void Save(string theme, string darkVariant, string language)
     {
         try
         {
@@ -732,7 +775,12 @@ internal sealed record DesktopConfig(string Theme, string Language)
                 Directory.CreateDirectory(dir);
             }
 
-            var payload = new Dictionary<string, string> { ["theme"] = theme, ["language"] = language };
+            var payload = new Dictionary<string, string>
+            {
+                ["theme"] = theme,
+                ["darkVariant"] = darkVariant,
+                ["language"] = language,
+            };
             File.WriteAllText(FilePath,
                 JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }));
         }

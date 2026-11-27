@@ -47,4 +47,8 @@
     <sys:String x:Key="Chars.WithMap">已有點亮的地圖 · {0:F0} KB</sys:String>
     <sys:String x:Key="Chars.Written">已點亮 {0} 個角色</sys:String>
     <sys:String x:Key="Chars.WrittenFailed">已點亮 {0} 個，失敗 {1} 個</sys:String>
+    <sys:String x:Key="Settings.DarkVariant">深色變體</sys:String>
+    <sys:String x:Key="Settings.DarkVariant.Hint">僅在深色下生效。</sys:String>
+    <sys:String x:Key="Settings.DarkStandard">標準深色</sys:String>
+    <sys:String x:Key="Settings.DarkOled">OLED 全黑</sys:String>
 </ResourceDictionary>
