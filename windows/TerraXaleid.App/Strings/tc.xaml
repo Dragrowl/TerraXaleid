@@ -67,4 +67,14 @@
     <sys:String x:Key="Worlds.Menu.Open">開啟並點亮…</sys:String>
     <sys:String x:Key="Worlds.Menu.Tick">加入 / 移出批次</sys:String>
     <sys:String x:Key="Worlds.Menu.Folder">在檔案總管中顯示</sys:String>
+    <sys:String x:Key="Settings.About.Keys">快速鍵：Ctrl+1 世界 · Ctrl+2 備份 · Ctrl+3 設定 · Ctrl+B 批次點亮 · 空白鍵勾選世界 · Enter 進入角色。</sys:String>
+    <sys:String x:Key="Settings.Keys">鍵盤快速鍵</sys:String>
+    <sys:String x:Key="Settings.Keys.Hint">所有操作都能只用鍵盤完成。</sys:String>
+    <sys:String x:Key="Settings.Keys.List">Ctrl+1 / 2 / 3　切換到 世界 / 備份 / 設定
+Ctrl+B　點亮所有勾選的世界
+空白鍵　勾選/取消目前世界
+Enter　進入目前世界的角色清單
+F5　重新掃描存檔
+右鍵世界卡　開啟 / 批次 / 檔案總管
+右鍵角色卡　復原該角色本次點亮</sys:String>
 </ResourceDictionary>

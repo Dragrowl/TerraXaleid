@@ -446,7 +446,9 @@
                                                Foreground="{DynamicResource App.Text}" />
                                     <TextBlock Text="{DynamicResource Settings.About.Body}" FontSize="12" Margin="0,6,0,0"
                                                Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{DynamicResource Settings.About.Previews}" FontSize="12" Margin="0,4,0,12"
+                                    <TextBlock Text="{DynamicResource Settings.About.Previews}" FontSize="12" Margin="0,4,0,0"
+                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{DynamicResource Settings.About.Keys}" FontSize="12" Margin="0,4,0,12"
                                                Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock>
@@ -459,6 +461,19 @@
                                             <Hyperlink Click="OnOpenChangelog"><Run Text="{DynamicResource Settings.About.Changelog}" /></Hyperlink>
                                         </TextBlock>
                                     </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- keyboard shortcuts -->
+                            <Border Style="{StaticResource CardBorder}" Width="300" Margin="0,0,14,14">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Settings.Keys}" FontSize="16" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource App.Text}" />
+                                    <TextBlock Text="{DynamicResource Settings.Keys.Hint}" FontSize="12" Margin="0,6,0,10"
+                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{DynamicResource Settings.Keys.List}" FontSize="12"
+                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap"
+                                               LineHeight="20" />
                                 </StackPanel>
                             </Border>
                         </WrapPanel>

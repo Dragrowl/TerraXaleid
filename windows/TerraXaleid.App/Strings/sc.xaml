@@ -67,4 +67,14 @@
     <sys:String x:Key="Worlds.Menu.Open">打开并点亮…</sys:String>
     <sys:String x:Key="Worlds.Menu.Tick">加入 / 移出批量</sys:String>
     <sys:String x:Key="Worlds.Menu.Folder">在资源管理器中显示</sys:String>
+    <sys:String x:Key="Settings.About.Keys">快捷键：Ctrl+1 世界 · Ctrl+2 备份 · Ctrl+3 设置 · Ctrl+B 批量点亮 · 空格勾选世界 · 回车进入角色。</sys:String>
+    <sys:String x:Key="Settings.Keys">键盘快捷键</sys:String>
+    <sys:String x:Key="Settings.Keys.Hint">全部操作都能只用键盘完成。</sys:String>
+    <sys:String x:Key="Settings.Keys.List">Ctrl+1 / 2 / 3　切到 世界 / 备份 / 设置
+Ctrl+B　点亮所有勾选的世界
+空格　勾选/取消当前世界
+回车　进入当前世界的角色列表
+F5　重新扫描存档
+右键世界卡　打开 / 批量 / 资源管理器
+右键角色卡　撤销该角色本次点亮</sys:String>
 </ResourceDictionary>
