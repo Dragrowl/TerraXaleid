@@ -123,7 +123,9 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Width="320" Margin="0,0,12,12"
-                                            MouseLeftButtonUp="OnWorldCardClick" Cursor="Hand">
+                                            MouseLeftButtonUp="OnWorldCardClick" Cursor="Hand"
+                                            Focusable="True" FocusVisualStyle="{StaticResource FocusRing}"
+                                            KeyDown="OnWorldCardKeyDown">
                                         <Border.ContextMenu>
                                             <ContextMenu>
                                                 <MenuItem Header="{DynamicResource Worlds.Menu.Open}" Click="OnWorldMenuOpen" Tag="{Binding}" />
@@ -175,9 +177,10 @@
                                             </StackPanel>
                                             <Button Grid.Column="1" Width="26" Height="26" Margin="10,0,0,0"
                                                     VerticalAlignment="Top" Padding="0" Background="Transparent"
-                                                    BorderThickness="0" Cursor="Hand" Focusable="False"
+                                                    BorderThickness="0" Cursor="Hand"
                                                     ToolTip="{DynamicResource Worlds.BatchPick}"
-                                                    PreviewMouseLeftButtonUp="OnWorldTickClick">
+                                                    PreviewMouseLeftButtonUp="OnWorldTickClick"
+                                                    Click="OnWorldTickButton">
                                                 <materialDesign:PackIcon Kind="Check" Width="16" Height="16">
                                                     <materialDesign:PackIcon.Style>
                                                         <Style TargetType="materialDesign:PackIcon">

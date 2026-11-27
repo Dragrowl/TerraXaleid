@@ -407,11 +407,43 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OnWorldCardKeyDown(object sender, KeyEventArgs e)
+    {
+        if (sender is not FrameworkElement element || element.DataContext is not WorldRow row) return;
+
+        switch (e.Key)
+        {
+            case Key.Space:
+                ToggleWorldSelection(row);
+                e.Handled = true;
+                break;
+            case Key.Enter:
+                ShowCharacters(row);
+                e.Handled = true;
+                break;
+        }
+    }
+
     private void OnWorldTickClick(object sender, MouseButtonEventArgs e)
     {
         // ticking means "include in the batch"; the card itself still navigates on a plain click
         if (sender is not FrameworkElement element || element.DataContext is not WorldRow row) return;
 
+        ToggleWorldSelection(row);
+        e.Handled = true;
+    }
+
+    // keyboard path: Tab to the tick button, press Space
+    private void OnWorldTickButton(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement element || element.DataContext is not WorldRow row) return;
+
+        ToggleWorldSelection(row);
+        e.Handled = true;
+    }
+
+    private void ToggleWorldSelection(WorldRow row)
+    {
         row.Selected = !row.Selected;
         if (row.Selected)
         {
@@ -426,7 +458,6 @@ public partial class MainWindow : Window
         StatusText.Text = _selectedWorlds.Count == 0
             ? (_folder is null ? string.Empty : string.Format(Str("Worlds.Count"), _folder.Root, _all.Count))
             : string.Format(Str("Worlds.BatchHint"), _selectedWorlds.Count);
-        e.Handled = true;
     }
 
     private void OnBatchPickClick(object sender, RoutedEventArgs e)

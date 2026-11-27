@@ -210,7 +210,17 @@
 
             <!-- Filled and outlined pills: the MDIX button templates carry their own light-theme
                  brushes, which look foreign on our palette, so the app draws its own. -->
-            <Style x:Key="PillButton" TargetType="Button">
+            <Style x:Key="FocusRing">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border BorderBrush="{DynamicResource App.Accent}" BorderThickness="2"
+                            CornerRadius="10" Margin="-4" SnapsToDevicePixels="True" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="PillButton" TargetType="Button">
                 <Setter Property="Height" Value="34" />
                 <Setter Property="Padding" Value="16,0" />
                 <Setter Property="FontSize" Value="13" />
@@ -237,7 +247,8 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
-            </Style>
+                    <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}" />
+    </Style>
 
             <Style x:Key="PillButtonOutline" TargetType="Button" BasedOn="{StaticResource PillButton}">
                 <Setter Property="Foreground" Value="{DynamicResource App.Text}" />
@@ -264,7 +275,8 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
-            </Style>
+                    <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}" />
+    </Style>
 
     <Style x:Key="PillButtonDanger" TargetType="Button" BasedOn="{StaticResource PillButtonOutline}">
                 <Setter Property="Foreground" Value="{DynamicResource App.Danger}" />
@@ -291,7 +303,8 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
-            </Style>
+                    <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}" />
+    </Style>
 
             <!-- Theme picker tile: outlined when selected, like the phone. -->
             <Style x:Key="ThemeChoice" TargetType="Button">
