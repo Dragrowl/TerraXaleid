@@ -77,4 +77,5 @@ Ctrl+B　批量点亮
 F5　重新扫描
 右键世界卡　快捷菜单
 右键角色卡　撤销本次</sys:String>
+    <sys:String x:Key="Worlds.Match">匹配 {0} / {1} 个世界</sys:String>
 </ResourceDictionary>

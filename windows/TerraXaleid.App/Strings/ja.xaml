@@ -77,4 +77,5 @@ Enter　キャラクターへ
 F5　再読み込み
 ワールド右クリック　メニュー
 キャラクター右クリック　元に戻す</sys:String>
+    <sys:String x:Key="Worlds.Match">{0} / {1} ワールドが一致</sys:String>
 </ResourceDictionary>

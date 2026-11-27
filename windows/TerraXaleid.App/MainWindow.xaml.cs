@@ -354,6 +354,15 @@ public partial class MainWindow : Window
         ApplyFilter();
     }
 
+    private void OnSearchKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape && SearchBox.Text.Length > 0)
+        {
+            SearchBox.Clear();
+            e.Handled = true;
+        }
+    }
+
     private void ApplyFilter()
     {
         string query = SearchBox.Text?.Trim() ?? string.Empty;
@@ -362,6 +371,13 @@ public partial class MainWindow : Window
             : _all.Where(w => w.Name.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
         WorldList.ItemsSource = rows;
         WorldEmpty.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        if (_folder is not null)
+        {
+            StatusText.Text = query.Length == 0
+                ? string.Format(Str("Worlds.Count"), _folder.Root, _all.Count)
+                : string.Format(Str("Worlds.Match"), rows.Count, _all.Count);
+        }
     }
 
     private void OnWorldMenuOpen(object sender, RoutedEventArgs e)

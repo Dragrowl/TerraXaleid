@@ -77,4 +77,5 @@ Enter　open characters
 F5　rescan saves
 Right-click world　menu
 Right-click character　undo</sys:String>
+    <sys:String x:Key="Worlds.Match">{0} of {1} worlds match</sys:String>
 </ResourceDictionary>
