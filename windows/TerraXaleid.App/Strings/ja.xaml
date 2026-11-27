@@ -78,4 +78,6 @@ F5　再読み込み
 ワールド右クリック　メニュー
 キャラクター右クリック　元に戻す</sys:String>
     <sys:String x:Key="Worlds.Match">{0} / {1} ワールドが一致</sys:String>
+    <sys:String x:Key="Chars.Template">テンプレート: キャラクター「{0}」のマップ</sys:String>
+    <sys:String x:Key="Chars.NoTemplate">利用できるテンプレートが無いため、内蔵のタイル表を使います。</sys:String>
 </ResourceDictionary>

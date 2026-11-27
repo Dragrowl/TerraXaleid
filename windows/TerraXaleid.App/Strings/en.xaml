@@ -78,4 +78,6 @@ F5　rescan saves
 Right-click world　menu
 Right-click character　undo</sys:String>
     <sys:String x:Key="Worlds.Match">{0} of {1} worlds match</sys:String>
+    <sys:String x:Key="Chars.Template">Template: {0}'s map</sys:String>
+    <sys:String x:Key="Chars.NoTemplate">No template available; the built-in tile table will be used.</sys:String>
 </ResourceDictionary>

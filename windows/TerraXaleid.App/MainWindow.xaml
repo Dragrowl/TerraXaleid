@@ -229,8 +229,12 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <TextBlock Grid.Row="1" Text="{DynamicResource Chars.Hint}" FontSize="12" Margin="0,12,0,12"
-                               Foreground="{DynamicResource App.TextSoft}" />
+                    <StackPanel Grid.Row="1" Margin="0,12,0,12">
+                        <TextBlock Text="{DynamicResource Chars.Hint}" FontSize="12"
+                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                        <TextBlock x:Name="CharacterTemplate" FontSize="12" Margin="0,4,0,0"
+                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                    </StackPanel>
 
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <ItemsControl x:Name="CharacterList">
@@ -314,6 +318,10 @@
                     <TextBlock Grid.Row="1" Text="{DynamicResource Backups.Hint}" FontSize="12" Margin="0,8,0,14"
                                TextWrapping="Wrap" Foreground="{DynamicResource App.TextSoft}" />
 
+                    <TextBlock x:Name="BackupEmpty" Text="{DynamicResource Backups.Empty}"
+                               HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,48,0,0"
+                               FontSize="13" Foreground="{DynamicResource App.TextSoft}"
+                               Visibility="Collapsed" />
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <ItemsControl x:Name="BackupList">
                             <ItemsControl.ItemTemplate>

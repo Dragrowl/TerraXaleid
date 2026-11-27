@@ -78,4 +78,6 @@ F5　重新掃描
 右鍵世界卡　快速選單
 右鍵角色卡　復原本次</sys:String>
     <sys:String x:Key="Worlds.Match">符合 {0} / {1} 個世界</sys:String>
+    <sys:String x:Key="Chars.Template">範本：角色「{0}」的地圖</sys:String>
+    <sys:String x:Key="Chars.NoTemplate">目前沒有可用範本，將使用內建圖塊表。</sys:String>
 </ResourceDictionary>

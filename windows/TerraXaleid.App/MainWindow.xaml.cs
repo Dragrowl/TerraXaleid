@@ -579,6 +579,12 @@ public partial class MainWindow : Window
 
         _picked.Clear();
         CharacterList.ItemsSource = rows;
+
+        string? template = rows.FirstOrDefault(r => r.MapPath is not null)?.Name;
+        CharacterTemplate.Text = template is null
+            ? Str("Chars.NoTemplate")
+            : string.Format(Str("Chars.Template"), template);
+
         PickButton.IsEnabled = false;
         UpdateCharacterSelection();
         ShowPage(1);
@@ -648,6 +654,7 @@ public partial class MainWindow : Window
         }
 
         BackupList.ItemsSource = rows;
+        BackupEmpty.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         BackupStatus.Text = rows.Count == 0 ? Str("Backups.Empty") : string.Format(Str("Backups.Count"), rows.Count);
     }
 
