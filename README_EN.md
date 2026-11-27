@@ -24,7 +24,7 @@ The core is pure data processing: bytes in, bytes out, never touching the game p
 | Platform | State | Notes |
 |---|---|---|
 | **Android** | ✅ available | Compose (Material 3) UI, reads and writes through Shizuku; install the APK from Releases |
-| **Windows** | 🚧 command line available | `terraxaleid-cli` reads Steam saves and writes PC `.map` files (`--reveal-pc`), with `--auto-test` for an end-to-end check. No GUI yet |
+| **Windows** | 🚧 GUI available (`0.1.0-dev` line) | WPF desktop app: world list → tick → reveal, with undo, backup restore, dark variants and four languages; `terraxaleid-cli` stays for batch work and self-tests |
 | L1 core | ✅ done in three languages | Python / C# / Kotlin agree tile-for-tile (identical `decoded-grid sha256`); both UIs sit on it |
 
 
@@ -68,9 +68,26 @@ Tile colours follow the real priority of `Terraria.Map.MapHelper.CreateMapTile`:
 
 Why Shizuku is required: since Android 11 an app cannot list another app's `Android/data` — not even with "All files access". Without Shizuku you can use the portable folders `Download/TerrariaSaves/` or `Documents/TerrariaSaves/`: drop `Worlds/` and `Players/` there, let the app work on them, then move them back with a file manager.
 
-## On desktop
+## Desktop (Windows)
 
-The Windows side is a C# command line, `terraxaleid-cli`: `--inspect` to look at a save, `--reveal-pc` to write a PC `.map`, `--auto-test` for an end-to-end check (read world → resolve the character → write the map → read it back).
+The GUI and the command line both live in `windows/` and share `TerraXaleid.Core`.
+
+### GUI
+
+Grab `TerraXaleid-0.1.0-dev-win-x64.zip` (needs the .NET 10 desktop runtime) or `…-standalone.zip` (single file, no runtime) from Releases and run `TerraXaleid.exe`. It reads and writes `%USERPROFILE%\Documents\My Games\Terraria` directly - no adb, no Shizuku.
+
+- **Reveal**: world list -> card -> characters -> tick -> **Reveal**. The old `.map` becomes `.map.bak` (then `.bak.1`, `.bak.2` on later writes).
+- **Undo**: after a reveal the footer shows **Undo**, which deletes the new maps and rolls the `.bak` chain back.
+- **Batch**: the tick in a card's top-right corner adds the world to the batch (`Ctrl+B` runs it). Only characters that already own a map for that world are rewritten; nothing is invented. The world card's right-click menu does the same.
+- **Backups** (`Ctrl+2`): every `.bak` grouped by "world / character", with restore, delete, and **Delete map (all black)**.
+- **Appearance**: Settings -> Appearance: system / light / dark, plus **Standard dark / OLED black** in dark. Four languages, applied instantly.
+- **Keyboard**: `Ctrl+1/2/3` pages, `Ctrl+B` batch reveal, `Space` ticks the focused world, `Enter` opens its characters, `F5` rescans; every button shows a visible focus ring.
+
+Theme thumbnails are rendered by the app itself, not stitched screenshots: `TerraXaleid.exe --render-previews <font> <outDir>` writes the three 720x480 tiles.
+
+### Command line
+
+`terraxaleid-cli`: `--inspect` to look at a save, `--reveal-pc` to write a PC `.map`, `--auto-test` for an end-to-end check (read world -> resolve the character -> write the map -> read it back).
 
 ```powershell
 dotnet run --project windows\TerraXaleid.Cli -- --auto-test --world 111test --player koboshi
@@ -169,7 +186,7 @@ Details and traps: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/L1-STA
 |---|---|
 | `*.py` | L1 reference implementation (`worldfmt` / `mapfmt` / `players` / `reveal` / `deploy`) plus self-test |
 | `csharp/` | C# L1 (`net10.0`, no NuGet) and its self-test |
-| `windows/` | Windows side: `TerraXaleid.Core.Win` (save discovery) and `TerraXaleid.Cli` (command line) |
+| `windows/` | Windows side: `TerraXaleid.App` (WPF GUI), `TerraXaleid.Core.Win` (save discovery) and `TerraXaleid.Cli` (command line) |
 | `kotlin/` | Kotlin/JVM L1 and self-test (referenced by the Android module, not copied) |
 | `android/` | Compose shell (Material 3), `app` + `core` modules |
 | `scripts/` | three-language verification and packaging |

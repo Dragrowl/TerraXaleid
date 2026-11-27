@@ -24,7 +24,7 @@ TerraXaleid 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应
 | 平台 | 状态 | 说明 |
 |---|---|---|
 | **Android** | ✅ 可用（`0.1.0-rc` 线） | Compose（Material 3）界面，读写走 Shizuku，装 Releases 里的 APK 即用 |
-| **Windows** | 🚧 命令行可用 | `terraxaleid-cli` 能读 Steam 存档、写 PC 版 `.map`（`--reveal-pc`），也可用 `--auto-test` 做端到端自检；图形界面还没提供 |
+| **Windows** | 🚧 图形界面可用（`0.1.0-dev` 线） | WPF 桌面端：世界列表 → 勾选 → 点亮，带撤销、备份恢复、深色变体与四语言；另有命令行 `terraxaleid-cli` 做批量与自检 |
 | L1 核心 | ✅ 三语言完成 | Python / C# / Kotlin 逐格结果一致（`decoded-grid sha256` 相同），是各平台界面的公共底座 |
 
 
@@ -68,9 +68,26 @@ TerraXaleid 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应
 
 为什么必须要 Shizuku：Android 11 起系统禁止普通应用读取**别的应用**的 `Android/data`，连「所有文件访问」也拿不到那个目录。没有 Shizuku 时，可以用 `Download/TerrariaSaves/` 或 `Documents/TerrariaSaves/` 这两个便携目录：把 `Worlds/` 与 `Players/` 拷进去，App 直接读写它们，再用文件管理器搬回游戏目录。
 
-## 桌面端
+## 桌面端（Windows）
 
-Windows 端目前提供 C# 命令行 `terraxaleid-cli`：`--inspect` 看存档、`--reveal-pc` 写 PC 版 `.map`、`--auto-test` 做端到端自检（读世界 → 认角色 → 写图 → 回读比对）。
+图形界面与命令行都在 `windows/`，共用同一份 `TerraXaleid.Core`。
+
+### 图形界面
+
+从 Releases 取 `TerraXaleid-0.1.0-dev-win-x64.zip`（需要 .NET 10 桌面运行时）或 `…-standalone.zip`（单文件，免运行时），解压后运行 `TerraXaleid.exe`。它直接读写 `%USERPROFILE%\Documents\My Games\Terraria`，不用 adb、不用 Shizuku。
+
+- **点亮**：世界列表 → 点卡片进角色列表 → 勾选角色 → 点亮所选；写之前把原 `.map` 备份成 `.map.bak`（再写则 `.bak → .bak.1 → .bak.2`）。
+- **撤销**：点亮后底栏出现「撤销本次」，一键把刚才写的几份地图还原（删新图、`.bak` 逐级前移）。
+- **批量**：卡片右上角勾号把世界加入批量（`Ctrl+B` 执行），只重写**已经存在**该世界地图的角色，不会凭空造文件；也可以右键世界卡走菜单里的「加入 / 移出批量」。
+- **恢复与备份**（`Ctrl+2`）：按「世界 · 角色」列出所有 `.bak`，可恢复、删备份，或「删除地图（全黑）」把某份图清掉让游戏重新生成。
+- **着色**：设置 → 外观：跟随系统 / 浅色 / 深色，深色下还有「标准深色 / OLED 全黑」；语言四选一，切换立即生效。
+- **键盘**：`Ctrl+1/2/3` 切页、`Ctrl+B` 批量点亮、`空格` 勾选当前世界、`回车` 进角色页、`F5` 重扫存档；全部按钮都有可见焦点环。
+
+主题缩略图不是截屏拼接，而是由程序自己离屏渲染：`TerraXaleid.exe --render-previews <字体> <输出目录>` 生成 720×480 的三张图（跟随系统 / 浅色 / 深色）。
+
+### 命令行
+
+`terraxaleid-cli`：`--inspect` 看存档、`--reveal-pc` 写 PC 版 `.map`、`--auto-test` 做端到端自检（读世界 → 认角色 → 写图 → 回读比对）。
 
 ```powershell
 # 端到端跑一遍：世界 + 角色，写完立刻回读比对
@@ -174,7 +191,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package-apk.ps1
 |---|---|
 | `*.py` | L1 参考实现（`worldfmt` / `mapfmt` / `players` / `reveal` / `deploy`）与自检 |
 | `csharp/` | L1 的 C# 实现（`net10.0`，零 NuGet）+ 自检 |
-| `windows/` | Windows 端：`TerraXaleid.Core.Win`（存档发现）与 `TerraXaleid.Cli`（命令行入口） |
+| `windows/` | Windows 端：`TerraXaleid.App`（WPF 图形界面）、`TerraXaleid.Core.Win`（存档发现）与 `TerraXaleid.Cli`（命令行入口） |
 | `TerraXaleid-<versionName>.apk` | Android 安装包产物，见 `dist/` |
 | `kotlin/` | L1 的 Kotlin/JVM 实现 + 自检（被 Android 模块直接引用，不复制源码） |
 | `android/` | Compose 外壳（Material 3），`app` + `core` 两个模块 |

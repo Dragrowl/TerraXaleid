@@ -11,6 +11,30 @@
 - `dist/` 文件名只带 `versionName`（`TerraXaleid-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
 
+## [0.1.0-dev] - 2026-11-28
+
+### Added
+
+- Windows 图形界面（WPF，`windows/TerraXaleid.App`）：世界列表 → 角色列表 → 点亮，直接读写
+  `%USERPROFILE%\Documents\My Games\Terraria`，不需要 adb 或 Shizuku。
+- 批量点亮：卡片右上角勾号把世界加入批量，`Ctrl+B` 执行；只重写已经存在该世界地图的角色，
+  不会为空角色新建地图。世界卡右键菜单提供 打开 / 加入批量 / 在资源管理器中显示。
+- 撤销本次：点亮后底栏出现「撤销本次」，删除刚写的地图并把 `.bak` 链逐级前移。
+- 恢复与备份页：按「世界 · 角色」列出全部 `.bak`，可恢复、删备份，或删除地图（全黑）让游戏重新生成。
+- 深色变体：标准深色 / OLED 全黑（`App.Background #000000`），随配置持久化。
+- 键盘操作：`Ctrl+1/2/3` 切页、`Ctrl+B` 批量、`空格` 勾选、`回车` 进角色页、`F5` 重扫，
+  所有按钮与卡片都有可见焦点环。
+
+### Changed
+
+- 主题缩略图改由程序自身离屏渲染（`--render-previews <字体> <输出目录>`），不再使用手机截图拼接。
+- 浅色主题对比度：卡片描边加深到 `#DCDCD6`，卡片加 7% 柔和阴影，未选中勾号透明度 0.25 → 0.45。
+
+### Notes
+
+- 版本仍停在 `0.1.0-dev`，安装包为 `dist/TerraXaleid-0.1.0-dev-win-x64.zip`（需 .NET 10 桌面运行时）
+  与 `dist/TerraXaleid-0.1.0-dev-win-x64-standalone.zip`（单文件，免运行时）。
+
 ## [0.1.0-rc.16] - 2026-11-28
 
 ### Added
