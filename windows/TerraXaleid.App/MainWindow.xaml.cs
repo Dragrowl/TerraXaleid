@@ -361,6 +361,52 @@ public partial class MainWindow : Window
         WorldEmpty.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
+    private void OnWorldMenuOpen(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.Tag is WorldRow world)
+        {
+            ShowCharacters(world);
+        }
+    }
+
+    private void OnWorldMenuTick(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.Tag is not WorldRow row) return;
+
+        row.Selected = !row.Selected;
+        if (row.Selected)
+        {
+            _selectedWorlds.Add(row);
+        }
+        else
+        {
+            _selectedWorlds.Remove(row);
+        }
+
+        StatusText.Text = _selectedWorlds.Count == 0
+            ? (_folder is null ? string.Empty : string.Format(Str("Worlds.Count"), _folder.Root, _all.Count))
+            : string.Format(Str("Worlds.BatchHint"), _selectedWorlds.Count);
+    }
+
+    private void OnWorldMenuFolder(object sender, RoutedEventArgs e)
+    {
+        if (_folder is null) return;
+
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "explorer.exe",
+                Arguments = $"\"{_folder.WorldsDir}\"",
+                UseShellExecute = true,
+            });
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = ex.Message;
+        }
+    }
+
     private void OnWorldTickClick(object sender, MouseButtonEventArgs e)
     {
         // ticking means "include in the batch"; the card itself still navigates on a plain click

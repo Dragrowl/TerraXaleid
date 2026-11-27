@@ -64,4 +64,7 @@
     <sys:String x:Key="Worlds.NoMaps">无地图</sys:String>
     <sys:String x:Key="Worlds.Maps">{0} 个角色</sys:String>
     <sys:String x:Key="Settings.About.Changelog">更新日志</sys:String>
+    <sys:String x:Key="Worlds.Menu.Open">打开并点亮…</sys:String>
+    <sys:String x:Key="Worlds.Menu.Tick">加入 / 移出批量</sys:String>
+    <sys:String x:Key="Worlds.Menu.Folder">在资源管理器中显示</sys:String>
 </ResourceDictionary>

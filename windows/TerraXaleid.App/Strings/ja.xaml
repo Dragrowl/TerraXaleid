@@ -64,4 +64,7 @@
     <sys:String x:Key="Worlds.NoMaps">マップなし</sys:String>
     <sys:String x:Key="Worlds.Maps">{0} 人分</sys:String>
     <sys:String x:Key="Settings.About.Changelog">変更履歴</sys:String>
+    <sys:String x:Key="Worlds.Menu.Open">開いて点灯…</sys:String>
+    <sys:String x:Key="Worlds.Menu.Tick">まとめて点灯に追加 / 解除</sys:String>
+    <sys:String x:Key="Worlds.Menu.Folder">エクスプローラーで表示</sys:String>
 </ResourceDictionary>

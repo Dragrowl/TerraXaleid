@@ -124,6 +124,14 @@
                                 <DataTemplate>
                                     <Border Width="320" Margin="0,0,12,12"
                                             MouseLeftButtonUp="OnWorldCardClick" Cursor="Hand">
+                                        <Border.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="{DynamicResource Worlds.Menu.Open}" Click="OnWorldMenuOpen" Tag="{Binding}" />
+                                                <MenuItem Header="{DynamicResource Worlds.Menu.Tick}" Click="OnWorldMenuTick" Tag="{Binding}" />
+                                                <Separator />
+                                                <MenuItem Header="{DynamicResource Worlds.Menu.Folder}" Click="OnWorldMenuFolder" Tag="{Binding}" />
+                                            </ContextMenu>
+                                        </Border.ContextMenu>
                                         <Border.Style>
                                             <Style TargetType="Border" BasedOn="{StaticResource CardBorder}">
                                                 <Style.Triggers>

@@ -64,4 +64,7 @@
     <sys:String x:Key="Worlds.NoMaps">No maps</sys:String>
     <sys:String x:Key="Worlds.Maps">{0} character(s)</sys:String>
     <sys:String x:Key="Settings.About.Changelog">Changelog</sys:String>
+    <sys:String x:Key="Worlds.Menu.Open">Open and reveal…</sys:String>
+    <sys:String x:Key="Worlds.Menu.Tick">Add / remove from batch</sys:String>
+    <sys:String x:Key="Worlds.Menu.Folder">Show in Explorer</sys:String>
 </ResourceDictionary>
