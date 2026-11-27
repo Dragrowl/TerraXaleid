@@ -5,9 +5,10 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Background="{DynamicResource App.Background}"
-        FontFamily="Microsoft YaHei UI"
+        FontFamily="{DynamicResource App.FontFamily}"
+        Icon="Assets/app.ico"
         Title="TerraXaleid"
-        Height="760" Width="1120" MinHeight="560" MinWidth="880"
+        Height="760" Width="1120" MinHeight="380" MinWidth="520"
         WindowStartupLocation="CenterScreen"
         PreviewKeyDown="OnWindowKeyDown"
         WindowStyle="None" ResizeMode="CanResize" UseLayoutRounding="True">
@@ -88,41 +89,38 @@
             <Grid Grid.Column="1">
 
                 <!-- level 1: worlds -->
-                <Grid x:Name="PageWorlds" Margin="24,18,24,14">
+                <Grid x:Name="PageWorlds">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="{DynamicResource Worlds.Title}" FontSize="28" FontWeight="SemiBold"
-                               HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
-
-                    <Grid Grid.Row="1" Margin="0,14,0,16">
-                        <Grid HorizontalAlignment="Center" Width="460">
-                            <TextBox x:Name="SearchBox" Style="{StaticResource SearchField}" TextChanged="OnSearchChanged" KeyDown="OnSearchKeyDown" />
-                            <TextBlock x:Name="SearchHint" Text="{DynamicResource Worlds.Search}" Margin="20,0"
-                                       IsHitTestVisible="False" VerticalAlignment="Center" FontSize="14"
-                                       Foreground="{DynamicResource App.TextSoft}" />
-                        </Grid>
-
+                    <!-- Floating search: it hovers over the grid instead of eating a full row. -->
+                    <Grid x:Name="SearchHost" Panel.ZIndex="2" Width="320" Margin="0,14,20,0"
+                          HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <TextBox x:Name="SearchBox" Style="{StaticResource SearchField}" TextChanged="OnSearchChanged" KeyDown="OnSearchKeyDown" />
+                        <TextBlock x:Name="SearchHint" Text="{DynamicResource Worlds.Search}" Margin="20,0"
+                                   IsHitTestVisible="False" VerticalAlignment="Center"
+                                   FontSize="{DynamicResource App.Font.Body}"
+                                   Foreground="{DynamicResource App.TextSoft}" />
                     </Grid>
 
                     <TextBlock x:Name="WorldEmpty" Text="{DynamicResource Worlds.NoMatch}"
-                               HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,48,0,0"
-                               FontSize="13" Foreground="{DynamicResource App.TextSoft}"
+                               HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,150,0,0"
+                               FontSize="{DynamicResource App.Font.Body}" Foreground="{DynamicResource App.TextSoft}"
                                Visibility="Collapsed" />
-                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <ItemsControl x:Name="WorldList">
+                    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                  Margin="20,66,0,12">
+                        <ItemsControl x:Name="WorldList" Margin="0,0,8,0">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <WrapPanel Orientation="Horizontal" />
+                                    <UniformGrid Rows="0"
+                                                 Columns="{Binding WorldColumns, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Width="320" Margin="0,0,12,12"
+                                    <Border Margin="0,0,12,12"
                                             MouseLeftButtonUp="OnWorldCardClick" Cursor="Hand"
                                             Focusable="True" FocusVisualStyle="{StaticResource FocusRing}"
                                             KeyDown="OnWorldCardKeyDown">
@@ -152,35 +150,36 @@
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0">
-                                            <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"
+                                            <TextBlock Text="{Binding Name}" FontSize="{DynamicResource App.Font.Body}" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource App.Text}" TextWrapping="NoWrap"
                                                        TextTrimming="CharacterEllipsis" />
                                             <WrapPanel Margin="0,10,0,0">
                                                 <Border Background="{DynamicResource App.Chip}" CornerRadius="9" Padding="9,3" Margin="0,0,8,6">
-                                                    <TextBlock Text="{Binding Difficulty}" FontSize="12" Foreground="{DynamicResource App.Text}" />
+                                                    <TextBlock Text="{Binding Difficulty}" FontSize="{DynamicResource App.Font.Meta}" Foreground="{DynamicResource App.Text}" />
                                                 </Border>
                                                 <Border Background="{DynamicResource App.Chip}" CornerRadius="9" Padding="9,3" Margin="0,0,8,6">
-                                                    <TextBlock Text="{Binding Size}" FontSize="12" Foreground="{DynamicResource App.Text}" />
+                                                    <TextBlock Text="{Binding Size}" FontSize="{DynamicResource App.Font.Meta}" Foreground="{DynamicResource App.Text}" />
                                                 </Border>
                                                 <Border Background="{DynamicResource App.Chip}" CornerRadius="9" Padding="9,3" Margin="0,0,8,6">
-                                                    <TextBlock Text="{Binding Evil}" FontSize="12" Foreground="{DynamicResource App.Text}" />
+                                                    <TextBlock Text="{Binding Evil}" FontSize="{DynamicResource App.Font.Meta}" Foreground="{DynamicResource App.Text}" />
                                                 </Border>
                                             </WrapPanel>
                                             <Grid Margin="0,2,0,0">
-                                                <TextBlock Text="{Binding Progress}" FontSize="12"
+                                                <TextBlock Text="{Binding Progress}" FontSize="{DynamicResource App.Font.Meta}"
                                                            TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
                                                            Foreground="{DynamicResource App.TextSoft}" />
-                                                <TextBlock Text="{Binding MapsText}" FontSize="12" HorizontalAlignment="Right"
+                                                <TextBlock Text="{Binding MapsText}" FontSize="{DynamicResource App.Font.Meta}" HorizontalAlignment="Right"
                                                            TextWrapping="NoWrap" Opacity="0.75"
                                                            Foreground="{DynamicResource App.TextSoft}" />
                                             </Grid>
                                             </StackPanel>
-                                            <Button Grid.Column="1" Width="26" Height="26" Margin="10,0,0,0"
-                                                    VerticalAlignment="Top" Padding="0" Background="Transparent"
-                                                    BorderThickness="0" Cursor="Hand"
-                                                    ToolTip="{DynamicResource Worlds.BatchPick}"
-                                                    PreviewMouseLeftButtonUp="OnWorldTickClick"
-                                                    Click="OnWorldTickButton">
+                                            <!-- Two-way bound: the row owns the state, so a press anywhere on the
+                                                 tick only ever flips that one card. -->
+                                            <ToggleButton Grid.Column="1" Style="{StaticResource SelectToggle}" Margin="10,0,0,0"
+                                                          VerticalAlignment="Top" Background="Transparent"
+                                                          BorderThickness="0" Cursor="Hand" Focusable="False"
+                                                          ToolTip="{DynamicResource Worlds.BatchPick}"
+                                                          IsChecked="{Binding Selected, Mode=TwoWay}">
                                                 <materialDesign:PackIcon Kind="Check" Width="16" Height="16">
                                                     <materialDesign:PackIcon.Style>
                                                         <Style TargetType="materialDesign:PackIcon">
@@ -195,7 +194,7 @@
                                                         </Style>
                                                     </materialDesign:PackIcon.Style>
                                                 </materialDesign:PackIcon>
-                                            </Button>
+                                            </ToggleButton>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -203,7 +202,7 @@
                         </ItemsControl>
                     </ScrollViewer>
 
-                    <TextBlock x:Name="StatusText" Grid.Row="3" Margin="0,10,0,0" FontSize="12" TextWrapping="Wrap"
+                    <TextBlock x:Name="StatusText" Grid.Row="1" Margin="20,10,16,0" FontSize="{DynamicResource App.Font.Meta}" TextWrapping="Wrap"
                                VerticalAlignment="Center" Foreground="{DynamicResource App.TextSoft}" />
                 </Grid>
 
@@ -222,17 +221,17 @@
                             <materialDesign:PackIcon Kind="ArrowLeft" Width="22" Height="22" Foreground="{DynamicResource App.Text}" />
                         </Button>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Chars.Title}" FontSize="24" FontWeight="SemiBold"
+                            <TextBlock Text="{DynamicResource Chars.Title}" FontSize="{DynamicResource App.Font.Page}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource App.Text}" />
-                            <TextBlock x:Name="CharacterWorldName" FontSize="13" Margin="0,2,0,0"
+                            <TextBlock x:Name="CharacterWorldName" FontSize="{DynamicResource App.Font.Body}" Margin="0,2,0,0"
                                        Foreground="{DynamicResource App.TextSoft}" />
                         </StackPanel>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Margin="0,12,0,12">
-                        <TextBlock Text="{DynamicResource Chars.Hint}" FontSize="12"
+                        <TextBlock Text="{DynamicResource Chars.Hint}" FontSize="{DynamicResource App.Font.Body}"
                                    Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                        <TextBlock x:Name="CharacterTemplate" FontSize="12" Margin="0,4,0,0"
+                        <TextBlock x:Name="CharacterTemplate" FontSize="{DynamicResource App.Font.Body}" Margin="0,4,0,0"
                                    Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
                     </StackPanel>
 
@@ -270,10 +269,10 @@
                                                     <ColumnDefinition Width="Auto" />
                                                 </Grid.ColumnDefinitions>
                                                 <StackPanel Grid.Column="0">
-                                                    <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"
+                                                    <TextBlock Text="{Binding Name}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
                                                                Foreground="{DynamicResource App.Text}" TextWrapping="NoWrap"
                                                                TextTrimming="CharacterEllipsis" />
-                                                    <TextBlock Text="{Binding Detail}" FontSize="12" Margin="0,6,0,0"
+                                                    <TextBlock Text="{Binding Detail}" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,0"
                                                                Foreground="{DynamicResource App.TextSoft}" TextWrapping="NoWrap"
                                                                TextTrimming="CharacterEllipsis" />
                                                     <TextBlock Text="{Binding Guid}" FontSize="11" Margin="0,4,0,0" Opacity="0.6"
@@ -292,7 +291,7 @@
                     </ScrollViewer>
 
                     <Grid Grid.Row="3" Margin="0,10,0,0" VerticalAlignment="Bottom">
-                        <TextBlock x:Name="CharacterSelection" VerticalAlignment="Center" FontSize="12"
+                        <TextBlock x:Name="CharacterSelection" VerticalAlignment="Center" FontSize="{DynamicResource App.Font.Body}"
                                    Foreground="{DynamicResource App.TextSoft}" />
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                             <Button x:Name="UndoButton" Content="{DynamicResource Chars.Undo}" Margin="0,0,8,0"
@@ -313,14 +312,14 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="{DynamicResource Backups.Title}" FontSize="28" FontWeight="SemiBold"
+                    <TextBlock Grid.Row="0" Text="{DynamicResource Backups.Title}" FontSize="{DynamicResource App.Font.Page}" FontWeight="SemiBold"
                                Foreground="{DynamicResource App.Text}" />
-                    <TextBlock Grid.Row="1" Text="{DynamicResource Backups.Hint}" FontSize="12" Margin="0,8,0,14"
+                    <TextBlock Grid.Row="1" Text="{DynamicResource Backups.Hint}" FontSize="{DynamicResource App.Font.Body}" Margin="0,8,0,14"
                                TextWrapping="Wrap" Foreground="{DynamicResource App.TextSoft}" />
 
                     <TextBlock x:Name="BackupEmpty" Text="{DynamicResource Backups.Empty}"
                                HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,48,0,0"
-                               FontSize="13" Foreground="{DynamicResource App.TextSoft}"
+                               FontSize="{DynamicResource App.Font.Body}" Foreground="{DynamicResource App.TextSoft}"
                                Visibility="Collapsed" />
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <ItemsControl x:Name="BackupList">
@@ -342,9 +341,9 @@
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0">
-                                                <TextBlock FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap"
+                                                <TextBlock FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold" TextWrapping="Wrap"
                                                            Foreground="{DynamicResource App.Text}" Text="{Binding Title}" />
-                                                <TextBlock FontSize="12" Margin="0,6,0,0"
+                                                <TextBlock FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,0"
                                                            Foreground="{DynamicResource App.TextSoft}" Text="{Binding Detail}" />
                                             </StackPanel>
                                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
@@ -365,129 +364,204 @@
                         </ItemsControl>
                     </ScrollViewer>
 
-                    <TextBlock x:Name="BackupStatus" Grid.Row="3" Margin="0,10,0,0" FontSize="12"
+                    <TextBlock x:Name="BackupStatus" Grid.Row="3" Margin="0,10,0,0" FontSize="{DynamicResource App.Font.Meta}"
                                Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
                 </Grid>
 
-                <!-- settings: cards wrap when the window is narrow -->
-                <ScrollViewer x:Name="PageSettings" Margin="24,18,24,14" Visibility="Collapsed"
+                <!-- settings: two free-stacking columns; no card is forced to a fixed height -->
+                <ScrollViewer x:Name="PageSettings" Visibility="Collapsed"
                               VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel Margin="0,0,0,8">
-                        <TextBlock Text="{DynamicResource Settings.Title}" FontSize="28" FontWeight="SemiBold"
+                    <StackPanel Margin="24,18,24,14">
+                        <TextBlock Text="{DynamicResource Settings.Title}" FontSize="{DynamicResource App.Font.Page}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource App.Text}" />
 
-                        <WrapPanel Margin="0,14,0,0">
-                            <!-- appearance: thumbnails are rendered by the app itself, see PreviewRenderer -->
-                            <Border Style="{StaticResource CardBorder}" Width="408" Margin="0,0,14,14">
-                                <StackPanel>
-                                    <TextBlock Text="{DynamicResource Settings.Appearance}" FontSize="16" FontWeight="SemiBold"
-                                               Foreground="{DynamicResource App.Text}" />
-                                    <TextBlock Text="{DynamicResource Settings.Appearance.Hint}" FontSize="12" Margin="0,6,0,12"
-                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button x:Name="ThemeSystem" Tag="system" Click="OnThemeClick" Style="{StaticResource ThemeChoice}">
-                                            <StackPanel>
-                                                <Image Source="Assets/theme_preview_auto.png" Width="120" Height="80" Stretch="UniformToFill" />
-                                                <TextBlock Text="{DynamicResource Settings.Theme.System}" FontSize="12" Margin="0,6,0,0"
-                                                           HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
-                                            </StackPanel>
-                                        </Button>
-                                        <Button x:Name="ThemeLight" Tag="light" Click="OnThemeClick" Style="{StaticResource ThemeChoice}">
-                                            <StackPanel>
-                                                <Image Source="Assets/theme_preview_light.png" Width="120" Height="80" Stretch="UniformToFill" />
-                                                <TextBlock Text="{DynamicResource Settings.Theme.Light}" FontSize="12" Margin="0,6,0,0"
-                                                           HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
-                                            </StackPanel>
-                                        </Button>
-                                        <Button x:Name="ThemeDark" Tag="dark" Click="OnThemeClick" Style="{StaticResource ThemeChoice}">
-                                            <StackPanel>
-                                                <Image Source="Assets/theme_preview_dark.png" Width="120" Height="80" Stretch="UniformToFill" />
-                                                <TextBlock Text="{DynamicResource Settings.Theme.Dark}" FontSize="12" Margin="0,6,0,0"
-                                                           HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
-                                            </StackPanel>
-                                        </Button>
+                        <Grid Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" MinWidth="280" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="*" MinWidth="280" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <!-- appearance: thumbnails are rendered by the app itself, see PreviewRenderer -->
+                                <Border Style="{StaticResource CardBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="{DynamicResource Settings.Appearance}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource App.Text}" />
+                                        <TextBlock Text="{DynamicResource Settings.Appearance.Hint}" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,12"
+                                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                                        <UniformGrid Columns="3" Margin="0,0,0,4">
+                                            <Button x:Name="ThemeSystem" Tag="system" Click="OnThemeClick" Style="{StaticResource ThemeChoice}">
+                                                <StackPanel>
+                                                    <Border Height="80" CornerRadius="6" ClipToBounds="True">
+                                                        <Image Source="Assets/theme_preview_auto.png" Stretch="UniformToFill" />
+                                                    </Border>
+                                                    <TextBlock Text="{DynamicResource Settings.Theme.System}" FontSize="{DynamicResource App.Font.Meta}" Margin="0,6,0,0"
+                                                               HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
+                                                </StackPanel>
+                                            </Button>
+                                            <Button x:Name="ThemeLight" Tag="light" Click="OnThemeClick" Style="{StaticResource ThemeChoice}">
+                                                <StackPanel>
+                                                    <Border Height="80" CornerRadius="6" ClipToBounds="True">
+                                                        <Image Source="Assets/theme_preview_light.png" Stretch="UniformToFill" />
+                                                    </Border>
+                                                    <TextBlock Text="{DynamicResource Settings.Theme.Light}" FontSize="{DynamicResource App.Font.Meta}" Margin="0,6,0,0"
+                                                               HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
+                                                </StackPanel>
+                                            </Button>
+                                            <Button x:Name="ThemeDark" Tag="dark" Click="OnThemeClick" Style="{StaticResource ThemeChoice}">
+                                                <StackPanel>
+                                                    <Border Height="80" CornerRadius="6" ClipToBounds="True">
+                                                        <Image Source="Assets/theme_preview_dark.png" Stretch="UniformToFill" />
+                                                    </Border>
+                                                    <TextBlock Text="{DynamicResource Settings.Theme.Dark}" FontSize="{DynamicResource App.Font.Meta}" Margin="0,6,0,0"
+                                                               HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
+                                                </StackPanel>
+                                            </Button>
+                                        </UniformGrid>
+
+                                        <!-- OLED switch lives under the thumbnails and only exists in dark mode -->
+                                        <StackPanel x:Name="VariantRow" Orientation="Horizontal" Margin="0,10,0,0"
+                                                    Visibility="Collapsed">
+                                            <Button x:Name="DarkStandard" Tag="standard" Click="OnDarkVariantClick"
+                                                    Style="{StaticResource PillButtonOutline}" Margin="0,0,8,0"
+                                                    Content="{DynamicResource Settings.DarkStandard}" />
+                                            <Button x:Name="DarkOled" Tag="oled" Click="OnDarkVariantClick"
+                                                    Style="{StaticResource PillButtonOutline}"
+                                                    Content="{DynamicResource Settings.DarkOled}" />
+                                        </StackPanel>
                                     </StackPanel>
-                                </StackPanel>
-                            </Border>
+                                </Border>
 
-                            <!-- dark variant: standard charcoal or true black -->
-                            <Border Style="{StaticResource CardBorder}" Width="240" Margin="0,0,14,14">
-                                <StackPanel>
-                                    <TextBlock Text="{DynamicResource Settings.DarkVariant}" FontSize="16" FontWeight="SemiBold"
-                                               Foreground="{DynamicResource App.Text}" />
-                                    <TextBlock Text="{DynamicResource Settings.DarkVariant.Hint}" FontSize="12" Margin="0,6,0,12"
-                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button x:Name="DarkStandard" Tag="standard" Click="OnDarkVariantClick"
-                                                Style="{StaticResource PillButtonOutline}" Margin="0,0,8,0"
-                                                Content="{DynamicResource Settings.DarkStandard}" />
-                                        <Button x:Name="DarkOled" Tag="oled" Click="OnDarkVariantClick"
-                                                Style="{StaticResource PillButtonOutline}"
-                                                Content="{DynamicResource Settings.DarkOled}" />
+                                <!-- language -->
+                                <Border Style="{StaticResource CardBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="{DynamicResource Settings.Language}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource App.Text}" />
+                                        <TextBlock Text="{DynamicResource Settings.Language.Hint}" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,12"
+                                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                                        <Grid>
+                                            <Border x:Name="LanguageField" Height="34" CornerRadius="8" BorderThickness="1"
+                                                    BorderBrush="{DynamicResource App.Border}" Background="{DynamicResource App.Surface}">
+                                                <Grid>
+                                                    <TextBlock x:Name="LanguageLabel" Margin="12,0,36,0" VerticalAlignment="Center"
+                                                               FontSize="{DynamicResource App.Font.Body}" Foreground="{DynamicResource App.Text}"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <materialDesign:PackIcon Kind="ChevronDown" Width="16" Height="16" HorizontalAlignment="Right"
+                                                              VerticalAlignment="Center" Margin="0,0,10,0"
+                                                              Foreground="{DynamicResource App.TextSoft}" />
+                                                    <Button x:Name="LanguageButton" Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="OnLanguageClick" />
+                                                </Grid>
+                                            </Border>
+                                            <Popup x:Name="LanguagePopup" PlacementTarget="{Binding ElementName=LanguageField}" Placement="Bottom"
+                                                   StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade">
+                                                <Border Background="{DynamicResource App.Surface}" BorderBrush="{DynamicResource App.Border}"
+                                                        BorderThickness="1" CornerRadius="8" Padding="4"
+                                                        MinWidth="{Binding ActualWidth, ElementName=LanguageField}">
+                                                    <StackPanel x:Name="LanguageItems" />
+                                                </Border>
+                                            </Popup>
+                                        </Grid>
                                     </StackPanel>
-                                </StackPanel>
-                            </Border>
+                                </Border>
 
-                            <!-- language -->
-                            <Border Style="{StaticResource CardBorder}" Width="300" Margin="0,0,14,14">
-                                <StackPanel>
-                                    <TextBlock Text="{DynamicResource Settings.Language}" FontSize="16" FontWeight="SemiBold"
-                                               Foreground="{DynamicResource App.Text}" />
-                                    <TextBlock Text="{DynamicResource Settings.Language.Hint}" FontSize="12" Margin="0,6,0,12"
-                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                    <ComboBox x:Name="LanguageBox" Height="34" SelectionChanged="OnLanguageChanged"
-                                              Background="{DynamicResource App.Surface}"
-                                              Foreground="{DynamicResource App.Text}"
-                                              BorderBrush="{DynamicResource App.Border}">
-                                        <ComboBoxItem Tag="sc" Content="简体中文" />
-                                        <ComboBoxItem Tag="tc" Content="繁體中文" />
-                                        <ComboBoxItem Tag="ja" Content="日本語" />
-                                        <ComboBoxItem Tag="en" Content="English" />
-                                    </ComboBox>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- about -->
-                            <Border Style="{StaticResource CardBorder}" Width="360" Margin="0,0,14,14">
-                                <StackPanel>
-                                    <TextBlock Text="{DynamicResource Settings.About}" FontSize="16" FontWeight="SemiBold"
-                                               Foreground="{DynamicResource App.Text}" />
-                                    <TextBlock Text="{DynamicResource Settings.About.Body}" FontSize="12" Margin="0,6,0,0"
-                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{DynamicResource Settings.About.Previews}" FontSize="12" Margin="0,4,0,0"
-                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{DynamicResource Settings.About.Keys}" FontSize="12" Margin="0,4,0,12"
-                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock>
-                                            <Hyperlink Click="OnOpenGithub"><Run Text="GitHub" /></Hyperlink>
-                                        </TextBlock>
-                                        <TextBlock Margin="14,0,0,0">
-                                            <Hyperlink Click="OnOpenBilibili"><Run Text="哔哩哔哩" /></Hyperlink>
-                                        </TextBlock>
-                                        <TextBlock Margin="14,0,0,0">
-                                            <Hyperlink Click="OnOpenChangelog"><Run Text="{DynamicResource Settings.About.Changelog}" /></Hyperlink>
-                                        </TextBlock>
+                                <!-- font: installed families only, nothing to download -->
+                                <Border Style="{StaticResource CardBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="{DynamicResource Settings.Font}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource App.Text}" />
+                                        <TextBlock Text="{DynamicResource Settings.Font.Hint}" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,12"
+                                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                                        <Grid>
+                                            <Border x:Name="FontField" Height="34" CornerRadius="8" BorderThickness="1"
+                                                    BorderBrush="{DynamicResource App.Border}" Background="{DynamicResource App.Surface}">
+                                                <Grid>
+                                                    <TextBlock x:Name="FontLabel" Margin="12,0,36,0" VerticalAlignment="Center"
+                                                               FontSize="{DynamicResource App.Font.Body}" Foreground="{DynamicResource App.Text}"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <materialDesign:PackIcon Kind="ChevronDown" Width="16" Height="16" HorizontalAlignment="Right"
+                                                              VerticalAlignment="Center" Margin="0,0,10,0"
+                                                              Foreground="{DynamicResource App.TextSoft}" />
+                                                    <Button x:Name="FontButton" Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="OnFontClick" />
+                                                </Grid>
+                                            </Border>
+                                            <Popup x:Name="FontPopup" PlacementTarget="{Binding ElementName=FontField}" Placement="Bottom"
+                                                   StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade">
+                                                <Border Background="{DynamicResource App.Surface}" BorderBrush="{DynamicResource App.Border}"
+                                                        BorderThickness="1" CornerRadius="8" Padding="4"
+                                                        MinWidth="{Binding ActualWidth, ElementName=FontField}">
+                                                    <ScrollViewer MaxHeight="280">
+                                                        <StackPanel x:Name="FontItems" />
+                                                    </ScrollViewer>
+                                                </Border>
+                                            </Popup>
+                                        </Grid>
                                     </StackPanel>
-                                </StackPanel>
-                            </Border>
+                                </Border>
+                            </StackPanel>
 
-                            <!-- keyboard shortcuts -->
-                            <Border Style="{StaticResource CardBorder}" Width="360" Margin="0,0,14,14">
-                                <StackPanel>
-                                    <TextBlock Text="{DynamicResource Settings.Keys}" FontSize="16" FontWeight="SemiBold"
-                                               Foreground="{DynamicResource App.Text}" />
-                                    <TextBlock Text="{DynamicResource Settings.Keys.Hint}" FontSize="12" Margin="0,6,0,10"
-                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{DynamicResource Settings.Keys.List}" FontSize="12"
-                                               Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap"
-                                               LineHeight="20" />
-                                </StackPanel>
-                            </Border>
-                        </WrapPanel>
+                            <StackPanel Grid.Column="2">
+                                <!-- about: links are icon buttons, nothing else -->
+                                <Border Style="{StaticResource CardBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="{DynamicResource Settings.About}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource App.Text}" />
+                                        <TextBlock x:Name="AboutBody" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,0"
+                                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                                        <TextBlock Text="{DynamicResource Settings.About.Previews}" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,14"
+                                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Style="{StaticResource IconButton}" Click="OnOpenGithub"
+                                                    ToolTip="{DynamicResource Settings.About.Github}">
+                                                <materialDesign:PackIcon Kind="Github" Width="20" Height="20" />
+                                            </Button>
+                                            <Button Style="{StaticResource IconButton}" Margin="8,0,0,0" Click="OnOpenBilibili"
+                                                    ToolTip="{DynamicResource Settings.About.Bilibili}">
+                                                <materialDesign:PackIcon Kind="TelevisionClassic" Width="20" Height="20" />
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- update: check, open the release page, read the changelog -->
+                                <Border Style="{StaticResource CardBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="{DynamicResource Settings.Update}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource App.Text}" />
+                                        <TextBlock x:Name="UpdateCurrent" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,12"
+                                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+                                        <WrapPanel>
+                                            <Button x:Name="CheckUpdateButton" Style="{StaticResource PillButton}" Margin="0,0,8,8"
+                                                    Click="OnCheckUpdate" Content="{DynamicResource Settings.Update.Check}" />
+                                            <Button Style="{StaticResource PillButtonOutline}" Margin="0,0,8,8"
+                                                    Click="OnOpenRelease" Content="{DynamicResource Settings.Update.Open}" />
+                                            <Button Style="{StaticResource PillButtonOutline}" Margin="0,0,0,8"
+                                                    Click="OnOpenChangelog" Content="{DynamicResource Settings.Update.Log}" />
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- keyboard shortcuts: the keys stay, the sales pitch goes -->
+                                <Border Style="{StaticResource CardBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="{DynamicResource Settings.Keys}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource App.Text}" />
+                                        <TextBlock Text="{DynamicResource Settings.Keys.List}" FontSize="{DynamicResource App.Font.Meta}" Margin="0,8,0,0"
+                                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap"
+                                                   LineHeight="20" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>
         </Grid>
+
+        <!-- theme cross-fade: a sheet of the outgoing background fades away after a palette swap -->
+        <Border x:Name="ThemeFade" Grid.RowSpan="2" Panel.ZIndex="50" IsHitTestVisible="False"
+                Opacity="0" Background="Transparent" />
     </Grid>
 </Window>

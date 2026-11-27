@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Reflection;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
@@ -126,7 +128,17 @@ public partial class MainWindow : Window
     private readonly List<string> _lastTargets = new();
 
     /// <summary>Worlds ticked for a batch reveal (Android has the same multi-select).</summary>
-    private readonly HashSet<WorldRow> _selectedWorlds = new();
+
+    /// <summary>Column count for the world grid; the cards then stretch to fill the row.</summary>
+    public static readonly DependencyProperty WorldColumnsProperty = DependencyProperty.Register(
+        nameof(WorldColumns), typeof(int), typeof(MainWindow), new PropertyMetadata(2));
+
+    public int WorldColumns
+    {
+        get => (int)GetValue(WorldColumnsProperty);
+        set => SetValue(WorldColumnsProperty, value);
+    }
+
     private WorldRow? _world;
     private List<WorldRow> _all = new();
     private SaveFolder? _folder;
@@ -146,8 +158,12 @@ public partial class MainWindow : Window
         _language = config.Language;
 
         ApplyLanguage(_language, save: false);
+        LoadFontChoices();
+        ApplyFontFamily(config.FontFamily);
+        UpdateFontLabel();
+        RefreshAboutTexts();
         ApplyTheme(_theme, save: false);
-        SelectLanguageItem(_language);
+        UpdateLanguageLabel();
         Reload();
         ShowPage(0);
 
@@ -163,6 +179,19 @@ public partial class MainWindow : Window
 
         StateChanged += (_, _) => UpdateMaximizeGlyph();
         UpdateMaximizeGlyph();
+
+        // cards stretch to fill the row, so the column count follows the available width
+        WorldList.SizeChanged += (_, _) => UpdateWorldColumns();
+        UpdateWorldColumns();
+    }
+
+    /// <summary>Roughly 300 px per card: as many whole cards as fit, then they share the width.</summary>
+    private void UpdateWorldColumns()
+    {
+        double available = WorldList.ActualWidth;
+        if (available <= 0) available = ActualWidth - 96;
+        int columns = (int)Math.Floor((available - 24) / 300);
+        WorldColumns = Math.Clamp(columns, 1, 6);
     }
 
     // ── window chrome ─────────────────────────────────────────────────────────
@@ -393,18 +422,7 @@ public partial class MainWindow : Window
         if ((sender as FrameworkElement)?.Tag is not WorldRow row) return;
 
         row.Selected = !row.Selected;
-        if (row.Selected)
-        {
-            _selectedWorlds.Add(row);
-        }
-        else
-        {
-            _selectedWorlds.Remove(row);
-        }
-
-        StatusText.Text = _selectedWorlds.Count == 0
-            ? (_folder is null ? string.Empty : string.Format(Str("Worlds.Count"), _folder.Root, _all.Count))
-            : string.Format(Str("Worlds.BatchHint"), _selectedWorlds.Count);
+        UpdateBatchHint();
     }
 
     private void OnWorldMenuFolder(object sender, RoutedEventArgs e)
@@ -433,7 +451,8 @@ public partial class MainWindow : Window
         switch (e.Key)
         {
             case Key.Space:
-                ToggleWorldSelection(row);
+                row.Selected = !row.Selected;
+                UpdateBatchHint();
                 e.Handled = true;
                 break;
             case Key.Enter:
@@ -443,45 +462,21 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnWorldTickClick(object sender, MouseButtonEventArgs e)
+    /// <summary>Rows currently ticked for the batch action; the row owns the state.</summary>
+    private List<WorldRow> SelectedRows() => _all.Where(r => r.Selected).ToList();
+
+    private void UpdateBatchHint()
     {
-        // ticking means "include in the batch"; the card itself still navigates on a plain click
-        if (sender is not FrameworkElement element || element.DataContext is not WorldRow row) return;
-
-        ToggleWorldSelection(row);
-        e.Handled = true;
-    }
-
-    // keyboard path: Tab to the tick button, press Space
-    private void OnWorldTickButton(object sender, RoutedEventArgs e)
-    {
-        if (sender is not FrameworkElement element || element.DataContext is not WorldRow row) return;
-
-        ToggleWorldSelection(row);
-        e.Handled = true;
-    }
-
-    private void ToggleWorldSelection(WorldRow row)
-    {
-        row.Selected = !row.Selected;
-        if (row.Selected)
-        {
-            _selectedWorlds.Add(row);
-        }
-        else
-        {
-            _selectedWorlds.Remove(row);
-        }
-
+        int count = SelectedRows().Count;
         // the batch action runs on Ctrl+B; the status line keeps it discoverable
-        StatusText.Text = _selectedWorlds.Count == 0
+        StatusText.Text = count == 0
             ? (_folder is null ? string.Empty : string.Format(Str("Worlds.Count"), _folder.Root, _all.Count))
-            : string.Format(Str("Worlds.BatchHint"), _selectedWorlds.Count);
+            : string.Format(Str("Worlds.BatchHint"), count);
     }
 
     private void OnBatchPickClick(object sender, RoutedEventArgs e)
     {
-        if (_selectedWorlds.Count == 0) return;
+        if (!_all.Any(r => r.Selected)) return;
 
         _lastTargets.Clear();
         int worlds = 0, written = 0, failed = 0;
@@ -492,7 +487,7 @@ public partial class MainWindow : Window
         {
             try
             {
-            foreach (WorldRow row in _selectedWorlds.ToList())
+            foreach (WorldRow row in SelectedRows())
             {
                 byte[]? image = BuildRevealedMap(row, out string? error);
                 if (image is null)
@@ -531,13 +526,12 @@ public partial class MainWindow : Window
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, ex.ToString(), "batch diag", MessageBoxButton.OK, MessageBoxImage.Warning);
+                summary = ex.Message;
             }
         }
         finally
         {
-            foreach (WorldRow row in _selectedWorlds) row.Selected = false;
-            _selectedWorlds.Clear();
+            foreach (WorldRow row in SelectedRows()) row.Selected = false;
             UndoButton.Visibility = _lastTargets.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
             ApplyFilter();
             // ApplyFilter rewrites the status line, so show the batch result last
@@ -855,6 +849,48 @@ public partial class MainWindow : Window
         ApplyTheme(theme, save: false);
     }
 
+    /// <summary>True once the first palette has been applied; later switches cross-fade.</summary>
+    private bool _paletteReady;
+
+    /// <summary>Set while the preview renderer drives the window; the cross-fade would be captured.</summary>
+    internal bool Previewing;
+
+    /// <summary>Replaces every palette brush. Colours are applied at once; the cross-fade is drawn
+    /// by <see cref="FadeThemeChange"/> because brushes inserted into a resource dictionary get frozen.</summary>
+    private static void ApplyPalette((string Key, string Colour)[] palette)
+    {
+        foreach ((string key, string colour) in palette)
+        {
+            var solid = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colour));
+            solid.Freeze();
+            Application.Current.Resources[key] = solid;
+        }
+    }
+
+    /// <summary>Paints the outgoing background over everything and fades it out, so a theme swap reads
+    /// as a cross-fade instead of a hard cut.</summary>
+    private void FadeThemeChange(Color outgoing)
+    {
+        if (!_paletteReady || Previewing)
+        {
+            return;
+        }
+
+        ThemeFade.Background = new SolidColorBrush(outgoing);
+        ThemeFade.Opacity = 1;
+
+        var fade = new DoubleAnimation(1, 0, new Duration(TimeSpan.FromMilliseconds(220)))
+        {
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
+        };
+        fade.Completed += (_, _) =>
+        {
+            ThemeFade.Opacity = 0;
+            ThemeFade.Background = Brushes.Transparent;
+        };
+        ThemeFade.BeginAnimation(OpacityProperty, fade);
+    }
+
     private void ApplyTheme(string theme, bool save)
     {
         _theme = theme;
@@ -869,11 +905,13 @@ public partial class MainWindow : Window
             ? (_darkVariant == "oled" ? OledPalette : DarkPalette)
             : LightPalette;
 
-        foreach ((string key, string colour) in palette)
-        {
-            var colourValue = (Color)ColorConverter.ConvertFromString(colour);
-            Application.Current.Resources[key] = new SolidColorBrush(colourValue);
-        }
+        Color outgoing = Application.Current.Resources["App.Background"] is SolidColorBrush previousBackground
+            ? previousBackground.Color
+            : Colors.Transparent;
+
+        ApplyPalette(palette);
+        FadeThemeChange(outgoing);
+        _paletteReady = true;
 
         if (save)
         {
@@ -892,8 +930,8 @@ public partial class MainWindow : Window
         // the disabled pair reads as a single muted control instead of a dead filled pill.
         DarkStandard.Style = dark && _darkVariant == "standard" ? filled : outlined;
         DarkOled.Style = dark && _darkVariant == "oled" ? filled : outlined;
-        DarkStandard.IsEnabled = dark;
-        DarkOled.IsEnabled = dark;
+        // the OLED switch only exists while a dark theme is selected
+        VariantRow.Visibility = dark ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void OnDarkVariantClick(object sender, RoutedEventArgs e)
@@ -905,16 +943,6 @@ public partial class MainWindow : Window
 
         _darkVariant = variant;
         ApplyTheme(_theme, save: true);
-    }
-
-    private void OnLanguageChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if ((LanguageBox.SelectedItem as ComboBoxItem)?.Tag is not string code || code == _language)
-        {
-            return;
-        }
-
-        ApplyLanguage(code, save: true);
     }
 
     private void ApplyLanguage(string code, bool save)
@@ -945,28 +973,61 @@ public partial class MainWindow : Window
         }
 
         UpdateMaximizeGlyph();
+        RefreshAboutTexts();
+        UpdateLanguageLabel();
+        LoadFontChoices();
+        UpdateFontLabel();
+    }
+    private static readonly (string Code, string Label)[] LanguageOptions =
+    {
+        ("sc", "简体中文"),
+        ("tc", "繁體中文"),
+        ("ja", "日本語"),
+        ("en", "English"),
+    };
+
+    private void OnLanguageClick(object sender, RoutedEventArgs e)
+    {
+        BuildLanguageMenu();
+        LanguagePopup.IsOpen = !LanguagePopup.IsOpen;
     }
 
-    private void SelectLanguageItem(string code)
+    private void BuildLanguageMenu()
     {
-        foreach (object item in LanguageBox.Items)
+        LanguageItems.Children.Clear();
+        foreach ((string code, string label) in LanguageOptions)
         {
-            if (item is ComboBoxItem combo && (combo.Tag as string) == code)
-            {
-                LanguageBox.SelectedItem = combo;
-                return;
-            }
+            LanguageItems.Children.Add(CreateMenuItem(label, code, OnLanguagePick, code == _language));
+        }
+    }
+
+    private void OnLanguagePick(object sender, RoutedEventArgs e)
+    {
+        LanguagePopup.IsOpen = false;
+        if ((sender as Button)?.Tag is not string code || code == _language)
+        {
+            return;
         }
 
-        LanguageBox.SelectedIndex = 0;
+        ApplyLanguage(code, save: true);
+        UpdateLanguageLabel();
     }
 
-    private void SaveConfig() => DesktopConfig.Save(_theme, _darkVariant, _language);
+    private void UpdateLanguageLabel()
+    {
+        LanguageLabel.Text = LanguageOptions.FirstOrDefault(o => o.Code == _language).Label ?? "简体中文";
+    }
+    private void SaveConfig() => DesktopConfig.Save(_theme, _darkVariant, _language, _fontFamily);
 
     private static string Str(string key)
         => Application.Current.TryFindResource(key) as string ?? key;
 
     private void OnOpenGithub(object sender, RoutedEventArgs e) => Open(GithubUrl);
+
+    private void OnOpenRelease(object sender, RoutedEventArgs e)
+    {
+        Open("https://github.com/Dragrowl/TerraXaleid/releases/latest");
+    }
 
     private void OnOpenChangelog(object sender, RoutedEventArgs e)
     {
@@ -974,6 +1035,155 @@ public partial class MainWindow : Window
     }
 
     private void OnOpenBilibili(object sender, RoutedEventArgs e) => Open(BilibiliUrl);
+
+    // ── font ──────────────────────────────────────────────────────────────────
+
+    private string _fontFamily = string.Empty;
+
+    private readonly List<(string Tag, string Label)> _fontChoices = new();
+
+    private void LoadFontChoices()
+    {
+        _fontChoices.Clear();
+        _fontChoices.Add((string.Empty, Str("Settings.Font.Default")));
+        foreach (FontFamily family in Fonts.SystemFontFamilies.OrderBy(f => f.Source, StringComparer.CurrentCulture))
+        {
+            _fontChoices.Add((family.Source, family.Source));
+        }
+    }
+
+    private void OnFontClick(object sender, RoutedEventArgs e)
+    {
+        BuildFontMenu();
+        FontPopup.IsOpen = !FontPopup.IsOpen;
+    }
+
+    private void BuildFontMenu()
+    {
+        FontItems.Children.Clear();
+        foreach ((string tag, string label) in _fontChoices)
+        {
+            FontItems.Children.Add(CreateMenuItem(label, tag, OnFontPick, string.Equals(tag, _fontFamily, StringComparison.OrdinalIgnoreCase)));
+        }
+    }
+
+    private void OnFontPick(object sender, RoutedEventArgs e)
+    {
+        FontPopup.IsOpen = false;
+        if ((sender as Button)?.Tag is not string family)
+        {
+            return;
+        }
+
+        ApplyFontFamily(family);
+        UpdateFontLabel();
+        SaveConfig();
+    }
+
+    private void UpdateFontLabel()
+    {
+        string label = _fontChoices.FirstOrDefault(c => string.Equals(c.Tag, _fontFamily, StringComparison.OrdinalIgnoreCase)).Label;
+        FontLabel.Text = string.IsNullOrEmpty(label) ? Str("Settings.Font.Default") : label;
+    }
+
+    private void ApplyFontFamily(string family)
+    {
+        _fontFamily = family;
+        if (string.IsNullOrWhiteSpace(family))
+        {
+            Application.Current.Resources.Remove("App.FontFamily");
+            return;
+        }
+
+        Application.Current.Resources["App.FontFamily"] = new FontFamily(family);
+    }
+
+    private Button CreateMenuItem(string label, string tag, RoutedEventHandler handler, bool selected)
+    {
+        var button = new Button
+        {
+            Content = label,
+            Tag = tag,
+            Style = (Style)FindResource(selected ? "MenuItemSelected" : "MenuItem"),
+        };
+        button.Click += handler;
+        return button;
+    }
+    // ── about + update ────────────────────────────────────────────────────────
+
+    private static string CurrentVersion
+    {
+        get
+        {
+            var informational = (AssemblyInformationalVersionAttribute?)Attribute.GetCustomAttribute(
+                Assembly.GetExecutingAssembly(), typeof(AssemblyInformationalVersionAttribute));
+            string raw = informational?.InformationalVersion
+                ?? Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)
+                ?? "0.0.0";
+            int plus = raw.IndexOf('+');
+            return plus > 0 ? raw[..plus] : raw;
+        }
+    }
+
+    private void RefreshAboutTexts()
+    {
+        AboutBody.Text = string.Format(Str("Settings.About.Body"), CurrentVersion);
+        UpdateCurrent.Text = string.Format(Str("Settings.Update.Current"), CurrentVersion);
+    }
+
+    private async void OnCheckUpdate(object sender, RoutedEventArgs e)
+    {
+        CheckUpdateButton.IsEnabled = false;
+        string original = CheckUpdateButton.Content as string ?? string.Empty;
+        CheckUpdateButton.Content = Str("Settings.Update.Checking");
+
+        try
+        {
+            using var http = new HttpClient();
+            http.Timeout = TimeSpan.FromSeconds(8);
+            http.DefaultRequestHeaders.UserAgent.ParseAdd("TerraXaleid");
+            http.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
+
+            string json = await http.GetStringAsync(
+                "https://api.github.com/repos/Dragrowl/TerraXaleid/releases/latest");
+            using JsonDocument document = JsonDocument.Parse(json);
+            string tag = document.RootElement.TryGetProperty("tag_name", out JsonElement node)
+                ? node.GetString() ?? string.Empty
+                : string.Empty;
+            string latest = tag.StartsWith("v", StringComparison.OrdinalIgnoreCase) ? tag[1..] : tag;
+
+            if (string.IsNullOrEmpty(latest))
+            {
+                MessageBox.Show(this, string.Format(Str("Settings.Update.Failed"), "no tag_name"),
+                    Str("Settings.Update"), MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            else if (string.Equals(latest, CurrentVersion, StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show(this, string.Format(Str("Settings.Update.Latest"), CurrentVersion),
+                    Str("Settings.Update"), MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBoxResult answer = MessageBox.Show(this,
+                    string.Format(Str("Settings.Update.Available"), latest, CurrentVersion),
+                    Str("Settings.Update"), MessageBoxButton.YesNo, MessageBoxImage.Information);
+                if (answer == MessageBoxResult.Yes)
+                {
+                    OnOpenRelease(this, new RoutedEventArgs());
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, string.Format(Str("Settings.Update.Failed"), ex.Message),
+                Str("Settings.Update"), MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        finally
+        {
+            CheckUpdateButton.Content = original;
+            CheckUpdateButton.IsEnabled = true;
+        }
+    }
 
     private void Open(string url)
     {
@@ -1027,7 +1237,7 @@ public partial class MainWindow : Window
         ("App.Chip", "#262626"),
             ("App.Hover", "#1F1F1D"),
         ("App.Text", "#E8E8E6"),
-        ("App.TextSoft", "#A2A29C"),
+        ("App.TextSoft", "#B4B4AE"),
         ("App.Accent", "#A9C3A9"),
         ("App.AccentSoft", "#2C3A2E"),
         ("App.DangerSoft", "#3A1D1D"),
@@ -1041,11 +1251,11 @@ public partial class MainWindow : Window
         ("App.Background", "#000000"),
         ("App.Surface", "#0B0B0B"),
         ("App.Rail", "#050505"),
-        ("App.Border", "#1A1A1A"),
+        ("App.Border", "#242422"),
         ("App.Chip", "#141414"),
             ("App.Hover", "#171715"),
         ("App.Text", "#E8E8E6"),
-        ("App.TextSoft", "#9A9A95"),
+        ("App.TextSoft", "#B4B4AE"),
         ("App.Accent", "#A9C3A9"),
         ("App.AccentSoft", "#1C2A1E"),
         ("App.DangerSoft", "#2A1414"),
@@ -1152,7 +1362,7 @@ public partial class MainWindow : Window
     }
 }
 /// <summary>Tiny json config in %APPDATA%\TerraXaleid\config.json (theme, dark variant, language).</summary>
-internal sealed record DesktopConfig(string Theme, string DarkVariant, string Language)
+internal sealed record DesktopConfig(string Theme, string DarkVariant, string Language, string FontFamily = "")
 {
     private static string FilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TerraXaleid", "config.json");
@@ -1167,7 +1377,8 @@ internal sealed record DesktopConfig(string Theme, string DarkVariant, string La
                 string theme = Read(doc.RootElement, "theme") ?? "system";
                 string darkVariant = Read(doc.RootElement, "darkVariant") ?? "standard";
                 string language = Read(doc.RootElement, "language") ?? "sc";
-                return new DesktopConfig(theme, darkVariant, language);
+                string fontFamily = Read(doc.RootElement, "fontFamily") ?? string.Empty;
+                return new DesktopConfig(theme, darkVariant, language, fontFamily);
             }
         }
         catch
@@ -1175,7 +1386,7 @@ internal sealed record DesktopConfig(string Theme, string DarkVariant, string La
             // A broken config must never stop the app from starting.
         }
 
-        return new DesktopConfig("system", "standard", "sc");
+        return new DesktopConfig("system", "standard", "sc", string.Empty);
     }
 
     private static string? Read(JsonElement root, string name)
@@ -1183,7 +1394,7 @@ internal sealed record DesktopConfig(string Theme, string DarkVariant, string La
             ? value.GetString()
             : null;
 
-    public static void Save(string theme, string darkVariant, string language)
+    public static void Save(string theme, string darkVariant, string language, string fontFamily)
     {
         try
         {
@@ -1198,6 +1409,7 @@ internal sealed record DesktopConfig(string Theme, string DarkVariant, string La
                 ["theme"] = theme,
                 ["darkVariant"] = darkVariant,
                 ["language"] = language,
+                ["fontFamily"] = fontFamily,
             };
             File.WriteAllText(FilePath,
                 JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }));

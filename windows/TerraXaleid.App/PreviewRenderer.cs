@@ -132,6 +132,7 @@ internal static class PreviewRenderer
         }
 
         window.Show();
+        window.Previewing = true;
         window.SetPreviewTheme(theme);
         window.UpdateLayout();
         Pump();
@@ -164,14 +165,17 @@ internal static class PreviewRenderer
         dark.CopyPixels(darkPixels, stride, 0);
 
         var mixed = new byte[stride * height];
-        double slope = (double)height / width;
-        for (int y = 0; y < height; y++)
+
+        // The seam leans 65° above the horizontal, rising to the right: it leaves the
+        // bottom-left corner and meets the top edge where x = height / tan(65°).
+        double tan = Math.Tan(65 * Math.PI / 180);
+        for (int x = 0; x < width; x++)
         {
-            int cut = (int)(y / slope);
-            for (int x = 0; x < width; x++)
+            int boundary = (int)Math.Round(height - (x * tan));
+            for (int y = 0; y < height; y++)
             {
                 int i = (y * stride) + (x * 4);
-                byte[] source = x < cut ? lightPixels : darkPixels;
+                byte[] source = y < boundary ? lightPixels : darkPixels;
                 mixed[i] = source[i];
                 mixed[i + 1] = source[i + 1];
                 mixed[i + 2] = source[i + 2];

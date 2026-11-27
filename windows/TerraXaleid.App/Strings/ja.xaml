@@ -36,7 +36,7 @@
     <sys:String x:Key="Settings.Language">言語</sys:String>
     <sys:String x:Key="Settings.Language.Hint">表示言語をすぐに切り替えます。</sys:String>
     <sys:String x:Key="Settings.About">このアプリについて</sys:String>
-    <sys:String x:Key="Settings.About.Body">バージョン 0.1.0-dev · GPL-3.0-or-later&#10;コアは Python / C# / Kotlin の三実装。.wld を読み、正当な .map を書き出します。ブロックは一切変更しません。</sys:String>
+    <sys:String x:Key="Settings.About.Body">バージョン {0} · GPL-3.0-or-later&#10;コアは Python / C# / Kotlin の三実装。.wld を読み、正当な .map を書き出します。ブロックは一切変更しません。</sys:String>
     <sys:String x:Key="Settings.About.Links">GitHub · bilibili</sys:String>
     <sys:String x:Key="Win.Restore">元に戻す</sys:String>
     <sys:String x:Key="Worlds.MoonLord">ムーンロード撃破済み</sys:String>
@@ -80,4 +80,18 @@ F5　再読み込み
     <sys:String x:Key="Worlds.Match">{0} / {1} ワールドが一致</sys:String>
     <sys:String x:Key="Chars.Template">テンプレート: キャラクター「{0}」のマップ</sys:String>
     <sys:String x:Key="Chars.NoTemplate">利用できるテンプレートが無いため、内蔵のタイル表を使います。</sys:String>
+    <sys:String x:Key="Settings.Font">フォント</sys:String>
+    <sys:String x:Key="Settings.Font.Hint">画面で使うフォントを選びます。インストール済みのフォントのみ表示します。</sys:String>
+    <sys:String x:Key="Settings.Font.Default">フォント既定</sys:String>
+    <sys:String x:Key="Settings.Update">更新</sys:String>
+    <sys:String x:Key="Settings.Update.Current">現在のバージョン {0}</sys:String>
+    <sys:String x:Key="Settings.Update.Check">更新を確認</sys:String>
+    <sys:String x:Key="Settings.Update.Open">最新版を開く</sys:String>
+    <sys:String x:Key="Settings.Update.Log">更新履歴</sys:String>
+    <sys:String x:Key="Settings.About.Github">GitHub</sys:String>
+    <sys:String x:Key="Settings.About.Bilibili">ビリビリ</sys:String>
+    <sys:String x:Key="Settings.Update.Available">新しいバージョン {0} があります&#10;現在 {1}</sys:String>
+    <sys:String x:Key="Settings.Update.Latest">最新バージョンです（{0}）</sys:String>
+    <sys:String x:Key="Settings.Update.Failed">更新の確認に失敗しました: {0}</sys:String>
+    <sys:String x:Key="Settings.Update.Checking">確認中…</sys:String>
 </ResourceDictionary>

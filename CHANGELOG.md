@@ -11,11 +11,18 @@
 - `dist/` 文件名只带 `versionName`（`TerraXaleid-0.1.0-dev.N.apk`），不带 `-release`、`-shizuku` 之类定语；
   构建类型与改动内容进提交信息、git tag 和本文件。
 
-## [0.1.0-dev] - 2026-11-28
+## [0.1.0-beta.1] - 2026-11-28（Windows 端）
+
+- Windows 版本序列自此并入 `0.1.0-beta.*`（Android 保持 `0.1.0-rc.16` 不动），安装包与 zip 文件名同步换成 `0.1.0-beta.1`。
+- **版式**：删掉「选择世界」标题行，搜索框改成右上角悬浮层；世界卡不再固定 320 宽，按窗口宽度自动增减列数并横向填满；滚动条改为 8px 并贴到窗口边缘。
+- **设置页**：卡片改为两列自由堆叠、不再等高；外观卡里三个主题缩略图重排成等宽三列（之前「深色」那张被裁掉一半）；OLED 开关移到主题卡正下方，且只在深色下出现。
+- **观感**：字号统一成 12 / 14 / 18 / 28 四档；深浅主题切换带 200ms 颜色渐变；深色下语言下拉不再是白底；标题栏与图标按钮补齐 hover / 按下态。
+- **功能**：勾选世界改成双向绑定，修掉「点哪都只勾第一个」；刷新有淡入 + 图标旋转 + 状态行时间戳；新增字体选择（只读系统已安装字体）、检查更新（比对 GitHub 最新 release）、前往更新与更新日志三个出口；关于卡的链接换成 GitHub / 哔哩哔哩图标按钮。
+- **资源**：新增多尺寸 `Assets/app.ico`（16–256），窗口与关于卡都带应用图标；主题缩略图按 65° 斜切重新渲染。
 
 ### Added
 
-- Windows 安装包：Inno Setup 定义在 `windows/installer/TerraXaleid.iss`（逐用户安装，含简中/英/日三语向导），产物 `dist/TerraXaleid-0.1.0-dev-win-x64-setup.exe`（约 4.1 MB），带开始菜单项、可选桌面图标与卸载入口。
+- Windows 安装包：Inno Setup 定义在 `windows/installer/TerraXaleid.iss`（逐用户安装，含简中/英/日三语向导），产物 `dist/TerraXaleid-0.1.0-beta.1-win-x64-setup.exe`（约 4.1 MB），带开始菜单项、可选桌面图标与卸载入口。
 - Windows 图形界面（WPF，`windows/TerraXaleid.App`）：世界列表 → 角色列表 → 点亮，直接读写
   `%USERPROFILE%\Documents\My Games\Terraria`，不需要 adb 或 Shizuku。
 - 批量点亮：卡片右上角勾号把世界加入批量，`Ctrl+B` 执行；只重写已经存在该世界地图的角色，
@@ -33,8 +40,8 @@
 
 ### Notes
 
-- 版本仍停在 `0.1.0-dev`，安装包为 `dist/TerraXaleid-0.1.0-dev-win-x64.zip`（需 .NET 10 桌面运行时）
-  与 `dist/TerraXaleid-0.1.0-dev-win-x64-standalone.zip`（单文件，免运行时）。
+- 版本已切到 `0.1.0-beta.1`，安装包为 `dist/TerraXaleid-0.1.0-beta.1-win-x64.zip`（需 .NET 10 桌面运行时）
+  与 `dist/TerraXaleid-0.1.0-beta.1-win-x64-standalone.zip`（单文件，免运行时）。
 
 ## [0.1.0-rc.16] - 2026-11-28
 

@@ -36,7 +36,7 @@
     <sys:String x:Key="Settings.Language">語言</sys:String>
     <sys:String x:Key="Settings.Language.Hint">介面語言立即切換。</sys:String>
     <sys:String x:Key="Settings.About">關於</sys:String>
-    <sys:String x:Key="Settings.About.Body">版本 0.1.0-dev · GPL-3.0-or-later&#10;三語言核心：Python / C# / Kotlin，讀取 .wld 後產生合法的 .map，不改動任何一個方塊。</sys:String>
+    <sys:String x:Key="Settings.About.Body">版本 {0} · GPL-3.0-or-later&#10;三語言核心：Python / C# / Kotlin，讀取 .wld 後產生合法的 .map，不改動任何一個方塊。</sys:String>
     <sys:String x:Key="Settings.About.Links">GitHub · 嗶哩嗶哩</sys:String>
     <sys:String x:Key="Win.Restore">還原</sys:String>
     <sys:String x:Key="Worlds.MoonLord">已擊敗月亮領主</sys:String>
@@ -80,4 +80,18 @@ F5　重新掃描
     <sys:String x:Key="Worlds.Match">符合 {0} / {1} 個世界</sys:String>
     <sys:String x:Key="Chars.Template">範本：角色「{0}」的地圖</sys:String>
     <sys:String x:Key="Chars.NoTemplate">目前沒有可用範本，將使用內建圖塊表。</sys:String>
+    <sys:String x:Key="Settings.Font">字型</sys:String>
+    <sys:String x:Key="Settings.Font.Hint">選擇介面使用的字型，只列出本機已安裝的字型。</sys:String>
+    <sys:String x:Key="Settings.Font.Default">字型預設</sys:String>
+    <sys:String x:Key="Settings.Update">更新</sys:String>
+    <sys:String x:Key="Settings.Update.Current">目前版本 {0}</sys:String>
+    <sys:String x:Key="Settings.Update.Check">檢查更新</sys:String>
+    <sys:String x:Key="Settings.Update.Open">前往更新</sys:String>
+    <sys:String x:Key="Settings.Update.Log">更新日誌</sys:String>
+    <sys:String x:Key="Settings.About.Github">GitHub 首頁</sys:String>
+    <sys:String x:Key="Settings.About.Bilibili">嗶哩嗶哩首頁</sys:String>
+    <sys:String x:Key="Settings.Update.Available">已有新版本 {0}&#10;目前 {1}</sys:String>
+    <sys:String x:Key="Settings.Update.Latest">目前已是最新版本（{0}）</sys:String>
+    <sys:String x:Key="Settings.Update.Failed">檢查更新失敗：{0}</sys:String>
+    <sys:String x:Key="Settings.Update.Checking">檢查中…</sys:String>
 </ResourceDictionary>

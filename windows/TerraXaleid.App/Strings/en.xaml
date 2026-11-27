@@ -36,7 +36,7 @@
     <sys:String x:Key="Settings.Language">Language</sys:String>
     <sys:String x:Key="Settings.Language.Hint">The UI language switches immediately.</sys:String>
     <sys:String x:Key="Settings.About">About</sys:String>
-    <sys:String x:Key="Settings.About.Body">Version 0.1.0-dev · GPL-3.0-or-later&#10;Core in Python / C# / Kotlin: reads .wld and writes a valid .map without touching a single tile.</sys:String>
+    <sys:String x:Key="Settings.About.Body">Version {0} · GPL-3.0-or-later&#10;Core in Python / C# / Kotlin: reads .wld and writes a valid .map without touching a single tile.</sys:String>
     <sys:String x:Key="Settings.About.Links">GitHub · bilibili</sys:String>
     <sys:String x:Key="Win.Restore">Restore</sys:String>
     <sys:String x:Key="Worlds.MoonLord">Moon Lord defeated</sys:String>
@@ -80,4 +80,18 @@ Right-click character　undo</sys:String>
     <sys:String x:Key="Worlds.Match">{0} of {1} worlds match</sys:String>
     <sys:String x:Key="Chars.Template">Template: {0}'s map</sys:String>
     <sys:String x:Key="Chars.NoTemplate">No template available; the built-in tile table will be used.</sys:String>
+    <sys:String x:Key="Settings.Font">Font</sys:String>
+    <sys:String x:Key="Settings.Font.Hint">Pick the font used by the interface; only installed fonts are listed.</sys:String>
+    <sys:String x:Key="Settings.Font.Default">Default font</sys:String>
+    <sys:String x:Key="Settings.Update">Updates</sys:String>
+    <sys:String x:Key="Settings.Update.Current">Version {0}</sys:String>
+    <sys:String x:Key="Settings.Update.Check">Check for updates</sys:String>
+    <sys:String x:Key="Settings.Update.Open">Open the latest release</sys:String>
+    <sys:String x:Key="Settings.Update.Log">Changelog</sys:String>
+    <sys:String x:Key="Settings.About.Github">GitHub</sys:String>
+    <sys:String x:Key="Settings.About.Bilibili">Bilibili</sys:String>
+    <sys:String x:Key="Settings.Update.Available">A newer version is available: {0}&#10;You have {1}</sys:String>
+    <sys:String x:Key="Settings.Update.Latest">You are on the latest version ({0})</sys:String>
+    <sys:String x:Key="Settings.Update.Failed">Update check failed: {0}</sys:String>
+    <sys:String x:Key="Settings.Update.Checking">Checking…</sys:String>
 </ResourceDictionary>

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -6,10 +6,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <Version>0.1.0-dev</Version>
+    <Version>0.1.0-beta.1</Version>
     <AssemblyName>TerraXaleid</AssemblyName>
     <Product>TerraXaleid</Product>
     <Company>Dragr0wl</Company>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +24,7 @@
 
   <ItemGroup>
     <Resource Include="Assets\*.png" />
+    <Resource Include="Assets\app.ico" />
   </ItemGroup>
 
 </Project>

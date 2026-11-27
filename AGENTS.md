@@ -56,7 +56,7 @@ Terraria 存档地图读写工具：输入 `.wld` 字节、输出 `.map` 字节�
 
 ## 版本号
 
-- `versionName` 走 `0.1.0-dev.N` → `0.1.0-rc.N` → `0.1.0`：每轮 +1，`versionCode` 同步 +1，不开平行序列。
+- `versionName` 走 `0.1.0-dev.N` → `0.1.0-rc.N` → `0.1.0`：每轮 +1，`versionCode` 同步 +1，不开平行序列。Windows 端自 `0.1.0-beta.1` 起并入同一序列（与 Android 的 `rc.N` 并存，各自独立递增）。
 - 进入 `rc` 线后只修显示与稳定性问题，不再加功能；功能类改动留到下一个次版本。
 - 版本号由维护者在发版时统一决定，PR 不要自己改。
 - `dist/` 文件名只带 `versionName`；改动内容进 `CHANGELOG.md` 与 git tag。

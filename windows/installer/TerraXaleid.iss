@@ -4,16 +4,16 @@
 ;   ISCC.exe windows\installer\TerraXaleid.iss
 ; The app itself must be published first:
 ;   dotnet publish windows\TerraXaleid.App\TerraXaleid.App.csproj -c Release -r win-x64 ^
-;     --self-contained false -p:PublishSingleFile=false -o dist\windows\TerraXaleid-0.1.0-dev
+;     --self-contained false -p:PublishSingleFile=false -o dist\windows\TerraXaleid-0.1.0-beta.1
 ;
 ; per-user install (no admin): files land in %LOCALAPPDATA%\Programs\TerraXaleid,
 ; so the app keeps writing its config to %APPDATA%\TerraXaleid without elevation.
 
 #define AppName "TerraXaleid"
-#define AppVersion "0.1.0-dev"
+#define AppVersion "0.1.0-beta.1"
 #define AppPublisher "Dragr0wl"
 #define AppUrl "https://github.com/Dragrowl/TerraXaleid"
-#define SourceDir "..\..\dist\windows\TerraXaleid-0.1.0-dev"
+#define SourceDir "..\..\dist\windows\TerraXaleid-0.1.0-beta.1"
 #define OutputDir "..\..\dist"
 
 [Setup]
@@ -25,7 +25,7 @@ AppPublisher={#AppPublisher}
 AppPublisherURL={#AppUrl}
 AppSupportURL={#AppUrl}
 AppUpdatesURL={#AppUrl}/releases
-VersionInfoVersion=0.1.0.0
+VersionInfoVersion=0.1.0.1
 VersionInfoDescription={#AppName} setup
 VersionInfoProductName={#AppName}
 DefaultDirName={autopf}\{#AppName}

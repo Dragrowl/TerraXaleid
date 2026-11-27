@@ -244,7 +244,7 @@ int16 n2 ; n2 × uint16     // banner 可领取数（version >= 289）
 
 ## 5. 版本号与产物
 
-- `versionName` 走 `0.1.0-dev.N` → `0.1.0-rc.N` → `0.1.0`，每轮 `versionCode` +1，不开平行序列。
+- `versionName` 走 `0.1.0-dev.N` → `0.1.0-rc.N` → `0.1.0`，每轮 `versionCode` +1，不开平行序列。Windows 端自 `0.1.0-beta.1` 起并入同一序列。
 - `dist/` 文件名只带 `versionName`（`TerraXaleid-<versionName>.apk`），不带 `-release` / `-shizuku` 之类的定语。
   构建类型、签名状态、改动内容进提交信息、git tag 与 CHANGELOG。
 - Android 是**纯 Kotlin + Compose，没有 `lib/` 下的原生 `.so`**，所以一个通用 APK 同时适配
