@@ -364,7 +364,7 @@
                 <!-- settings: cards wrap when the window is narrow -->
                 <ScrollViewer x:Name="PageSettings" Margin="24,18,24,14" Visibility="Collapsed"
                               VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel>
+                    <StackPanel Margin="0,0,0,8">
                         <TextBlock Text="{DynamicResource Settings.Title}" FontSize="28" FontWeight="SemiBold"
                                    Foreground="{DynamicResource App.Text}" />
 

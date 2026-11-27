@@ -70,11 +70,11 @@
     <sys:String x:Key="Settings.About.Keys">Shortcuts: Ctrl+1 worlds · Ctrl+2 backups · Ctrl+3 settings · Ctrl+B batch reveal · Space ticks a world · Enter opens characters.</sys:String>
     <sys:String x:Key="Settings.Keys">Keyboard shortcuts</sys:String>
     <sys:String x:Key="Settings.Keys.Hint">Everything can be done without the mouse.</sys:String>
-    <sys:String x:Key="Settings.Keys.List">Ctrl+1 / 2 / 3　switch to worlds / backups / settings
-Ctrl+B　reveal every ticked world
-Space　tick or untick the focused world
-Enter　open the focused world's characters
-F5　rescan the save folder
-Right-click a world card　open / batch / show in Explorer
-Right-click a character card　undo that character's last reveal</sys:String>
+    <sys:String x:Key="Settings.Keys.List">Ctrl+1 / 2 / 3　switch page
+Ctrl+B　batch reveal
+Space　tick a world
+Enter　open characters
+F5　rescan saves
+Right-click world　menu
+Right-click character　undo</sys:String>
 </ResourceDictionary>

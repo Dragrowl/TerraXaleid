@@ -70,11 +70,11 @@
     <sys:String x:Key="Settings.About.Keys">ショートカット: Ctrl+1 ワールド · Ctrl+2 バックアップ · Ctrl+3 設定 · Ctrl+B まとめて点灯 · スペースで選択 · Enter でキャラクターへ。</sys:String>
     <sys:String x:Key="Settings.Keys">キーボードショートカット</sys:String>
     <sys:String x:Key="Settings.Keys.Hint">すべての操作はキーボードだけで行えます。</sys:String>
-    <sys:String x:Key="Settings.Keys.List">Ctrl+1 / 2 / 3　ワールド / バックアップ / 設定
-Ctrl+B　選択したワールドをまとめて点灯
-スペース　現在のワールドを選択/解除
-Enter　現在のワールドのキャラクター一覧へ
-F5　セーブを再読み込み
-ワールドを右クリック　開く / まとめて点灯 / エクスプローラー
-キャラクターを右クリック　今回の点灯を元に戻す</sys:String>
+    <sys:String x:Key="Settings.Keys.List">Ctrl+1 / 2 / 3　画面切替
+Ctrl+B　まとめて点灯
+スペース　ワールド選択
+Enter　キャラクターへ
+F5　再読み込み
+ワールド右クリック　メニュー
+キャラクター右クリック　元に戻す</sys:String>
 </ResourceDictionary>
