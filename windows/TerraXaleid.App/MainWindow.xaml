@@ -506,8 +506,12 @@
                                 <!-- about: links are icon buttons, nothing else -->
                                 <Border Style="{StaticResource CardBorder}">
                                     <StackPanel>
-                                        <TextBlock Text="{DynamicResource Settings.About}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource App.Text}" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="Assets/app.png" Width="24" Height="24" VerticalAlignment="Center" />
+                                            <TextBlock Text="{DynamicResource Settings.About}" Margin="8,0,0,0" VerticalAlignment="Center"
+                                                       FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource App.Text}" />
+                                        </StackPanel>
                                         <TextBlock x:Name="AboutBody" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,0"
                                                    Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
                                         <TextBlock Text="{DynamicResource Settings.About.Previews}" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,14"
