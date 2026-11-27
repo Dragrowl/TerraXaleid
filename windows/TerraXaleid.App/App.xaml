@@ -20,6 +20,7 @@
             <SolidColorBrush x:Key="App.Rail" Color="#F1F1EC" />
             <SolidColorBrush x:Key="App.Border" Color="#E4E4DF" />
             <SolidColorBrush x:Key="App.Chip" Color="#EFEFEA" />
+    <SolidColorBrush x:Key="App.Hover" Color="#E7E7E2" />
             <SolidColorBrush x:Key="App.Text" Color="#1B1B1B" />
             <SolidColorBrush x:Key="App.TextSoft" Color="#6A6A64" />
             <SolidColorBrush x:Key="App.Accent" Color="#3F5B45" />
@@ -124,7 +125,7 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource App.Chip}" />
+                                    <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource App.Hover}" />
                                 </Trigger>
                                 <Trigger Property="IsPressed" Value="True">
                                     <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource App.Border}" />
