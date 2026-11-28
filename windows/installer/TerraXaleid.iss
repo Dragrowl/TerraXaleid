@@ -10,10 +10,10 @@
 ; so the app keeps writing its config to %APPDATA%\TerraXaleid without elevation.
 
 #define AppName "TerraXaleid"
-#define AppVersion "0.1.0-beta.3"
+#define AppVersion "0.1.0-beta.4"
 #define AppPublisher "Dragr0wl"
 #define AppUrl "https://github.com/Dragrowl/TerraXaleid"
-#define SourceDir "..\..\dist\windows\TerraXaleid-0.1.0-beta.3"
+#define SourceDir "..\..\dist\windows\TerraXaleid-0.1.0-beta.4"
 #define OutputDir "..\..\dist"
 
 [Setup]

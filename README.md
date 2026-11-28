@@ -24,7 +24,7 @@ TerraXaleid 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应
 | 平台 | 状态 | 说明 |
 |---|---|---|
 | **Android** | ✅ 可用（`0.1.0-rc` 线） | Compose（Material 3）界面，读写走 Shizuku，装 Releases 里的 APK 即用 |
-| **Windows** | 🚧 图形界面可用（`0.1.0-beta.3`） | WPF 桌面端：世界列表 → 勾选 → 点亮，带撤销、备份恢复、深色变体与四语言；另有命令行 `terraxaleid-cli` 做批量与自检 |
+| **Windows** | 🚧 图形界面可用（`0.1.0-beta.4`） | WPF 桌面端：世界列表 → 勾选 → 点亮，带撤销、备份恢复、深色变体与四语言；另有命令行 `terraxaleid-cli` 做批量与自检 |
 | L1 核心 | ✅ 三语言完成 | Python / C# / Kotlin 逐格结果一致（`decoded-grid sha256` 相同），是各平台界面的公共底座 |
 
 
@@ -74,7 +74,7 @@ TerraXaleid 读 Terraria 的世界存档 `.wld`，算出每一格在地图上应
 
 ### 图形界面
 
-从 Releases 取 `TerraXaleid-0.1.0-beta.3-win-x64-setup.exe` 安装（逐用户安装，不需要管理员，装到 `%LOCALAPPDATA%\Programs\TerraXaleid`，带开始菜单与卸载入口）；或取 `TerraXaleid-0.1.0-beta.3-win-x64.zip`（需要 .NET 10 桌面运行时）、`…-standalone.zip`（单文件，免运行时）解压后运行 `TerraXaleid.exe`。它直接读写 `%USERPROFILE%\Documents\My Games\Terraria`，不用 adb、不用 Shizuku。
+从 Releases 取 `TerraXaleid-0.1.0-beta.4-win-x64-setup.exe` 安装（逐用户安装，不需要管理员，装到 `%LOCALAPPDATA%\Programs\TerraXaleid`，带开始菜单与卸载入口）；或取 `TerraXaleid-0.1.0-beta.4-win-x64.zip`（需要 .NET 10 桌面运行时）、`…-standalone.zip`（单文件，免运行时）解压后运行 `TerraXaleid.exe`。它直接读写 `%USERPROFILE%\Documents\My Games\Terraria`，不用 adb、不用 Shizuku。
 
 - **点亮**：世界列表 → 点卡片进角色列表 → 勾选角色 → 点亮所选；写之前把原 `.map` 备份成 `.map.bak`（再写则 `.bak → .bak.1 → .bak.2`）。
 - **撤销**：点亮后底栏出现「撤销本次」，一键把刚才写的几份地图还原（删新图、`.bak` 逐级前移）。
