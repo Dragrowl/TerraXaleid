@@ -166,11 +166,12 @@ internal static class PreviewRenderer
 
         var mixed = new byte[stride * height];
 
-        // Corner to corner through the centre: light fills the upper-left half, dark the
-        // lower-right half, so the seam runs from the bottom-left corner to the top-right one.
+        // Steep seam through the exact centre, the way the phone app renders it: the light
+        // half sits upper-left, the dark half lower-right, and the line drops as x grows.
+        double slope = Math.Tan(65 * Math.PI / 180);
         for (int x = 0; x < width; x++)
         {
-            int boundary = height - (int)Math.Round((double)height * x / width);
+            int boundary = (int)Math.Round(height / 2.0 - (x - width / 2.0) * slope);
             for (int y = 0; y < height; y++)
             {
                 int i = (y * stride) + (x * 4);

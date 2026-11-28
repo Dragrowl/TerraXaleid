@@ -110,7 +110,7 @@
                                FontSize="{DynamicResource App.Font.Body}" Foreground="{DynamicResource App.TextSoft}"
                                Visibility="Collapsed" />
                     <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
-                                  Margin="20,66,0,12">
+                                  Margin="20,0,0,12">
                         <ItemsControl x:Name="WorldList" Margin="0,0,8,0">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -377,7 +377,7 @@
 
                         <WrapPanel Margin="0,14,0,0">
     <!-- appearance: three fixed 3:2 tiles; the card keeps a floor width so they never squeeze -->
-    <Border Style="{StaticResource CardBorder}" Width="470" Margin="0,0,12,12">
+    <Border Style="{StaticResource CardBorder}" VerticalAlignment="Top" Width="470" Margin="0,0,12,12">
         <StackPanel>
             <TextBlock Text="{DynamicResource Settings.Appearance}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
                        Foreground="{DynamicResource App.Text}" />
@@ -422,7 +422,7 @@
     </Border>
 
     <!-- language -->
-    <Border Style="{StaticResource CardBorder}" Width="300" Margin="0,0,12,12">
+    <Border Style="{StaticResource CardBorder}" VerticalAlignment="Top" Width="300" Margin="0,0,12,12">
         <StackPanel>
             <TextBlock Text="{DynamicResource Settings.Language}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
                        Foreground="{DynamicResource App.Text}" />
@@ -454,7 +454,7 @@
     </Border>
 
     <!-- font -->
-    <Border Style="{StaticResource CardBorder}" Width="300" Margin="0,0,12,12">
+    <Border Style="{StaticResource CardBorder}" VerticalAlignment="Top" Width="300" Margin="0,0,12,12">
         <StackPanel>
             <TextBlock Text="{DynamicResource Settings.Font}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
                        Foreground="{DynamicResource App.Text}" />
@@ -486,7 +486,7 @@
     </Border>
 
     <!-- about: icon, version, publisher, licence - nothing else -->
-    <Border Style="{StaticResource CardBorder}" Width="320" Margin="0,0,12,12">
+    <Border Style="{StaticResource CardBorder}" VerticalAlignment="Top" Width="320" Margin="0,0,12,12">
         <StackPanel>
             <StackPanel Orientation="Horizontal">
                 <Image Source="Assets/app.png" Width="40" Height="40" VerticalAlignment="Center" />
@@ -497,23 +497,35 @@
                                Foreground="{DynamicResource App.TextSoft}" />
                 </StackPanel>
             </StackPanel>
-            <TextBlock Text="{DynamicResource Settings.About.Publisher}" FontSize="{DynamicResource App.Font.Body}" Margin="0,14,0,0"
-                       Foreground="{DynamicResource App.Text}" />
-            <TextBlock Text="{DynamicResource Settings.About.License}" FontSize="{DynamicResource App.Font.Meta}" Margin="0,4,0,14"
-                       Foreground="{DynamicResource App.TextSoft}" />
-            <StackPanel Orientation="Horizontal">
-                <Button Style="{StaticResource IconButton}" Click="OnOpenGithub" ToolTip="{DynamicResource Settings.About.Github}">
-                    <materialDesign:PackIcon Kind="Github" Width="20" Height="20" />
-                </Button>
-                <Button Style="{StaticResource IconButton}" Margin="8,0,0,0" Click="OnOpenBilibili" ToolTip="{DynamicResource Settings.About.Bilibili}">
-                    <materialDesign:PackIcon Kind="TelevisionClassic" Width="20" Height="20" />
-                </Button>
-            </StackPanel>
+            <Grid Margin="0,14,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Settings.About.Publisher}" FontSize="{DynamicResource App.Font.Body}"
+                               Foreground="{DynamicResource App.Text}" />
+                    <TextBlock Text="{DynamicResource Settings.About.License}" FontSize="{DynamicResource App.Font.Meta}" Margin="0,4,0,0"
+                               Foreground="{DynamicResource App.TextSoft}" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource IconButton}" Click="OnOpenGithub" ToolTip="{DynamicResource Settings.About.Github}">
+                        <materialDesign:PackIcon Kind="Github" Width="20" Height="20" />
+                    </Button>
+                    <Button Style="{StaticResource IconButton}" Margin="6,0,0,0" Click="OnOpenBilibili" ToolTip="{DynamicResource Settings.About.Bilibili}">
+                        <!-- bilibili: the TV mark itself, so it is not a borrowed icon -->
+                        <Path Width="20" Height="20" Stretch="Uniform" Fill="Transparent"
+                              Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              StrokeThickness="1.5" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                              Data="M4,7 H20 A2,2 0 0 1 22,9 V17 A2,2 0 0 1 20,19 H4 A2,2 0 0 1 2,17 V9 A2,2 0 0 1 4,7 Z M8,2.5 L10.8,7 M16,2.5 L13.2,7" />
+                    </Button>
+                </StackPanel>
+            </Grid>
         </StackPanel>
     </Border>
 
     <!-- update: check, open the release page, read the changelog -->
-    <Border Style="{StaticResource CardBorder}" Width="320" Margin="0,0,12,12">
+    <Border Style="{StaticResource CardBorder}" VerticalAlignment="Top" Width="320" Margin="0,0,12,12">
         <StackPanel>
             <TextBlock Text="{DynamicResource Settings.Update}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
                        Foreground="{DynamicResource App.Text}" />
