@@ -3,7 +3,7 @@
 > 产品名是 **TerraXaleid**（原名 terramap，与在线地图服务撞名后改名）。代码标识已全部迁移：包名 `io.terraxaleid.*`、配置文件 `terraxaleid.json`、日志 tag `terraxaleid`；旧的 `terramap.*` 只在 CHANGELOG 的历史条目里出现。
 
 Terraria 存档地图读写工具：输入 `.wld` 字节、输出 `.map` 字节，不碰游戏进程。
-当前版本 `0.1.0-rc.15`，版本号规则见文末。
+当前版本 Android `0.1.0-rc.16` / Windows `0.1.0-beta.1`，版本号规则见文末。
 
 使用者看 [`README.md`](README.md)；人类开发者先看 [`docs/INDEX.md`](docs/INDEX.md)。
 
