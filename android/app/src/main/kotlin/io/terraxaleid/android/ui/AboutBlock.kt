@@ -114,7 +114,7 @@ internal fun AboutBlock(onLinkFailed: () -> Unit) {
  * flag" — which surfaced as a crash on these two buttons. Anything that can still go wrong (no
  * browser, a blocked intent) is reported instead of thrown.
  */
-private fun launch(context: android.content.Context, intent: Intent, onFailed: () -> Unit) {
+internal fun launch(context: android.content.Context, intent: Intent, onFailed: () -> Unit) {
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     try {
         context.startActivity(intent)
@@ -128,7 +128,7 @@ private fun launch(context: android.content.Context, intent: Intent, onFailed: (
 }
 
 /** Opens a web link in whatever handles it. */
-private fun openUrl(context: android.content.Context, url: String, onFailed: () -> Unit) {
+internal fun openUrl(context: android.content.Context, url: String, onFailed: () -> Unit) {
     launch(context, Intent(Intent.ACTION_VIEW, Uri.parse(url)), onFailed)
 }
 

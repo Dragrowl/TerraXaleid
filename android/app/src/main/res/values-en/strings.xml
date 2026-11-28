@@ -28,6 +28,15 @@ Since Android 11, reaching the game\'s Android/data folder requires the \"All fi
     <string name="about_github">GitHub</string>
     <string name="about_bilibili">Bilibili</string>
     <string name="about_link_failed">No app can open this link</string>
+    <string name="update_title">Updates</string>
+    <string name="update_subtitle">Reads the newest release from GitHub; a single request.</string>
+    <string name="update_check">Check for updates</string>
+    <string name="update_checking">Checking…</string>
+    <string name="update_open">Open release</string>
+    <string name="update_latest">Up to date (%1$s)</string>
+    <string name="update_newer">New release %1$s</string>
+    <string name="update_failed">Update check failed: %1$s</string>
+    <string name="update_no_release">No release published yet</string>
     <string name="behavior_title">Behaviour</string>
     <string name="behavior_exit_title">End the process when leaving for the home screen</string>
     <string name="worlds_title">Choose a world</string>

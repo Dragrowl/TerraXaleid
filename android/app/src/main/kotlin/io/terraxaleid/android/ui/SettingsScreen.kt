@@ -67,6 +67,13 @@ import io.terraxaleid.android.R
 import io.terraxaleid.android.data.BackExit
 import io.terraxaleid.android.data.DarkVariant
 import io.terraxaleid.android.data.ThemeMode
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.ui.platform.LocalContext
+import io.terraxaleid.android.BuildConfig
+import io.terraxaleid.android.data.UpdateCheck
+import io.terraxaleid.android.data.UpdateResult
 import kotlinx.coroutines.launch
 
 /**
@@ -195,6 +202,9 @@ internal fun SettingsScreen(onBack: () -> Unit) {
             SettingsCard(title = null, subtitle = null) {
                 LanguageRow()
             }
+
+            // The update card sits above About: one GET to the release feed, only when asked.
+            UpdateCard(onMessage = { text -> scope.launch { snackbar.showSnackbar(text) } })
 
             // The about block sits at the bottom of the same page - no second level to walk into.
             SettingsCard(
@@ -402,4 +412,76 @@ private fun AppLanguage.label(): String = when (this) {
     AppLanguage.TraditionalChinese -> stringResource(R.string.language_tc)
     AppLanguage.Japanese -> stringResource(R.string.language_ja)
     AppLanguage.English -> stringResource(R.string.language_en)
+}
+/**
+ * Version, one check button and, once a newer tag is known, a way straight to that release.
+ * The check never runs on open: the app asks GitHub only when the button is pressed.
+ */
+@Composable
+private fun UpdateCard(onMessage: (String) -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var checking by remember { mutableStateOf(false) }
+    var outcome by remember { mutableStateOf<UpdateResult?>(null) }
+    val checkFailed = stringResource(R.string.update_failed)
+    val noRelease = stringResource(R.string.update_no_release)
+    val upToDate = stringResource(R.string.update_latest)
+    val newerRelease = stringResource(R.string.update_newer)
+    val linkFailed = stringResource(R.string.about_link_failed)
+
+    SettingsCard(
+        title = stringResource(R.string.update_title),
+        subtitle = stringResource(R.string.update_subtitle),
+    ) {
+        Text(
+            text = stringResource(R.string.about_version, BuildConfig.VERSION_NAME),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Button(
+                onClick = {
+                    scope.launch {
+                        checking = true
+                        val result = UpdateCheck.run()
+                        checking = false
+                        outcome = result
+                        onMessage(
+                            when (result) {
+                                is UpdateResult.Latest -> String.format(upToDate, result.release.tag)
+                                is UpdateResult.Newer -> String.format(newerRelease, result.release.tag)
+                                is UpdateResult.Failed ->
+                                    if (result.reason == "no-release") {
+                                        noRelease
+                                    } else {
+                                        String.format(checkFailed, result.reason)
+                                    }
+                            }
+                        )
+                    }
+                },
+                enabled = !checking,
+            ) {
+                if (checking) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                }
+                Text(stringResource(if (checking) R.string.update_checking else R.string.update_check))
+            }
+            val newer = outcome as? UpdateResult.Newer
+            OutlinedButton(
+                onClick = {
+                    newer?.let { openUrl(context, it.release.url) { onMessage(linkFailed) } }
+                },
+                enabled = newer != null,
+            ) {
+                Text(stringResource(R.string.update_open))
+            }
+        }
+    }
 }

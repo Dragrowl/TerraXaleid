@@ -27,6 +27,15 @@
     <string name="about_github">GitHub</string>
     <string name="about_bilibili">哔哩哔哩</string>
     <string name="about_link_failed">没有可以打开这个链接的应用</string>
+    <string name="update_title">更新</string>
+    <string name="update_subtitle">从 GitHub Releases 读取最新版本，只发一次请求。</string>
+    <string name="update_check">检查更新</string>
+    <string name="update_checking">检查中…</string>
+    <string name="update_open">前往更新</string>
+    <string name="update_latest">已是最新版本 %1$s</string>
+    <string name="update_newer">发现新版本 %1$s</string>
+    <string name="update_failed">检查更新失败：%1$s</string>
+    <string name="update_no_release">还没有发布版</string>
     <string name="behavior_title">行为</string>
     <string name="behavior_exit_title">退回桌面时结束进程</string>
     <string name="worlds_title">选择世界</string>

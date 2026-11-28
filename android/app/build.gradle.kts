@@ -22,8 +22,8 @@ android {
         applicationId = "io.terraxaleid.android"
         minSdk = 24
         targetSdk = 34
-        versionCode = 45
-        versionName = "0.1.0-rc.16"
+        versionCode = 46
+        versionName = "0.1.0-rc.17"
     }
 
     buildFeatures {

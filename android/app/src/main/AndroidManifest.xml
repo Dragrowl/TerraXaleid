@@ -14,6 +14,8 @@
         android:maxSdkVersion="29" />
     <!-- Shizuku: run file commands as the shell user (member of ext_data_rw). -->
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
+    <!-- The update check is the only network the app ever does: one GET to the release feed. -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- Target SDK 30+ hides other packages; the provider handshake needs to see the manager. -->
     <queries>

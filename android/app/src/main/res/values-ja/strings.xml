@@ -28,6 +28,15 @@ Android 11 以降、ゲームの Android/data にアクセスするには「す�
     <string name="about_github">GitHub</string>
     <string name="about_bilibili">ビリビリ</string>
     <string name="about_link_failed">このリンクを開けるアプリがありません</string>
+    <string name="update_title">更新</string>
+    <string name="update_subtitle">GitHub Releases から最新版を取得します（リクエストは 1 回だけ）。</string>
+    <string name="update_check">更新を確認</string>
+    <string name="update_checking">確認中…</string>
+    <string name="update_open">リリースを開く</string>
+    <string name="update_latest">最新版です（%1$s）</string>
+    <string name="update_newer">新しいリリース %1$s</string>
+    <string name="update_failed">更新の確認に失敗しました：%1$s</string>
+    <string name="update_no_release">まだリリースがありません</string>
     <string name="behavior_title">動作</string>
     <string name="behavior_exit_title">ホームに戻ったらプロセスを終了</string>
     <string name="worlds_title">ワールドを選択</string>
