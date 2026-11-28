@@ -74,7 +74,7 @@ The GUI and the command line both live in `windows/` and share `TerraXaleid.Core
 
 ### GUI
 
-Grab `TerraXaleid-0.1.0-beta.4-win-x64.zip` (needs the .NET 10 desktop runtime) or `…-standalone.zip` (single file, no runtime) from Releases and run `TerraXaleid.exe`. It reads and writes `%USERPROFILE%\Documents\My Games\Terraria` directly - no adb, no Shizuku.
+Grab `TerraXaleid-0.1.0-beta.4-win-x64.zip` (multi-file, needs the .NET 10 desktop runtime) or `TerraXaleid-0.1.0-beta.4-win-x64.exe` (single file, no runtime) from Releases. It reads and writes `%USERPROFILE%\Documents\My Games\Terraria` directly - no adb, no Shizuku.
 Install with `TerraXaleid-0.1.0-beta.4-win-x64-setup.exe` (per-user, no admin, goes to `%LOCALAPPDATA%\Programs\TerraXaleid` with Start-menu and uninstall entries), or take the portable zips below.
 
 - **Reveal**: world list -> card -> characters -> tick -> **Reveal**. The old `.map` becomes `.map.bak` (then `.bak.1`, `.bak.2` on later writes).

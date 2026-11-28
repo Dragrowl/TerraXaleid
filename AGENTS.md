@@ -61,6 +61,12 @@ Terraria 存档地图读写工具：输入 `.wld` 字节、输出 `.map` 字节�
 - 版本号由维护者在发版时统一决定，PR 不要自己改。
 - `dist/` 文件名只带 `versionName`；改动内容进 `CHANGELOG.md` 与 git tag。
 
+## 发布形态
+
+- git tag 带 `v` 前缀（`v0.1.0-rc.17`），Release 标题**不带** `v`（`0.1.0-rc.17`）—— 列表页不要出现两个 v。
+- 单文件产物直接作为 Release 资产上传，文件名带版本号（`TerraXaleid-0.1.0-beta.4-win-x64.exe`），不套 zip；只有多文件产物（framework 依赖版）才压 zip。
+- 一个 Release 同时挂所有平台的产物；Windows 端不单独占版本号。
+
 ## Git
 
 - 分支 `main`；提交信息 `type(scope): summary`。

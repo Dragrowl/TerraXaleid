@@ -17,7 +17,7 @@
 
 - **Android：检查更新**。设置页「关于」上方新增「更新」卡：显示当前版本，点「检查更新」时向 GitHub 发布列表发一次 GET（`UpdateCheck.run()` 取最新一条非 draft，8 秒超时、带 `User-Agent`），与 `BuildConfig.VERSION_NAME` 比对后给出「已是最新版本 x.y.z」「发现新版本 x.y.z」或失败原因（没有发布版 / HTTP 状态 / 网络异常）。发现新版本时右侧「前往更新」可用，直接打开该 Release 页。`AndroidManifest` 因此加了 `INTERNET` 权限 —— 全应用只此一次联网。
 - **Android：文案**。`update_*` 九条四语言（`values` / `values-en` / `values-ja` / `values-zh-rTW`）随功能一起落地。
-- **Windows：无改动**，产物与 `0.1.0-beta.4` 相同（`…-win-x64.zip` / `…-standalone.zip` / `…-setup.exe`）。
+- **Windows：无改动**，产物与 `0.1.0-beta.4` 相同，但发布形态调整：单文件版不再套 zip，直接给 `TerraXaleid-0.1.0-beta.4-win-x64.exe`；多文件版仍是 `…-win-x64.zip`，另有 `…-setup.exe`。
 
 ## [0.1.0-beta.1] - 2026-11-28（Windows 端）
 
@@ -71,7 +71,7 @@
 ### Notes
 
 - 版本已切到 `0.1.0-beta.1`，安装包为 `dist/TerraXaleid-0.1.0-beta.1-win-x64.zip`（需 .NET 10 桌面运行时）
-  与 `dist/TerraXaleid-0.1.0-beta.1-win-x64-standalone.zip`（单文件，免运行时）。
+  与单文件版（免运行时）。
 
 ## [0.1.0-rc.16] - 2026-11-28
 
