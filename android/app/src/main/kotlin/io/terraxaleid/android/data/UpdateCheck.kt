@@ -5,7 +5,7 @@ package io.terraxaleid.android.data
 import io.terraxaleid.android.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
+import org.json.JSONArray
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -27,13 +27,15 @@ internal sealed interface UpdateResult {
 /**
  * Checks the project's own GitHub releases for the newest published tag.
  *
- * Deliberately no dependency: one GET on `/releases/latest`, read `tag_name` and `html_url`, compare
- * the tag to `BuildConfig.VERSION_NAME`. GitHub answers 404 both for "repository is empty" and for
- * "no release yet", which here means the same thing to the user, so it is reported as such.
+ * Deliberately no dependency: one GET on the release list, read `tag_name` and `html_url` from the
+ * newest entry, compare the tag to `BuildConfig.VERSION_NAME`. The list endpoint is used instead of
+ * `/releases/latest` because every release of this project is flagged as a pre-release, and `/latest`
+ * ignores pre-releases — it would answer 404 forever and the screen would always say "no release yet".
+ * An empty list (repository without releases) is reported as `no-release`.
  */
 internal object UpdateCheck {
     private const val ENDPOINT =
-        "https://api.github.com/repos/Dragrowl/TerraXaleid/releases/latest"
+        "https://api.github.com/repos/Dragrowl/TerraXaleid/releases?per_page=4"
 
     suspend fun run(): UpdateResult = withContext(Dispatchers.IO) {
         var connection: HttpURLConnection? = null
@@ -53,10 +55,17 @@ internal object UpdateCheck {
                 return@withContext UpdateResult.Failed("http-$code")
             }
             val body = connection.inputStream.bufferedReader().use { it.readText() }
-            val json = JSONObject(body)
-            val tag = json.optString("tag_name").trim().removePrefix("v")
-            val url = json.optString("html_url").trim()
-            if (tag.isEmpty()) return@withContext UpdateResult.Failed("empty-tag")
+            val releases = JSONArray(body)
+            var tag = ""
+            var url = ""
+            for (index in 0 until releases.length()) {
+                val entry = releases.optJSONObject(index) ?: continue
+                if (entry.optBoolean("draft", false)) continue
+                tag = entry.optString("tag_name").trim().removePrefix("v")
+                url = entry.optString("html_url").trim()
+                break
+            }
+            if (tag.isEmpty()) return@withContext UpdateResult.Failed("no-release")
 
             val mine = BuildConfig.VERSION_NAME.trim().removePrefix("v")
             val release = ReleaseInfo(tag = tag, url = url)
