@@ -36,8 +36,9 @@
     <sys:String x:Key="Settings.Language">Language</sys:String>
     <sys:String x:Key="Settings.Language.Hint">The UI language switches immediately.</sys:String>
     <sys:String x:Key="Settings.About">About</sys:String>
-    <sys:String x:Key="Settings.About.Body">Version {0} · GPL-3.0-or-later&#10;Core in Python / C# / Kotlin: reads .wld and writes a valid .map without touching a single tile.</sys:String>
-    <sys:String x:Key="Settings.About.Links">GitHub · bilibili</sys:String>
+    <sys:String x:Key="Settings.About.Version">Version {0}</sys:String>
+    <sys:String x:Key="Settings.About.Publisher">Published by Dragr0wl</sys:String>
+    <sys:String x:Key="Settings.About.License">GPL-3.0-or-later</sys:String>
     <sys:String x:Key="Win.Restore">Restore</sys:String>
     <sys:String x:Key="Worlds.MoonLord">Moon Lord defeated</sys:String>
     <sys:String x:Key="Worlds.HardMode">Hardmode</sys:String>
@@ -47,36 +48,22 @@
     <sys:String x:Key="Chars.WithMap">Revealed map · {0:F0} KB</sys:String>
     <sys:String x:Key="Chars.Written">Revealed {0} character(s)</sys:String>
     <sys:String x:Key="Chars.WrittenFailed">Revealed {0}, failed {1}</sys:String>
-    <sys:String x:Key="Settings.DarkVariant">Dark variant</sys:String>
-    <sys:String x:Key="Settings.DarkVariant.Hint">Only applies while dark is selected.</sys:String>
-    <sys:String x:Key="Settings.DarkStandard">Standard dark</sys:String>
-    <sys:String x:Key="Settings.DarkOled">OLED black</sys:String>
+    <sys:String x:Key="Settings.Variant.Standard">Standard dark</sys:String>
+    <sys:String x:Key="Settings.Variant.Oled">OLED black</sys:String>
     <sys:String x:Key="Chars.Undo">Undo</sys:String>
     <sys:String x:Key="Chars.Undone">Reverted {0} map(s) to their pre-reveal state</sys:String>
     <sys:String x:Key="Backups.DeleteMap">Delete map (all black)</sys:String>
     <sys:String x:Key="Backups.MapDeleted">Deleted {0}; the game will rebuild a fully unexplored map</sys:String>
     <sys:String x:Key="Worlds.BatchPick">Select this world (Ctrl+B picks all)</sys:String>
     <sys:String x:Key="Worlds.BatchDone">Refreshed {0} world(s), {1} map(s), {2} failed</sys:String>
-    <sys:String x:Key="Settings.About.Previews">Theme thumbnails are rendered by the app itself (--render-previews), not pasted screenshots.</sys:String>
     <sys:String x:Key="Worlds.NoMatch">No matching worlds · try another keyword</sys:String>
     <sys:String x:Key="Chars.Selected">{0} character(s) selected</sys:String>
     <sys:String x:Key="Worlds.BatchHint">Reveal {0} worlds · press Ctrl+B</sys:String>
     <sys:String x:Key="Worlds.NoMaps">No maps</sys:String>
     <sys:String x:Key="Worlds.Maps">{0} character(s)</sys:String>
-    <sys:String x:Key="Settings.About.Changelog">Changelog</sys:String>
     <sys:String x:Key="Worlds.Menu.Open">Open and reveal…</sys:String>
     <sys:String x:Key="Worlds.Menu.Tick">Add / remove from batch</sys:String>
     <sys:String x:Key="Worlds.Menu.Folder">Show in Explorer</sys:String>
-    <sys:String x:Key="Settings.About.Keys">Shortcuts: Ctrl+1 worlds · Ctrl+2 backups · Ctrl+3 settings · Ctrl+B batch reveal · Space ticks a world · Enter opens characters.</sys:String>
-    <sys:String x:Key="Settings.Keys">Keyboard shortcuts</sys:String>
-    <sys:String x:Key="Settings.Keys.Hint">Everything can be done without the mouse.</sys:String>
-    <sys:String x:Key="Settings.Keys.List">Ctrl+1 / 2 / 3　switch page
-Ctrl+B　batch reveal
-Space　tick a world
-Enter　open characters
-F5　rescan saves
-Right-click world　menu
-Right-click character　undo</sys:String>
     <sys:String x:Key="Worlds.Match">{0} of {1} worlds match</sys:String>
     <sys:String x:Key="Chars.Template">Template: {0}'s map</sys:String>
     <sys:String x:Key="Chars.NoTemplate">No template available; the built-in tile table will be used.</sys:String>

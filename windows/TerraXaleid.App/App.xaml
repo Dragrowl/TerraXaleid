@@ -31,10 +31,10 @@
             <SolidColorBrush x:Key="App.ScrollThumb" Color="#CFCFC7" />
 
             <!-- One type scale for the whole shell: 12 meta, 14 body, 18 card title, 28 page title. -->
-            <sys:Double x:Key="App.Font.Meta">12</sys:Double>
-            <sys:Double x:Key="App.Font.Body">14</sys:Double>
-            <sys:Double x:Key="App.Font.Title">18</sys:Double>
-            <sys:Double x:Key="App.Font.Page">28</sys:Double>
+            <sys:Double x:Key="App.Font.Meta">13</sys:Double>
+            <sys:Double x:Key="App.Font.Body">15</sys:Double>
+            <sys:Double x:Key="App.Font.Title">20</sys:Double>
+            <sys:Double x:Key="App.Font.Page">32</sys:Double>
 
             <!-- Swapped by the font picker; every TextBlock inherits from the window root. -->
             <FontFamily x:Key="App.FontFamily">Microsoft YaHei UI</FontFamily>

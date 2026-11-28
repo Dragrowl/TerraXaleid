@@ -151,6 +151,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        SourceInitialized += (_, _) => RoundCorners();
 
         DesktopConfig config = DesktopConfig.Load();
         _theme = config.Theme;
@@ -220,6 +221,23 @@ public partial class MainWindow : Window
     private int _page;
 
     /// <summary>Ctrl+1..4 jumps between the four sections, the way desktop apps do it.</summary>
+    // A WindowStyle=None window is drawn with square corners; DWM is the only thing that can
+    // round the frame, so ask it to. Windows 10 ignores the attribute and stays square, which
+    // is what it looks like natively anyway.
+    private void RoundCorners()
+    {
+        IntPtr handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+        if (handle == IntPtr.Zero)
+        {
+            return;
+        }
+
+        int preference = 2; // DWMWCP_ROUND
+        _ = DwmSetWindowAttribute(handle, 33 /* DWMWA_WINDOW_CORNER_PREFERENCE */, ref preference, sizeof(int));
+    }
+
+    [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
     private void OnWindowKeyDown(object sender, KeyEventArgs e)
     {
         if (Keyboard.Modifiers != ModifierKeys.Control) return;
@@ -942,7 +960,7 @@ public partial class MainWindow : Window
         VariantRow.Visibility = dark ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private void OnDarkVariantClick(object sender, RoutedEventArgs e)
+    private void OnVariantClick(object sender, RoutedEventArgs e)
     {
         if ((sender as Button)?.Tag is not string variant || variant == _darkVariant)
         {
@@ -1135,7 +1153,7 @@ public partial class MainWindow : Window
 
     private void RefreshAboutTexts()
     {
-        AboutBody.Text = string.Format(Str("Settings.About.Body"), CurrentVersion);
+        AboutVersion.Text = string.Format(Str("Settings.About.Version"), CurrentVersion);
         UpdateCurrent.Text = string.Format(Str("Settings.Update.Current"), CurrentVersion);
     }
 

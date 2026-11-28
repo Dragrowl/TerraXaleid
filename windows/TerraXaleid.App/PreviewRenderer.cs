@@ -166,12 +166,11 @@ internal static class PreviewRenderer
 
         var mixed = new byte[stride * height];
 
-        // The seam leans 65° above the horizontal, rising to the right: it leaves the
-        // bottom-left corner and meets the top edge where x = height / tan(65°).
-        double tan = Math.Tan(65 * Math.PI / 180);
+        // Corner to corner through the centre: light fills the upper-left half, dark the
+        // lower-right half, so the seam runs from the bottom-left corner to the top-right one.
         for (int x = 0; x < width; x++)
         {
-            int boundary = (int)Math.Round(height - (x * tan));
+            int boundary = height - (int)Math.Round((double)height * x / width);
             for (int y = 0; y < height; y++)
             {
                 int i = (y * stride) + (x * 4);

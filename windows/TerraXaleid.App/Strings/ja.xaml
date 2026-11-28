@@ -36,8 +36,9 @@
     <sys:String x:Key="Settings.Language">言語</sys:String>
     <sys:String x:Key="Settings.Language.Hint">表示言語をすぐに切り替えます。</sys:String>
     <sys:String x:Key="Settings.About">このアプリについて</sys:String>
-    <sys:String x:Key="Settings.About.Body">バージョン {0} · GPL-3.0-or-later&#10;コアは Python / C# / Kotlin の三実装。.wld を読み、正当な .map を書き出します。ブロックは一切変更しません。</sys:String>
-    <sys:String x:Key="Settings.About.Links">GitHub · bilibili</sys:String>
+    <sys:String x:Key="Settings.About.Version">バージョン {0}</sys:String>
+    <sys:String x:Key="Settings.About.Publisher">公開元 Dragr0wl</sys:String>
+    <sys:String x:Key="Settings.About.License">GPL-3.0-or-later</sys:String>
     <sys:String x:Key="Win.Restore">元に戻す</sys:String>
     <sys:String x:Key="Worlds.MoonLord">ムーンロード撃破済み</sys:String>
     <sys:String x:Key="Worlds.HardMode">ハードモード</sys:String>
@@ -47,36 +48,22 @@
     <sys:String x:Key="Chars.WithMap">点灯済みマップ · {0:F0} KB</sys:String>
     <sys:String x:Key="Chars.Written">{0} 人分のマップを生成しました</sys:String>
     <sys:String x:Key="Chars.WrittenFailed">{0} 人成功、{1} 人失敗</sys:String>
-    <sys:String x:Key="Settings.DarkVariant">ダークの種類</sys:String>
-    <sys:String x:Key="Settings.DarkVariant.Hint">ダーク選択時のみ有効。</sys:String>
-    <sys:String x:Key="Settings.DarkStandard">標準ダーク</sys:String>
-    <sys:String x:Key="Settings.DarkOled">OLED 漆黒</sys:String>
+    <sys:String x:Key="Settings.Variant.Standard">標準ダーク</sys:String>
+    <sys:String x:Key="Settings.Variant.Oled">OLED 漆黒</sys:String>
     <sys:String x:Key="Chars.Undo">今回を元に戻す</sys:String>
     <sys:String x:Key="Chars.Undone">{0} 件を元に戻しました（点灯前の地図に戻ります）</sys:String>
     <sys:String x:Key="Backups.DeleteMap">マップを削除（真っ黒）</sys:String>
     <sys:String x:Key="Backups.MapDeleted">{0} を削除しました。ゲーム側で真っ黒なマップが作り直されます</sys:String>
     <sys:String x:Key="Worlds.BatchPick">このワールドを選択（Ctrl+B で一括点灯）</sys:String>
     <sys:String x:Key="Worlds.BatchDone">{0} ワールド / {1} マップを更新、失敗 {2}</sys:String>
-    <sys:String x:Key="Settings.About.Previews">テーマのサムネイルは本アプリが自前で描画します（--render-previews）。</sys:String>
     <sys:String x:Key="Worlds.NoMatch">一致するワールドがありません · 別のキーワードで試してください</sys:String>
     <sys:String x:Key="Chars.Selected">{0} 人のキャラクターを選択</sys:String>
     <sys:String x:Key="Worlds.BatchHint">{0} ワールドをまとめて点灯 · Ctrl+B</sys:String>
     <sys:String x:Key="Worlds.NoMaps">マップなし</sys:String>
     <sys:String x:Key="Worlds.Maps">{0} 人分</sys:String>
-    <sys:String x:Key="Settings.About.Changelog">変更履歴</sys:String>
     <sys:String x:Key="Worlds.Menu.Open">開いて点灯…</sys:String>
     <sys:String x:Key="Worlds.Menu.Tick">まとめて点灯に追加 / 解除</sys:String>
     <sys:String x:Key="Worlds.Menu.Folder">エクスプローラーで表示</sys:String>
-    <sys:String x:Key="Settings.About.Keys">ショートカット: Ctrl+1 ワールド · Ctrl+2 バックアップ · Ctrl+3 設定 · Ctrl+B まとめて点灯 · スペースで選択 · Enter でキャラクターへ。</sys:String>
-    <sys:String x:Key="Settings.Keys">キーボードショートカット</sys:String>
-    <sys:String x:Key="Settings.Keys.Hint">すべての操作はキーボードだけで行えます。</sys:String>
-    <sys:String x:Key="Settings.Keys.List">Ctrl+1 / 2 / 3　画面切替
-Ctrl+B　まとめて点灯
-スペース　ワールド選択
-Enter　キャラクターへ
-F5　再読み込み
-ワールド右クリック　メニュー
-キャラクター右クリック　元に戻す</sys:String>
     <sys:String x:Key="Worlds.Match">{0} / {1} ワールドが一致</sys:String>
     <sys:String x:Key="Chars.Template">テンプレート: キャラクター「{0}」のマップ</sys:String>
     <sys:String x:Key="Chars.NoTemplate">利用できるテンプレートが無いため、内蔵のタイル表を使います。</sys:String>

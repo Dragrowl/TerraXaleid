@@ -375,190 +375,161 @@
                         <TextBlock Text="{DynamicResource Settings.Title}" FontSize="{DynamicResource App.Font.Page}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource App.Text}" />
 
-                        <Grid Margin="0,14,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" MinWidth="280" />
-                                <ColumnDefinition Width="16" />
-                                <ColumnDefinition Width="*" MinWidth="280" />
-                            </Grid.ColumnDefinitions>
+                        <WrapPanel Margin="0,14,0,0">
+    <!-- appearance: three fixed 3:2 tiles; the card keeps a floor width so they never squeeze -->
+    <Border Style="{StaticResource CardBorder}" Width="470" Margin="0,0,12,12">
+        <StackPanel>
+            <TextBlock Text="{DynamicResource Settings.Appearance}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
+                       Foreground="{DynamicResource App.Text}" />
+            <TextBlock Text="{DynamicResource Settings.Appearance.Hint}" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,14"
+                       Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+            <UniformGrid Columns="3">
+                <Button x:Name="ThemeSystem" Style="{StaticResource ThemeChoice}" Tag="system" Click="OnThemeClick" Margin="0,0,8,0">
+                    <StackPanel>
+                        <Border Width="132" Height="88" CornerRadius="6" ClipToBounds="True" HorizontalAlignment="Center">
+                            <Image Source="Assets/theme_preview_auto.png" Stretch="Uniform" />
+                        </Border>
+                        <TextBlock Text="{DynamicResource Settings.Theme.System}" FontSize="{DynamicResource App.Font.Meta}"
+                                   Margin="0,8,0,0" HorizontalAlignment="Center" Foreground="{DynamicResource App.TextSoft}" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="ThemeLight" Style="{StaticResource ThemeChoice}" Tag="light" Click="OnThemeClick" Margin="4,0,4,0">
+                    <StackPanel>
+                        <Border Width="132" Height="88" CornerRadius="6" ClipToBounds="True" HorizontalAlignment="Center">
+                            <Image Source="Assets/theme_preview_light.png" Stretch="Uniform" />
+                        </Border>
+                        <TextBlock Text="{DynamicResource Settings.Theme.Light}" FontSize="{DynamicResource App.Font.Meta}"
+                                   Margin="0,8,0,0" HorizontalAlignment="Center" Foreground="{DynamicResource App.TextSoft}" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="ThemeDark" Style="{StaticResource ThemeChoice}" Tag="dark" Click="OnThemeClick" Margin="8,0,0,0">
+                    <StackPanel>
+                        <Border Width="132" Height="88" CornerRadius="6" ClipToBounds="True" HorizontalAlignment="Center">
+                            <Image Source="Assets/theme_preview_dark.png" Stretch="Uniform" />
+                        </Border>
+                        <TextBlock Text="{DynamicResource Settings.Theme.Dark}" FontSize="{DynamicResource App.Font.Meta}"
+                                   Margin="0,8,0,0" HorizontalAlignment="Center" Foreground="{DynamicResource App.TextSoft}" />
+                    </StackPanel>
+                </Button>
+            </UniformGrid>
+            <StackPanel x:Name="VariantRow" Orientation="Horizontal" Margin="0,14,0,0" Visibility="Collapsed">
+                <Button x:Name="DarkStandard" Style="{StaticResource PillButtonOutline}" Margin="0,0,8,0"
+                        Tag="standard" Click="OnVariantClick" Content="{DynamicResource Settings.Variant.Standard}" />
+                <Button x:Name="DarkOled" Style="{StaticResource PillButtonOutline}"
+                        Tag="oled" Click="OnVariantClick" Content="{DynamicResource Settings.Variant.Oled}" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
 
-                            <StackPanel Grid.Column="0">
-                                <!-- appearance: thumbnails are rendered by the app itself, see PreviewRenderer -->
-                                <Border Style="{StaticResource CardBorder}">
-                                    <StackPanel>
-                                        <TextBlock Text="{DynamicResource Settings.Appearance}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource App.Text}" />
-                                        <TextBlock Text="{DynamicResource Settings.Appearance.Hint}" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,12"
-                                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                        <UniformGrid Columns="3" Margin="0,0,0,4">
-                                            <Button x:Name="ThemeSystem" Tag="system" Click="OnThemeClick" Style="{StaticResource ThemeChoice}">
-                                                <StackPanel>
-                                                    <Border Height="80" CornerRadius="6" ClipToBounds="True">
-                                                        <Image Source="Assets/theme_preview_auto.png" Stretch="UniformToFill" />
-                                                    </Border>
-                                                    <TextBlock Text="{DynamicResource Settings.Theme.System}" FontSize="{DynamicResource App.Font.Meta}" Margin="0,6,0,0"
-                                                               HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
-                                                </StackPanel>
-                                            </Button>
-                                            <Button x:Name="ThemeLight" Tag="light" Click="OnThemeClick" Style="{StaticResource ThemeChoice}">
-                                                <StackPanel>
-                                                    <Border Height="80" CornerRadius="6" ClipToBounds="True">
-                                                        <Image Source="Assets/theme_preview_light.png" Stretch="UniformToFill" />
-                                                    </Border>
-                                                    <TextBlock Text="{DynamicResource Settings.Theme.Light}" FontSize="{DynamicResource App.Font.Meta}" Margin="0,6,0,0"
-                                                               HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
-                                                </StackPanel>
-                                            </Button>
-                                            <Button x:Name="ThemeDark" Tag="dark" Click="OnThemeClick" Style="{StaticResource ThemeChoice}">
-                                                <StackPanel>
-                                                    <Border Height="80" CornerRadius="6" ClipToBounds="True">
-                                                        <Image Source="Assets/theme_preview_dark.png" Stretch="UniformToFill" />
-                                                    </Border>
-                                                    <TextBlock Text="{DynamicResource Settings.Theme.Dark}" FontSize="{DynamicResource App.Font.Meta}" Margin="0,6,0,0"
-                                                               HorizontalAlignment="Center" Foreground="{DynamicResource App.Text}" />
-                                                </StackPanel>
-                                            </Button>
-                                        </UniformGrid>
+    <!-- language -->
+    <Border Style="{StaticResource CardBorder}" Width="300" Margin="0,0,12,12">
+        <StackPanel>
+            <TextBlock Text="{DynamicResource Settings.Language}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
+                       Foreground="{DynamicResource App.Text}" />
+            <TextBlock Text="{DynamicResource Settings.Language.Hint}" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,12"
+                       Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+            <Border x:Name="LanguageField" Height="36" CornerRadius="8" BorderThickness="1"
+                    BorderBrush="{DynamicResource App.Border}" Background="{DynamicResource App.Surface}">
+                <Grid>
+                    <TextBlock x:Name="LanguageLabel" Margin="12,0,36,0" VerticalAlignment="Center"
+                               FontSize="{DynamicResource App.Font.Body}" Foreground="{DynamicResource App.Text}"
+                               TextTrimming="CharacterEllipsis" />
+                    <materialDesign:PackIcon Kind="ChevronDown" Width="16" Height="16" HorizontalAlignment="Right"
+                                             VerticalAlignment="Center" Margin="0,0,10,0"
+                                             Foreground="{DynamicResource App.TextSoft}" />
+                    <Button x:Name="LanguageButton" Background="Transparent" BorderThickness="0" Cursor="Hand"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="OnLanguageClick" />
+                </Grid>
+            </Border>
+            <Popup x:Name="LanguagePopup" PlacementTarget="{Binding ElementName=LanguageField}" Placement="Bottom"
+                   StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade">
+                <Border Background="{DynamicResource App.Surface}" BorderBrush="{DynamicResource App.Border}" BorderThickness="1"
+                        CornerRadius="8" Padding="4" MinWidth="{Binding ActualWidth, ElementName=LanguageField}">
+                    <ScrollViewer MaxHeight="280" VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="LanguageItems" />
+                    </ScrollViewer>
+                </Border>
+            </Popup>
+        </StackPanel>
+    </Border>
 
-                                        <!-- OLED switch lives under the thumbnails and only exists in dark mode -->
-                                        <StackPanel x:Name="VariantRow" Orientation="Horizontal" Margin="0,10,0,0"
-                                                    Visibility="Collapsed">
-                                            <Button x:Name="DarkStandard" Tag="standard" Click="OnDarkVariantClick"
-                                                    Style="{StaticResource PillButtonOutline}" Margin="0,0,8,0"
-                                                    Content="{DynamicResource Settings.DarkStandard}" />
-                                            <Button x:Name="DarkOled" Tag="oled" Click="OnDarkVariantClick"
-                                                    Style="{StaticResource PillButtonOutline}"
-                                                    Content="{DynamicResource Settings.DarkOled}" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
+    <!-- font -->
+    <Border Style="{StaticResource CardBorder}" Width="300" Margin="0,0,12,12">
+        <StackPanel>
+            <TextBlock Text="{DynamicResource Settings.Font}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
+                       Foreground="{DynamicResource App.Text}" />
+            <TextBlock Text="{DynamicResource Settings.Font.Hint}" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,12"
+                       Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+            <Border x:Name="FontField" Height="36" CornerRadius="8" BorderThickness="1"
+                    BorderBrush="{DynamicResource App.Border}" Background="{DynamicResource App.Surface}">
+                <Grid>
+                    <TextBlock x:Name="FontLabel" Margin="12,0,36,0" VerticalAlignment="Center"
+                               FontSize="{DynamicResource App.Font.Body}" Foreground="{DynamicResource App.Text}"
+                               TextTrimming="CharacterEllipsis" />
+                    <materialDesign:PackIcon Kind="ChevronDown" Width="16" Height="16" HorizontalAlignment="Right"
+                                             VerticalAlignment="Center" Margin="0,0,10,0"
+                                             Foreground="{DynamicResource App.TextSoft}" />
+                    <Button x:Name="FontButton" Background="Transparent" BorderThickness="0" Cursor="Hand"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="OnFontClick" />
+                </Grid>
+            </Border>
+            <Popup x:Name="FontPopup" PlacementTarget="{Binding ElementName=FontField}" Placement="Bottom"
+                   StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade">
+                <Border Background="{DynamicResource App.Surface}" BorderBrush="{DynamicResource App.Border}" BorderThickness="1"
+                        CornerRadius="8" Padding="4" MinWidth="{Binding ActualWidth, ElementName=FontField}">
+                    <ScrollViewer MaxHeight="280" VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="FontItems" />
+                    </ScrollViewer>
+                </Border>
+            </Popup>
+        </StackPanel>
+    </Border>
 
-                                <!-- language -->
-                                <Border Style="{StaticResource CardBorder}">
-                                    <StackPanel>
-                                        <TextBlock Text="{DynamicResource Settings.Language}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource App.Text}" />
-                                        <TextBlock Text="{DynamicResource Settings.Language.Hint}" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,12"
-                                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                        <Grid>
-                                            <Border x:Name="LanguageField" Height="34" CornerRadius="8" BorderThickness="1"
-                                                    BorderBrush="{DynamicResource App.Border}" Background="{DynamicResource App.Surface}">
-                                                <Grid>
-                                                    <TextBlock x:Name="LanguageLabel" Margin="12,0,36,0" VerticalAlignment="Center"
-                                                               FontSize="{DynamicResource App.Font.Body}" Foreground="{DynamicResource App.Text}"
-                                                               TextTrimming="CharacterEllipsis" />
-                                                    <materialDesign:PackIcon Kind="ChevronDown" Width="16" Height="16" HorizontalAlignment="Right"
-                                                              VerticalAlignment="Center" Margin="0,0,10,0"
-                                                              Foreground="{DynamicResource App.TextSoft}" />
-                                                    <Button x:Name="LanguageButton" Background="Transparent" BorderThickness="0" Cursor="Hand"
-                                                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="OnLanguageClick" />
-                                                </Grid>
-                                            </Border>
-                                            <Popup x:Name="LanguagePopup" PlacementTarget="{Binding ElementName=LanguageField}" Placement="Bottom"
-                                                   StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade">
-                                                <Border Background="{DynamicResource App.Surface}" BorderBrush="{DynamicResource App.Border}"
-                                                        BorderThickness="1" CornerRadius="8" Padding="4"
-                                                        MinWidth="{Binding ActualWidth, ElementName=LanguageField}">
-                                                    <StackPanel x:Name="LanguageItems" />
-                                                </Border>
-                                            </Popup>
-                                        </Grid>
-                                    </StackPanel>
-                                </Border>
+    <!-- about: icon, version, publisher, licence - nothing else -->
+    <Border Style="{StaticResource CardBorder}" Width="320" Margin="0,0,12,12">
+        <StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Assets/app.png" Width="40" Height="40" VerticalAlignment="Center" />
+                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="{DynamicResource Settings.About}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource App.Text}" />
+                    <TextBlock x:Name="AboutVersion" FontSize="{DynamicResource App.Font.Body}" Margin="0,2,0,0"
+                               Foreground="{DynamicResource App.TextSoft}" />
+                </StackPanel>
+            </StackPanel>
+            <TextBlock Text="{DynamicResource Settings.About.Publisher}" FontSize="{DynamicResource App.Font.Body}" Margin="0,14,0,0"
+                       Foreground="{DynamicResource App.Text}" />
+            <TextBlock Text="{DynamicResource Settings.About.License}" FontSize="{DynamicResource App.Font.Meta}" Margin="0,4,0,14"
+                       Foreground="{DynamicResource App.TextSoft}" />
+            <StackPanel Orientation="Horizontal">
+                <Button Style="{StaticResource IconButton}" Click="OnOpenGithub" ToolTip="{DynamicResource Settings.About.Github}">
+                    <materialDesign:PackIcon Kind="Github" Width="20" Height="20" />
+                </Button>
+                <Button Style="{StaticResource IconButton}" Margin="8,0,0,0" Click="OnOpenBilibili" ToolTip="{DynamicResource Settings.About.Bilibili}">
+                    <materialDesign:PackIcon Kind="TelevisionClassic" Width="20" Height="20" />
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </Border>
 
-                                <!-- font: installed families only, nothing to download -->
-                                <Border Style="{StaticResource CardBorder}">
-                                    <StackPanel>
-                                        <TextBlock Text="{DynamicResource Settings.Font}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource App.Text}" />
-                                        <TextBlock Text="{DynamicResource Settings.Font.Hint}" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,12"
-                                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                        <Grid>
-                                            <Border x:Name="FontField" Height="34" CornerRadius="8" BorderThickness="1"
-                                                    BorderBrush="{DynamicResource App.Border}" Background="{DynamicResource App.Surface}">
-                                                <Grid>
-                                                    <TextBlock x:Name="FontLabel" Margin="12,0,36,0" VerticalAlignment="Center"
-                                                               FontSize="{DynamicResource App.Font.Body}" Foreground="{DynamicResource App.Text}"
-                                                               TextTrimming="CharacterEllipsis" />
-                                                    <materialDesign:PackIcon Kind="ChevronDown" Width="16" Height="16" HorizontalAlignment="Right"
-                                                              VerticalAlignment="Center" Margin="0,0,10,0"
-                                                              Foreground="{DynamicResource App.TextSoft}" />
-                                                    <Button x:Name="FontButton" Background="Transparent" BorderThickness="0" Cursor="Hand"
-                                                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="OnFontClick" />
-                                                </Grid>
-                                            </Border>
-                                            <Popup x:Name="FontPopup" PlacementTarget="{Binding ElementName=FontField}" Placement="Bottom"
-                                                   StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade">
-                                                <Border Background="{DynamicResource App.Surface}" BorderBrush="{DynamicResource App.Border}"
-                                                        BorderThickness="1" CornerRadius="8" Padding="4"
-                                                        MinWidth="{Binding ActualWidth, ElementName=FontField}">
-                                                    <ScrollViewer MaxHeight="280">
-                                                        <StackPanel x:Name="FontItems" />
-                                                    </ScrollViewer>
-                                                </Border>
-                                            </Popup>
-                                        </Grid>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="2">
-                                <!-- about: links are icon buttons, nothing else -->
-                                <Border Style="{StaticResource CardBorder}">
-                                    <StackPanel>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Image Source="Assets/app.png" Width="24" Height="24" VerticalAlignment="Center" />
-                                            <TextBlock Text="{DynamicResource Settings.About}" Margin="8,0,0,0" VerticalAlignment="Center"
-                                                       FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource App.Text}" />
-                                        </StackPanel>
-                                        <TextBlock x:Name="AboutBody" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,0"
-                                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                        <TextBlock Text="{DynamicResource Settings.About.Previews}" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,14"
-                                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                        <StackPanel Orientation="Horizontal">
-                                            <Button Style="{StaticResource IconButton}" Click="OnOpenGithub"
-                                                    ToolTip="{DynamicResource Settings.About.Github}">
-                                                <materialDesign:PackIcon Kind="Github" Width="20" Height="20" />
-                                            </Button>
-                                            <Button Style="{StaticResource IconButton}" Margin="8,0,0,0" Click="OnOpenBilibili"
-                                                    ToolTip="{DynamicResource Settings.About.Bilibili}">
-                                                <materialDesign:PackIcon Kind="TelevisionClassic" Width="20" Height="20" />
-                                            </Button>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
-
-                                <!-- update: check, open the release page, read the changelog -->
-                                <Border Style="{StaticResource CardBorder}">
-                                    <StackPanel>
-                                        <TextBlock Text="{DynamicResource Settings.Update}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource App.Text}" />
-                                        <TextBlock x:Name="UpdateCurrent" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,12"
-                                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
-                                        <WrapPanel>
-                                            <Button x:Name="CheckUpdateButton" Style="{StaticResource PillButton}" Margin="0,0,8,8"
-                                                    Click="OnCheckUpdate" Content="{DynamicResource Settings.Update.Check}" />
-                                            <Button Style="{StaticResource PillButtonOutline}" Margin="0,0,8,8"
-                                                    Click="OnOpenRelease" Content="{DynamicResource Settings.Update.Open}" />
-                                            <Button Style="{StaticResource PillButtonOutline}" Margin="0,0,0,8"
-                                                    Click="OnOpenChangelog" Content="{DynamicResource Settings.Update.Log}" />
-                                        </WrapPanel>
-                                    </StackPanel>
-                                </Border>
-
-                                <!-- keyboard shortcuts: the keys stay, the sales pitch goes -->
-                                <Border Style="{StaticResource CardBorder}">
-                                    <StackPanel>
-                                        <TextBlock Text="{DynamicResource Settings.Keys}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource App.Text}" />
-                                        <TextBlock Text="{DynamicResource Settings.Keys.List}" FontSize="{DynamicResource App.Font.Meta}" Margin="0,8,0,0"
-                                                   Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap"
-                                                   LineHeight="20" />
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </Grid>
+    <!-- update: check, open the release page, read the changelog -->
+    <Border Style="{StaticResource CardBorder}" Width="320" Margin="0,0,12,12">
+        <StackPanel>
+            <TextBlock Text="{DynamicResource Settings.Update}" FontSize="{DynamicResource App.Font.Title}" FontWeight="SemiBold"
+                       Foreground="{DynamicResource App.Text}" />
+            <TextBlock x:Name="UpdateCurrent" FontSize="{DynamicResource App.Font.Body}" Margin="0,6,0,12"
+                       Foreground="{DynamicResource App.TextSoft}" TextWrapping="Wrap" />
+            <WrapPanel>
+                <Button x:Name="CheckUpdateButton" Style="{StaticResource PillButton}" Margin="0,0,8,8"
+                        Click="OnCheckUpdate" Content="{DynamicResource Settings.Update.Check}" />
+                <Button Style="{StaticResource PillButtonOutline}" Margin="0,0,8,8"
+                        Click="OnOpenRelease" Content="{DynamicResource Settings.Update.Open}" />
+                <Button Style="{StaticResource PillButtonOutline}" Margin="0,0,0,8"
+                        Click="OnOpenChangelog" Content="{DynamicResource Settings.Update.Log}" />
+            </WrapPanel>
+        </StackPanel>
+    </Border>
+</WrapPanel>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>

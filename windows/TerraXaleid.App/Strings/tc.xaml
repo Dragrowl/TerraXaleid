@@ -36,8 +36,9 @@
     <sys:String x:Key="Settings.Language">語言</sys:String>
     <sys:String x:Key="Settings.Language.Hint">介面語言立即切換。</sys:String>
     <sys:String x:Key="Settings.About">關於</sys:String>
-    <sys:String x:Key="Settings.About.Body">版本 {0} · GPL-3.0-or-later&#10;三語言核心：Python / C# / Kotlin，讀取 .wld 後產生合法的 .map，不改動任何一個方塊。</sys:String>
-    <sys:String x:Key="Settings.About.Links">GitHub · 嗶哩嗶哩</sys:String>
+    <sys:String x:Key="Settings.About.Version">版本 {0}</sys:String>
+    <sys:String x:Key="Settings.About.Publisher">發佈者 Dragr0wl</sys:String>
+    <sys:String x:Key="Settings.About.License">GPL-3.0-or-later</sys:String>
     <sys:String x:Key="Win.Restore">還原</sys:String>
     <sys:String x:Key="Worlds.MoonLord">已擊敗月亮領主</sys:String>
     <sys:String x:Key="Worlds.HardMode">困難模式</sys:String>
@@ -47,36 +48,22 @@
     <sys:String x:Key="Chars.WithMap">已有點亮的地圖 · {0:F0} KB</sys:String>
     <sys:String x:Key="Chars.Written">已點亮 {0} 個角色</sys:String>
     <sys:String x:Key="Chars.WrittenFailed">已點亮 {0} 個，失敗 {1} 個</sys:String>
-    <sys:String x:Key="Settings.DarkVariant">深色變體</sys:String>
-    <sys:String x:Key="Settings.DarkVariant.Hint">僅在深色下生效。</sys:String>
-    <sys:String x:Key="Settings.DarkStandard">標準深色</sys:String>
-    <sys:String x:Key="Settings.DarkOled">OLED 全黑</sys:String>
+    <sys:String x:Key="Settings.Variant.Standard">標準深色</sys:String>
+    <sys:String x:Key="Settings.Variant.Oled">OLED 全黑</sys:String>
     <sys:String x:Key="Chars.Undo">復原本次</sys:String>
     <sys:String x:Key="Chars.Undone">已復原 {0} 份改動（地圖回到點亮前狀態）</sys:String>
     <sys:String x:Key="Backups.DeleteMap">刪除地圖（全黑）</sys:String>
     <sys:String x:Key="Backups.MapDeleted">已刪除 {0}，遊戲會重新產生全黑地圖</sys:String>
     <sys:String x:Key="Worlds.BatchPick">選取此世界（Ctrl+B 批次點亮）</sys:String>
     <sys:String x:Key="Worlds.BatchDone">已刷新 {0} 個世界、{1} 份地圖，失敗 {2}</sys:String>
-    <sys:String x:Key="Settings.About.Previews">主題縮圖由本程式自行算繪（--render-previews），不是截圖拼貼。</sys:String>
     <sys:String x:Key="Worlds.NoMatch">沒有符合的世界 · 換個關鍵字試試</sys:String>
     <sys:String x:Key="Chars.Selected">已選 {0} 個角色</sys:String>
     <sys:String x:Key="Worlds.BatchHint">批次點亮 {0} 個世界 · 按 Ctrl+B</sys:String>
     <sys:String x:Key="Worlds.NoMaps">無地圖</sys:String>
     <sys:String x:Key="Worlds.Maps">{0} 個角色</sys:String>
-    <sys:String x:Key="Settings.About.Changelog">更新日誌</sys:String>
     <sys:String x:Key="Worlds.Menu.Open">開啟並點亮…</sys:String>
     <sys:String x:Key="Worlds.Menu.Tick">加入 / 移出批次</sys:String>
     <sys:String x:Key="Worlds.Menu.Folder">在檔案總管中顯示</sys:String>
-    <sys:String x:Key="Settings.About.Keys">快速鍵：Ctrl+1 世界 · Ctrl+2 備份 · Ctrl+3 設定 · Ctrl+B 批次點亮 · 空白鍵勾選世界 · Enter 進入角色。</sys:String>
-    <sys:String x:Key="Settings.Keys">鍵盤快速鍵</sys:String>
-    <sys:String x:Key="Settings.Keys.Hint">所有操作都能只用鍵盤完成。</sys:String>
-    <sys:String x:Key="Settings.Keys.List">Ctrl+1 / 2 / 3　切換頁面
-Ctrl+B　批次點亮
-空白鍵　勾選世界
-Enter　進入角色
-F5　重新掃描
-右鍵世界卡　快速選單
-右鍵角色卡　復原本次</sys:String>
     <sys:String x:Key="Worlds.Match">符合 {0} / {1} 個世界</sys:String>
     <sys:String x:Key="Chars.Template">範本：角色「{0}」的地圖</sys:String>
     <sys:String x:Key="Chars.NoTemplate">目前沒有可用範本，將使用內建圖塊表。</sys:String>
